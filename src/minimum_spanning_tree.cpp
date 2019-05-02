@@ -43,6 +43,8 @@ namespace MishMesh {
 			DijkstraResult best_path;
 			best_path.length = numeric_limits<double>::infinity();
 			for(auto path: paths) {
+				if(!path.is_valid()) continue;
+				assert(path.vertices.size() > 0);
 				bool v1_in_graph = tree_vertices.find(path.vertices.front()) != tree_vertices.end();
 				bool v2_in_graph = tree_vertices.find(path.vertices.back()) != tree_vertices.end();
 				if(v1_in_graph != v2_in_graph && path.length < best_path.length) {
