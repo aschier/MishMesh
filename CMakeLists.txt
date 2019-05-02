@@ -14,9 +14,13 @@ add_library(MishMesh
 	include/MishMesh/OpenMesh/DoublePrecisionTraits.h
 	include/MishMesh/TriMesh.h
 	include/MishMesh/dijkstra.h
-	include/MishMesh/minimum_spanning_tree.h
 	src/dijkstra.cpp
+	include/MishMesh/minimum_spanning_tree.h
 	src/minimum_spanning_tree.cpp
+	include/MishMesh/search.h
+	src/search.cpp
+	include/MishMesh/split.h
+	src/split.cpp
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
 target_link_libraries(MishMesh PUBLIC
@@ -28,6 +32,15 @@ target_include_directories(MishMesh PUBLIC
 	${OPENMESH_INCLUDE_DIR}
 	${EIGEN3_INCLUDE_DIR}
 )
+
+# programs
+add_executable(split_connected_components
+	src/programs/split_connected_components.cpp
+	thirdparty/ProgramOptions.hxx
+)
+target_link_libraries(split_connected_components
+	MishMesh)
+set_target_properties(split_connected_components PROPERTIES FOLDER programs)
 
 # doxygen
 find_package(Doxygen)
