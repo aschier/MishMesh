@@ -12,6 +12,7 @@ find_package(Eigen3   3.3.7 REQUIRED)
 
 add_library(MishMesh
 	include/MishMesh/OpenMesh/DoublePrecisionTraits.h
+	include/MishMesh/TriMesh.h
 	include/MishMesh/dijkstra.h
 	include/MishMesh/minimum_spanning_tree.h
 	src/dijkstra.cpp
