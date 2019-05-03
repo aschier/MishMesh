@@ -54,7 +54,10 @@ namespace MishMesh {
 		set<TriMesh::VertexHandle> visited_vertices{start_vh};
 		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
 		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {
-			mesh.property(prop_edge_shortest_path_length, *h_it) = edge_cost_function(mesh, *h_it, edge_cost_param);
+			const auto vh2 = mesh.to_vertex_handle(*h_it);
+			double distance = edge_cost_function(mesh, *h_it, edge_cost_param);
+			mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
+			mesh.property(prop_vertex_shortest_path_length, vh2) = distance;
 			queue.push(PathEdge{&mesh, &prop_edge_shortest_path_length, *h_it});
 		}
 
@@ -66,12 +69,13 @@ namespace MishMesh {
 			if(visited_vertices.find(vh) != visited_vertices.end()) continue;
 			visited_vertices.insert(vh);
 
-			mesh.property(prop_vertex_shortest_path_length, vh) = mesh.property(prop_edge_shortest_path_length, heh) + edge_cost_function(mesh, heh, edge_cost_param);
-			// Iterate over all outgoin halfedges of the current vertex
+			// Iterate over all outgoing halfedges of the current vertex
 			for(auto h_it = mesh.cvoh_ccwbegin(vh); h_it != mesh.cvoh_ccwend(vh); h_it++) {
 				auto vh2 = mesh.to_vertex_handle(*h_it);
 				if(visited_vertices.find(vh2) != visited_vertices.end()) continue;
-				mesh.property(prop_edge_shortest_path_length, *h_it) = mesh.property(prop_edge_shortest_path_length, heh) + edge_cost_function(mesh, *h_it, edge_cost_param);
+				double distance = mesh.property(prop_edge_shortest_path_length, heh) + edge_cost_function(mesh, *h_it, edge_cost_param);
+				mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
+				mesh.property(prop_vertex_shortest_path_length, vh2) = distance;
 				if(vh2 == target_vh) {
 					// Empty the queue to stop the outer loop, then break the inner loop.
 					queue = {};
