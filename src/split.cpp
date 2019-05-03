@@ -58,7 +58,7 @@ std::vector<TriMesh> MishMesh::split_connected_components(const TriMesh &input_m
 		faces.insert(f);
 	}
 	while(!faces.empty()) {
-		auto component_faces = find_connected_faces(input_mesh, *faces.begin());
+		auto component_faces = get_connected_faces(input_mesh, *faces.begin());
 		for(auto &f : component_faces){
 			faces.erase(f);
 		}
