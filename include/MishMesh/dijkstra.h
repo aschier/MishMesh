@@ -38,6 +38,29 @@ namespace MishMesh {
 	};
 
 	/**
+	 * An edge on a path. PathEdges can be ordered by the length of the path up to this edge.
+	 * @param mesh The mesh the edge belongs to. Used for length calculations.
+	 * @param The property handle for the "shortest path" property on the mesh.
+	 * @param halfedge_handle The handle to the edge in the mesh.
+	 */
+	class PathEdge {
+	public:
+		TriMesh *mesh;
+		OpenMesh::HPropHandleT<double> *prop_edge_shortest_path_length;
+		TriMesh::HalfedgeHandle halfedge_handle;
+	};
+	/**
+	 * A comparator, that compares two PathEdges by the length of the path up to this edge.
+	 */
+	class GreaterPathlengh {
+	public:
+		bool operator()(const PathEdge &a, const PathEdge &b) const {
+			return a.mesh->property(*a.prop_edge_shortest_path_length, a.halfedge_handle) > b.mesh->property(*b.prop_edge_shortest_path_length, b.halfedge_handle);
+		}
+	};
+
+
+	/**
 	 * Calculate the euclidean distance between the two endpoints of the edge.
 	 */
 	inline double edge_length(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param) {
