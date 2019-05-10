@@ -21,6 +21,8 @@ add_library(MishMesh
 	src/search.cpp
 	include/MishMesh/split.h
 	src/split.cpp
+	include/MishMesh/visualization.h
+	src/visualization.cpp
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
 target_link_libraries(MishMesh PUBLIC
