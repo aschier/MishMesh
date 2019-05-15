@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.10)
 project(MishMesh)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
