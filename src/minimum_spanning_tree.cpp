@@ -88,6 +88,28 @@ namespace MishMesh {
 		return dijkstra_result;
 	}
 
+	priority_queue<PathEdge, vector<PathEdge>, GreaterPathlengh> initialize_search(MishMesh::TriMesh &mesh, const OpenMesh::ArrayKernel::VertexHandle &start_vh, double(*edge_cost_function)(MishMesh::TriMesh &mesh, OpenMesh::ArrayKernel::HalfedgeHandle edge, const void *param), void *edge_cost_param, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length, const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length) {
+
+		// Initialize distance properties
+		for(auto &v : mesh.vertices()) {
+			mesh.property(prop_vertex_shortest_path_length, v) = numeric_limits<double>::infinity();
+		}
+		for(auto &h : mesh.halfedges()) {
+			mesh.property(prop_edge_shortest_path_length, h) = numeric_limits<double>::infinity();
+		}
+		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
+
+		priority_queue<PathEdge, vector<PathEdge>, GreaterPathlengh> queue;
+		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {
+			const auto vh2 = mesh.to_vertex_handle(*h_it);
+			double distance = edge_cost_function(mesh, *h_it, edge_cost_param);
+			mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
+			mesh.property(prop_vertex_shortest_path_length, vh2) = distance;
+			queue.push(PathEdge{&mesh, &prop_edge_shortest_path_length, *h_it});
+		}
+		return queue;
+	}
+
 	MSTResult minimum_spanning_tree(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param) {
 		MSTResult result;
 		if(vertices.size() < 2){
@@ -102,29 +124,13 @@ namespace MishMesh {
 		mesh.add_property(prop_vertex_shortest_path_length);
 		mesh.add_property(prop_edge_shortest_path_length);
 
-		// Initialize distance properties
-		for(auto &v : mesh.vertices()) {
-			mesh.property(prop_vertex_shortest_path_length, v) = numeric_limits<double>::infinity();
-		}
-		for(auto &h : mesh.halfedges()) {
-			mesh.property(prop_edge_shortest_path_length, h) = numeric_limits<double>::infinity();
-		}
-
 		// Use the first vertex as start vertex
 		auto start_vh = *targetVertices.begin();
 		targetVertices.erase(start_vh);
 		set<TriMesh::VertexHandle> visited_vertices{start_vh};
-		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
 
 		// Initialize the queue with the edges reachable from the source vertex
-		priority_queue<PathEdge, vector<PathEdge>, GreaterPathlengh> queue;
-		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {
-			const auto vh2 = mesh.to_vertex_handle(*h_it);
-			double distance = edge_cost_function(mesh, *h_it, edge_cost_param);
-			mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
-			mesh.property(prop_vertex_shortest_path_length, vh2) = distance;
-			queue.push(PathEdge{&mesh, &prop_edge_shortest_path_length, *h_it});
-		}
+		priority_queue<PathEdge, vector<PathEdge>, GreaterPathlengh> queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
 
 		/*
 		   The edges of the current region store the distance to the closest source vertex.
@@ -189,9 +195,20 @@ namespace MishMesh {
 				}
 			} while(!queue.empty() && !found_target);
 
-			// Trace the path backwards from the new target vertex to the closest source vertex.
-			DijkstraResult dijkstra_result = trace_path(mesh, target_vh, prop_vertex_shortest_path_length, prop_edge_shortest_path_length);
-			result.paths.push_back(dijkstra_result);
+			if(found_target) {
+				// Trace the path backwards from the new target vertex to the closest source vertex.
+				DijkstraResult dijkstra_result = trace_path(mesh, target_vh, prop_vertex_shortest_path_length, prop_edge_shortest_path_length);
+				result.paths.push_back(dijkstra_result);
+			}
+
+			if(!found_target && !targetVertices.empty()) {
+				// No target vertex found in this component. Restart search at another targetVertex
+				start_vh = *targetVertices.begin();
+				targetVertices.erase(targetVertices.begin());
+				queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
+				visited_vertices = {start_vh};
+				continue;
+			}
 		}
 
 		mesh.remove_property(prop_vertex_shortest_path_length);
