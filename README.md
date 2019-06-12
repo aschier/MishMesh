@@ -7,7 +7,7 @@ Build
 -----
 Set CMake variables:
 - ``OPENMESH_LIBRARY_DIR``: The root folder of an OpenMesh installation.
-- ``EIGEN3_DIR``: The CMake directory of a installed libeigen, e.g. ``<EIGEN_PREFIX>/share/eigen3/cmake``.
+- ``Eigen3_DIR``: The CMake directory of a installed libeigen, e.g. ``<EIGEN_PREFIX>/share/eigen3/cmake``.
 
 Optional Dependencies
 ---------------------
