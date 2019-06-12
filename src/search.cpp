@@ -52,7 +52,7 @@ set<TriMesh::VertexHandle> MishMesh::get_connected_vertices(const TriMesh &input
  * @returns A vector of sets of VertexHandles for the vertices of the connected components in the mesh.
  * @note The function does not guarantee a consistent order of the different connected groups with regard to
  * other functions dealing with connected components. Split the mesh and use get_connected_vertices on each submesh
- * when you need to have an ordered list of submeshes.
+ * when you need an ordered list of submeshes.
  */
 std::vector<std::set<TriMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const TriMesh &input_mesh) {
 	std::vector<std::set<TriMesh::VertexHandle>> result;
