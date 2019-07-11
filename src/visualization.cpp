@@ -74,3 +74,24 @@ TriMesh MishMesh::vertex_mesh(const TriMesh &mesh, std::vector<TriMesh::VertexHa
 	}
 	return vertexMesh;
 }
+
+/**
+ * Colorize the mesh from black to red using a given vertex property. The colors will be scaled from minimum to maximum value.
+ * @param[inout] mesh The mesh.
+ * @param[in] vertexProperty The vertex property.
+ * @note You need to request_vertex_color before using this method.
+ */
+void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty) {
+	assert(mesh.has_vertex_colors());
+	double max_value = -numeric_limits<double>::infinity();
+	double min_value = numeric_limits<double>::infinity();
+	for(auto vh : mesh.vertices()) {
+		double value = mesh.property(vertexProperty, vh);
+		max_value = std::max(max_value, value);
+		min_value = std::min(min_value, value);
+	}
+	for(auto vh : mesh.vertices()) {
+		double value = mesh.property(vertexProperty, vh);
+		mesh.set_color(vh, {255 * value / (max_value - min_value), 0, 0});
+	}
+}
