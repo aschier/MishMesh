@@ -1,7 +1,6 @@
 #pragma once
 
 #include <set>
-#include <Eigen/Eigen>
 #include <MishMesh/dijkstra.h>
 
 namespace MishMesh {

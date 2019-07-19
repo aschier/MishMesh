@@ -9,7 +9,7 @@ set(CMAKE_DEBUG_POSTFIX "d")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(OpenMesh 8.0   REQUIRED)
-find_package(Eigen3   3.3.7 REQUIRED)
+#find_package(Eigen3   3.3.7 REQUIRED)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -45,7 +45,7 @@ target_include_directories(MishMesh PUBLIC
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	${OPENMESH_INCLUDE_DIR}
-	${EIGEN3_INCLUDE_DIR}
+	#${EIGEN3_INCLUDE_DIR}
 )
 
 # programs
