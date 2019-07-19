@@ -31,6 +31,10 @@ add_library(MishMesh
 	src/split.cpp
 	include/MishMesh/visualization.h
 	src/visualization.cpp
+	src/geodesics.cpp
+	include/MishMesh/geodesics.h
+	include/MishMesh/utils.h
+	src/utils.cpp
 	include/MishMesh/macros.h
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
@@ -52,6 +56,14 @@ add_executable(split_connected_components
 target_link_libraries(split_connected_components
 	MishMesh)
 set_target_properties(split_connected_components PROPERTIES FOLDER programs)
+
+add_executable(geodesic_distances
+	src/programs/geodesic_distances.cpp
+	thirdparty/ProgramOptions.hxx
+)
+target_link_libraries(geodesic_distances
+	MishMesh)
+set_target_properties(geodesic_distances PROPERTIES FOLDER programs)
 
 # doxygen
 find_package(Doxygen)
