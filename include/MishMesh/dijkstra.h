@@ -2,7 +2,6 @@
 
 #include <queue>
 #include <set>
-#include <Eigen/Eigen>
 
 #include <OpenMesh/Core/Mesh/TriMeshT.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
