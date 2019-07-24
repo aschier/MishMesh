@@ -50,7 +50,7 @@ pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double v2x, dou
 	assert(isfinite(A));
 	assert(isfinite(B));
 
-	if(A + B < INTERSECTION_EPS) {
+	if(A + B < INTERSECTION_EPS || abs(A-B) < INTERSECTION_EPS) {
 		A = B = 0.0;
 	}
 	if(B > A) {
