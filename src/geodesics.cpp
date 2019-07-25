@@ -19,7 +19,7 @@ class NoOverlap: public exception {};
  * @throws NoOverlap when there are no points with the given distances from the two vertices, i.e,
  *         the two circles with radius T1, T2 around the vertices have no intersection.
  */
-pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double edge_length, double T1, double T2) {
+pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::compute_projected_origins(double edge_length, double T1, double T2) {
 	OpenMesh::Vec2d o1;
 	double A = 2 * pow(T1, 2.0) * pow(edge_length, 2.0) - pow(edge_length, 4.0) + 2 * pow(T2, 2.0) * pow(edge_length, 2.0);
 	double B = pow(pow(T1, 2.0) - pow(T2, 2.0), 2.0);
@@ -49,7 +49,7 @@ pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double edge_len
  * @returns The geodesic distance of p to the origin.
  */
 template<int DIM>
-double compute_distance(const OpenMesh::VectorT<double, DIM> p, const OpenMesh::VectorT<double, DIM> p1, const OpenMesh::VectorT<double, DIM> p2, const double T1, const double T2) {
+double MishMesh::compute_distance(const OpenMesh::VectorT<double, DIM> p, const OpenMesh::VectorT<double, DIM> p1, const OpenMesh::VectorT<double, DIM> p2, const double T1, const double T2) {
 	auto points = embed_triangle(p1, p2, p);
 	double v2x = points[1][0];
 	auto v3 = points[2];
@@ -80,7 +80,7 @@ double compute_distance(const OpenMesh::VectorT<double, DIM> p, const OpenMesh::
  * @returns The geodesic distance of the vertex from the origin.
  * @note The distances from edge_vh1 and edge_vh2 must be already computed for this function to work.
  */
-double compute_distance(const TriMesh &mesh, const TriMesh::VertexHandle &vh3, const TriMesh::VertexHandle &edge_vh1, const TriMesh::VertexHandle &edge_vh2, const OpenMesh::VPropHandleT<double> &distProp) {
+double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHandle &vh3, const TriMesh::VertexHandle &edge_vh1, const TriMesh::VertexHandle &edge_vh2, const OpenMesh::VPropHandleT<double> &distProp) {
 	auto p1 = mesh.point(edge_vh1);
 	auto p2 = mesh.point(edge_vh2);
 	auto p = mesh.point(vh3);
