@@ -1,4 +1,4 @@
-#include <MishMesh/utils.h>
+#include "MishMesh/utils.h"
 #include <MishMesh/macros.h>
 
 using namespace std;
@@ -23,5 +23,45 @@ namespace MishMesh {
 			vhs[j++] = *v_it;
 		}
 		return vhs;
+	}
+
+	/**
+	 * Compute the triangle area from three points.
+	 * @param points The coordinates of the triangle vertices.
+	 * @tparam DIM The dimension of the ambiant space for 2D / 3D vectors.
+	 * @returns the area of the triangle.
+	 */
+	template<int DIM>
+	double compute_area(const array<OpenMesh::VectorT<double, DIM>, 3> points) {
+		double l01 = (points[1] - points[0]).norm();
+		double l12 = (points[2] - points[1]).norm();
+		double l20 = (points[0] - points[2]).norm();
+		double s = (l01 + l12 + l20) / 2.0;
+		return sqrt(s*(s - l01)*(s - l12)*(s - l20));
+	}
+
+	/**
+	 * Compute the triangle area from three vertex handles.
+	 * @param mesh The mesh.
+	 * @param vertices The triangle vertices.
+	 * @returns the area of the triangle.
+	 */
+	double compute_area(const TriMesh &mesh, const array<TriMesh::VertexHandle, 3> vertices) {
+		array<OpenMesh::Vec3d, 3> points;
+		short j = 0;
+		for(auto v : vertices){
+			points[j++] = mesh.point(v);
+		}
+		return compute_area(points);
+	}
+
+	/**
+	 * Compute the triangle area of a face.
+	 * @param mesh The mesh.
+	 * @param fh The face handle.
+	 * @returns the area of the triangle.
+	 */
+	double compute_area(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
+		return compute_area(mesh, face_vertices(mesh, fh));
 	}
 }
