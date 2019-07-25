@@ -36,6 +36,8 @@ add_library(MishMesh
 	include/MishMesh/utils.h
 	src/utils.cpp
 	include/MishMesh/macros.h
+	src/transformations.cpp
+	include/MishMesh/transformations.h
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
 target_link_libraries(MishMesh PUBLIC
