@@ -36,16 +36,16 @@ array<OpenMesh::Vec2d, 3> embed_triangle(OpenMesh::VectorT<double, DIM> p1, Open
  * Compute the two possible projected origin points for known distances from two points lying on the X-axis.
  * For symmetry reasons, there are two possible origins, that are (ox, oy) and (ox, -oy).
  *
- * @param v2x The distance between the two points.
+ * @param edge_length The distance between the two points.
  * @param T1 The distance of the first point from the origin.
  * @param T2 The distance of the second point from the origin.
  * @returns a pair with the two possible origin points.
  * @throws NoOverlap when there are no points with the given distances from the two vertices, i.e,
  *         the two circles with radius T1, T2 around the vertices have no intersection.
  */
-pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double v2x, double T1, double T2) {
+pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double edge_length, double T1, double T2) {
 	OpenMesh::Vec2d o1;
-	double A = 2 * pow(T1, 2.0) * pow(v2x, 2.0) - pow(v2x, 4.0) + 2 * pow(T2, 2.0) * pow(v2x, 2.0);
+	double A = 2 * pow(T1, 2.0) * pow(edge_length, 2.0) - pow(edge_length, 4.0) + 2 * pow(T2, 2.0) * pow(edge_length, 2.0);
 	double B = pow(pow(T1, 2.0) - pow(T2, 2.0), 2.0);
 	assert(isfinite(A));
 	assert(isfinite(B));
@@ -57,8 +57,8 @@ pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double v2x, dou
 		throw NoOverlap();
 	}
 
-	double ox = 0.5 * (pow(v2x, 2) + pow(T1, 2) - pow(T2, 2)) / v2x;
-	double oy = 0.5 * sqrt(A - B) / v2x;
+	double ox = 0.5 * (pow(edge_length, 2) + pow(T1, 2) - pow(T2, 2)) / edge_length;
+	double oy = 0.5 * sqrt(A - B) / edge_length;
 	return make_pair(OpenMesh::Vec2d{ox, oy}, OpenMesh::Vec2d{ox, -oy});
 }
 
