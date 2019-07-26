@@ -38,6 +38,8 @@ add_library(MishMesh
 	include/MishMesh/macros.h
 	src/transformations.cpp
 	include/MishMesh/transformations.h
+	src/smoothing.cpp
+	include/MishMesh/smoothing.h
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
 target_link_libraries(MishMesh PUBLIC
@@ -66,6 +68,15 @@ add_executable(geodesic_distances
 target_link_libraries(geodesic_distances
 	MishMesh)
 set_target_properties(geodesic_distances PROPERTIES FOLDER programs)
+
+add_executable(mesh_smoother
+	src/programs/mesh_smoother.cpp
+	thirdparty/ProgramOptions.hxx
+)
+target_link_libraries(mesh_smoother
+	MishMesh)
+
+set_target_properties(mesh_smoother PROPERTIES FOLDER programs)
 
 # doxygen
 find_package(Doxygen)
