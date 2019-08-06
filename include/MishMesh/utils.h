@@ -53,11 +53,14 @@ namespace MishMesh {
 		 * Check if a point is in a given bounding box.
 		 * @param point the point.
 		 * @param bbox The bounding box.
+		 * @param exact When exact is true, the point must be inside the bounding box,
+		 *        otherwise it must be inside a bounding box that is FLT_EPSILON in each direction.
 		 * @returns true, when the point is inside the bounding box and false otherwise.
 		 */
-		bool contains(const VectorT point) const {
+		bool contains(const VectorT point, bool exact = false) const {
+			double padding = exact ? 0 : FLT_EPSILON;
 			for(unsigned int j = 0; j < DIM; j++){
-				if(point[j] > rbn[j] || point[j] < ltf[j]){
+				if(point[j] > rbn[j] + padding || point[j] < ltf[j] - padding){
 					return false;
 				}
 			}
