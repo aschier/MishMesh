@@ -19,6 +19,13 @@ namespace MishMesh {
 	struct BBox {
 		VectorT ltf;
 		VectorT rbn;
+		BBox(){
+			for(short j = 0; j < 3; j++){
+				ltf[j] = 0.0;
+				rbn[j] = 0.0;
+			}
+		}
+		BBox(VectorT ltf, VectorT rbn): ltf(ltf), rbn(rbn) {};
 		/**
 		 * A BBox is valid, if all left-top(-far) values are smaller than the corresponding right-bottom(-near) values.
 		 * @returns true, when the bounding box is valid.
