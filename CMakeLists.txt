@@ -21,6 +21,7 @@ endif()
 add_library(MishMesh
 	include/MishMesh/OpenMesh/DoublePrecisionTraits.h
 	include/MishMesh/TriMesh.h
+	include/MishMesh/PolyMesh.h
 	include/MishMesh/dijkstra.h
 	src/dijkstra.cpp
 	include/MishMesh/minimum_spanning_tree.h
