@@ -146,13 +146,23 @@ TriMesh MishMesh::isosurface_grid_mesh(const int resolution[3], const double bbo
 	for(int i = 1; i < resolution[0] - 1; i++) {
 		for(int j = 1; j < resolution[1] - 1; j++) {
 			for(int k = 1; k < resolution[2] - 1; k++){
+				double v000 = point_values[grid_cell_index(resolution, i, j, k)];
+				if(!isfinite(v000)) {
+					continue;
+				}
+				double v001 = point_values[grid_cell_index(resolution, i, j, k+1)];
+				double v010 = point_values[grid_cell_index(resolution, i, j+1, k)];
+				double v100 = point_values[grid_cell_index(resolution, i+1, j, k)];
+				double v00_1 = point_values[grid_cell_index(resolution, i, j, k-1)];
+				double v0_10 = point_values[grid_cell_index(resolution, i, j-1, k)];
+				double v_100 = point_values[grid_cell_index(resolution, i-1, j, k)];
 				if(
-					point_values[grid_cell_index(resolution, i + 1, j, k)] * point_values[grid_cell_index(resolution, i, j, k)] <= 0 ||
-					point_values[grid_cell_index(resolution, i - 1, j, k)] * point_values[grid_cell_index(resolution, i, j, k)] <= 0 ||
-					point_values[grid_cell_index(resolution, i, j + 1, k)] * point_values[grid_cell_index(resolution, i, j, k)] <= 0 ||
-					point_values[grid_cell_index(resolution, i, j - 1, k)] * point_values[grid_cell_index(resolution, i, j, k)] <= 0 ||
-					point_values[grid_cell_index(resolution, i, j, k + 1)] * point_values[grid_cell_index(resolution, i, j, k)] <= 0 ||
-					point_values[grid_cell_index(resolution, i, j, k - 1)] * point_values[grid_cell_index(resolution, i, j, k)] <= 0
+					(isfinite(v001) && v001 * v000 <= 0) ||
+					(isfinite(v010) && v010 * v000 <= 0) ||
+					(isfinite(v100) && v100 * v000 <= 0) ||
+					(isfinite(v00_1) && v00_1 * v000 <= 0) ||
+					(isfinite(v0_10) && v0_10 * v000 <= 0) ||
+					(isfinite(v_100) && v_100 * v000 <= 0)
 					) {
 					OpenMesh::Vec3d p = OpenMesh::Vec3d{
 						bbox_ltf[0] + i * (bbox_rbn[0] - bbox_ltf[0]) / resolution[0],
