@@ -25,3 +25,5 @@ array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, DIM
 }
 
 
+template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 2> p1, OpenMesh::VectorT<double, 2> p2, OpenMesh::VectorT<double, 2> p3);
+template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 3> p1, OpenMesh::VectorT<double, 3> p2, OpenMesh::VectorT<double, 3> p3);
