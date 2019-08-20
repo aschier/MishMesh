@@ -41,6 +41,8 @@ add_library(MishMesh
 	include/MishMesh/transformations.h
 	src/smoothing.cpp
 	include/MishMesh/smoothing.h
+	src/simplification.cpp
+	include/MishMesh/simplification.h
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
 target_link_libraries(MishMesh PUBLIC
