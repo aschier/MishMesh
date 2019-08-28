@@ -20,7 +20,7 @@ namespace MishMesh {
 		VectorT ltf;
 		VectorT rbn;
 		BBox(){
-			for(short j = 0; j < 3; j++){
+			for(short j = 0; j < DIM; j++){
 				ltf[j] = 0.0;
 				rbn[j] = 0.0;
 			}
