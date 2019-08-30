@@ -35,7 +35,7 @@ TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle
 	return edgeMesh;
 }
 
-constexpr short cube_indices[6][4]{
+constexpr short box_indices[6][4]{
 	{0, 1, 3, 2},
 	{1, 0, 4, 5},
 	{0, 2, 6, 4},
@@ -43,6 +43,31 @@ constexpr short cube_indices[6][4]{
 	{3, 1, 5, 7},
 	{5, 4, 6, 7},
 };
+
+/**
+ * Add a given by a MishMesh::Bbox object box to a mesh.
+ * @param mesh The mesh.
+ * @param box The box.
+ */
+void MishMesh::add_box(TriMesh &mesh, BBox<OpenMesh::Vec3d, 3> box) {
+		array<TriMesh::VertexHandle, 8> vhs;
+		for(short j = 0; j < 8; j++) {
+			vhs[j] = mesh.add_vertex({
+				((j & 1) == 0 ? box.ltf[0] : box.rbn[0]),
+				((j >> 1 & 1) == 0 ? box.ltf[1] : box.rbn[1]),
+				((j >> 2 & 1) == 0 ? box.ltf[2] : box.rbn[2]),
+				});
+		}
+		for(short k = 0; k < 6; k++) {
+			vector<TriMesh::VertexHandle> face_vec{
+				vhs[box_indices[k][3]],
+				vhs[box_indices[k][2]],
+				vhs[box_indices[k][1]],
+				vhs[box_indices[k][0]]
+			};
+			mesh.add_face(face_vec);
+		}
+}
 
 /**
  * Create a mesh, that visualizes a set of vertices from an input mesh as boxes.
@@ -53,24 +78,12 @@ constexpr short cube_indices[6][4]{
 TriMesh MishMesh::vertex_mesh(const TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertex_handles, double size) {
 	TriMesh vertexMesh;
 	for(auto vh : vertex_handles) {
-		array<TriMesh::VertexHandle, 8> vhs;
-		for(short j = 0; j < 8; j++) {
-			auto p = mesh.point(vh);
-			vhs[j] = vertexMesh.add_vertex({
-				p[0] + ((j & 1) == 1 ? size : -size) / 2.0,
-				p[1] + ((j >> 1 & 1) == 1 ? size : -size) / 2.0,
-				p[2] + ((j >> 2 & 1) == 1 ? size : -size) / 2.0
-				});
-		}
-		for(short k = 0; k < 6; k++) {
-			vector<TriMesh::VertexHandle> face_vec{
-				vhs[cube_indices[k][3]],
-				vhs[cube_indices[k][2]],
-				vhs[cube_indices[k][1]],
-				vhs[cube_indices[k][0]]
-			};
-			auto fh = vertexMesh.add_face(face_vec);
-		}
+		auto p = mesh.point(vh);
+		BBox<OpenMesh::Vec3d, 3> cube {
+			p - OpenMesh::Vec3d{size, size, size},
+			p + OpenMesh::Vec3d{size, size, size},
+		};
+		add_box(vertexMesh, cube);
 	}
 	return vertexMesh;
 }

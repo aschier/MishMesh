@@ -81,6 +81,13 @@ target_link_libraries(mesh_smoother
 
 set_target_properties(mesh_smoother PROPERTIES FOLDER programs)
 
+add_executable(grid
+	src/programs/grid.cpp
+)
+target_link_libraries(grid
+	MishMesh)
+set_target_properties(grid PROPERTIES FOLDER programs)
+
 # doxygen
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
