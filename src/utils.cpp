@@ -64,4 +64,7 @@ namespace MishMesh {
 	double compute_area(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
 		return compute_area(mesh, face_vertices(mesh, fh));
 	}
+
+	template double compute_area(const std::array<OpenMesh::VectorT<double, 2>, 3> points);
+	template double compute_area(const std::array<OpenMesh::VectorT<double, 3>, 3> points);
 }

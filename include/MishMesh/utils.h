@@ -82,7 +82,4 @@ namespace MishMesh {
 			return point;
 		}
 	};
-
-	template double compute_area(const std::array<OpenMesh::VectorT<double, 2>, 3> points);
-	template double compute_area(const std::array<OpenMesh::VectorT<double, 3>, 3> points);
 }
