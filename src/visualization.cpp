@@ -1,4 +1,5 @@
 #include <MishMesh/visualization.h>
+#include <MishMesh/PolyMesh.h>
 #include <array>
 
 using namespace MishMesh;
@@ -48,9 +49,13 @@ constexpr short box_indices[6][4]{
  * Add a given by a MishMesh::Bbox object box to a mesh.
  * @param mesh The mesh.
  * @param box The box.
+ * @tparam MeshT the type of the mesh, e.g. MishMesh::TriMesh or MishMesh::PolyMesh.
+ *         The faces are added as quads, but types like MishMesh::TriMesh triangulate them
+ *         automatically.
  */
-void MishMesh::add_box(TriMesh &mesh, BBox<OpenMesh::Vec3d, 3> box) {
-		array<TriMesh::VertexHandle, 8> vhs;
+template<typename MeshT>
+void MishMesh::add_box(MeshT &mesh, const BBox<OpenMesh::Vec3d, 3> box) {
+		array<MeshT::VertexHandle, 8> vhs;
 		for(short j = 0; j < 8; j++) {
 			vhs[j] = mesh.add_vertex({
 				((j & 1) == 0 ? box.ltf[0] : box.rbn[0]),
@@ -59,7 +64,7 @@ void MishMesh::add_box(TriMesh &mesh, BBox<OpenMesh::Vec3d, 3> box) {
 				});
 		}
 		for(short k = 0; k < 6; k++) {
-			vector<TriMesh::VertexHandle> face_vec{
+			vector<MeshT::VertexHandle> face_vec{
 				vhs[box_indices[k][3]],
 				vhs[box_indices[k][2]],
 				vhs[box_indices[k][1]],
@@ -191,3 +196,6 @@ TriMesh MishMesh::isosurface_grid_mesh(const int resolution[3], const double bbo
 	}
 	return MishMesh::vertex_mesh(point_mesh, vertices, point_size);
 }
+
+template void MishMesh::add_box(MishMesh::TriMesh &mesh, const BBox<OpenMesh::Vec3d, 3> box);
+template void MishMesh::add_box(MishMesh::PolyMesh &mesh, const BBox<OpenMesh::Vec3d, 3> box);
