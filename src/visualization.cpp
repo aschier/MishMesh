@@ -1,5 +1,7 @@
-#include <MishMesh/visualization.h>
+#include "MishMesh/visualization.h"
 #include <MishMesh/PolyMesh.h>
+#include <MishMesh/utils.h>
+
 #include <array>
 
 using namespace MishMesh;
@@ -117,12 +119,11 @@ void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandl
 /**
  * Generate a regular grid of a bounding box defined by its top-left-far and right-bottom-near vertices.
  * @param resolution The number of grid points in each dimension.
- * @param bbox_ltf The left-top-far vertex of the bounding box.
- * @param bbox_rbn The right-bottom-near vertex of the bounding box.
+ * @param bbox The bounding box.
  * @param point_size The size of a cube at a grid point. Use 0 to use 1/10 of the width of a grid cell.
  * @returns A vertex mesh with cubes at the grid points.
  */
-TriMesh MishMesh::grid_mesh(const int resolution[3], const double bbox_ltf[3], const double bbox_rbn[3], double point_size) {
+TriMesh MishMesh::grid_mesh(const int resolution[3], const BBox<OpenMesh::Vec3d, 3> bbox, double point_size) {
 	MishMesh::TriMesh point_mesh;
 	vector<MishMesh::TriMesh::VertexHandle> vertices;
 	vertices.reserve(resolution[0] * resolution[1] * resolution[2]);
@@ -130,16 +131,16 @@ TriMesh MishMesh::grid_mesh(const int resolution[3], const double bbox_ltf[3], c
 		for(int j = 0; j < resolution[1]; j++) {
 			for(int k = 0; k < resolution[2]; k++){
 				OpenMesh::Vec3d point{
-					bbox_ltf[0] + (bbox_rbn[0] - bbox_ltf[0]) / resolution[0] * i,
-					bbox_ltf[1] + (bbox_rbn[1] - bbox_ltf[1]) / resolution[0] * j,
-					bbox_ltf[2] + (bbox_rbn[2] - bbox_ltf[2]) / resolution[0] * k,
+					bbox.ltf[0] + (bbox.rbn[0] - bbox.ltf[0]) / resolution[0] * i,
+					bbox.ltf[1] + (bbox.rbn[1] - bbox.ltf[1]) / resolution[0] * j,
+					bbox.ltf[2] + (bbox.rbn[2] - bbox.ltf[2]) / resolution[0] * k,
 				};
 				vertices.push_back(point_mesh.add_vertex(point));
 			}
 		}
 	}
 	if(point_size == 0){
-		point_size = abs(bbox_rbn[0] - bbox_ltf[0]) / resolution[0] / 10.0;
+		point_size = abs(bbox.rbn[0] - bbox.ltf[0]) / resolution[0] / 10.0;
 	}
 	return MishMesh::vertex_mesh(point_mesh, vertices, point_size);
 }
@@ -152,13 +153,12 @@ inline int grid_cell_index(const int resolution[3], const int i, const int j, co
  * Visualize the grid near a isosurface of a signed distance function, by generating a regular grid and only
  * showing the vertices that have at least one neighbor for which the function value the opposite sign.
  * @param resolution The number of grid points in each dimension.
- * @param bbox_ltf The left-top-far vertex of the bounding box.
- * @param bbox_rbn The right-bottom-near vertex of the bounding box.
+ * @param bbox The bounding box.
  * @param point_values The function values on the grid vertices, using the index format x + y*resolution[0] + z*resolution[0]*resolution[1].
  * @param point_size The size of a cube at a grid point. Use 0 to use 1/10 of the width of a grid cell.
  * @returns A vertex mesh with cubes at the grid points.
  */
-TriMesh MishMesh::isosurface_grid_mesh(const int resolution[3], const double bbox_ltf[3], const double bbox_rbn[3], std::vector<double> &point_values, double point_size) {
+TriMesh MishMesh::isosurface_grid_mesh(const int resolution[3], const BBox<OpenMesh::Vec3d, 3> bbox, std::vector<double> &point_values, double point_size) {
 	MishMesh::TriMesh point_mesh;
 	vector<MishMesh::TriMesh::VertexHandle> vertices;
 	for(int i = 1; i < resolution[0] - 1; i++) {
@@ -183,16 +183,16 @@ TriMesh MishMesh::isosurface_grid_mesh(const int resolution[3], const double bbo
 					(isfinite(v_100) && v_100 * v000 <= 0)
 					) {
 					OpenMesh::Vec3d p = OpenMesh::Vec3d{
-						bbox_ltf[0] + i * (bbox_rbn[0] - bbox_ltf[0]) / resolution[0],
-						bbox_ltf[1] + j * (bbox_rbn[1] - bbox_ltf[1]) / resolution[1],
-						bbox_ltf[2] + k * (bbox_rbn[2] - bbox_ltf[2]) / resolution[2]};
+						bbox.ltf[0] + i * (bbox.rbn[0] - bbox.ltf[0]) / resolution[0],
+						bbox.ltf[1] + j * (bbox.rbn[1] - bbox.ltf[1]) / resolution[1],
+						bbox.ltf[2] + k * (bbox.rbn[2] - bbox.ltf[2]) / resolution[2]};
 					vertices.push_back(point_mesh.add_vertex(p));
 				}
 			}
 		}
 	}
 	if(point_size == 0){
-		point_size = abs(bbox_rbn[0] - bbox_ltf[0]) / resolution[0] / 10.0;
+		point_size = abs(bbox.rbn[0] - bbox.ltf[0]) / resolution[0] / 10.0;
 	}
 	return MishMesh::vertex_mesh(point_mesh, vertices, point_size);
 }
