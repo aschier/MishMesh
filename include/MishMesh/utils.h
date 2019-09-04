@@ -25,6 +25,31 @@ namespace MishMesh {
 				rbn[j] = 0.0;
 			}
 		}
+
+		/**
+		 * Create a BBox with all coordinates 0.
+		 */
+		static BBox zero() {
+			BBox bbox;
+			for(short j = 0; j < DIM; j++){
+				bbox.ltf[j] = 0.0;
+				bbox.rbn[j] = 0.0;
+			}
+			return bbox;
+		}
+
+		/**
+		 * Create a BBox between -infinity and +infinity in all dimensions.
+		 */
+		static BBox infinity() {
+			BBox bbox;
+			for(short j = 0; j < DIM; j++){
+				bbox.ltf[j] = std::numeric_limits<double>::infinity();
+				bbox.rbn[j] = -std::numeric_limits<double>::infinity();
+			}
+			return bbox;
+		}
+
 		BBox(VectorT ltf, VectorT rbn): ltf(ltf), rbn(rbn) {};
 		/**
 		 * A BBox is valid, if all left-top(-far) values are smaller than the corresponding right-bottom(-near) values.
@@ -82,4 +107,27 @@ namespace MishMesh {
 			return point;
 		}
 	};
+
+	/**
+	 * Calculate the axis aligned bounding box of a mesh.
+	 * @param mesh The mesh.
+	 * @tparam MeshT The mesh type.
+	 * @tparam A bbox type with a vector that has 3 components.
+	 */
+	template<typename MeshT, typename BBoxT = MishMesh::BBox<OpenMesh::Vec3d, 3>>
+	BBoxT bounding_box(const MeshT &mesh) {
+		BBoxT result;
+		for(short j = 0; j < 3; j++) {
+			result.ltf[j] = numeric_limits<double>::infinity();
+			result.rbn[j] = -numeric_limits<double>::infinity();
+		}
+		for(auto vh : mesh.vertices()) {
+			auto &p = mesh.point(vh);
+			for(short j = 0; j < 3; j++) {
+				result.ltf[j] = std::min(result.ltf[j], p[j]);
+				result.rbn[j] = std::max(result.rbn[j], p[j]);
+			}
+		}
+		return result;
+	}
 }
