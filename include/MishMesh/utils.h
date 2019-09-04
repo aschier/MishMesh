@@ -106,6 +106,14 @@ namespace MishMesh {
 			}
 			return point;
 		}
+
+		double diameter() const {
+			double result = 0.0;
+			for(short j = 0; j < DIM; j++) {
+				result += (rbn[j] - ltf[j])*(rbn[j] - ltf[j]);
+			}
+			return sqrt(result);
+		}
 	};
 
 	/**
