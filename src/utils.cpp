@@ -1,6 +1,8 @@
 #include "MishMesh/utils.h"
 #include <MishMesh/macros.h>
 
+#include <MishMesh/TriMesh.h>
+
 using namespace std;
 
 namespace MishMesh {
