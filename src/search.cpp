@@ -1,4 +1,9 @@
 #include "MishMesh/search.h"
+
+#include <MishMesh/macros.h>
+#include <MishMesh/TriMesh.h>
+#include <MishMesh/PolyMesh.h>
+
 #include <deque>
 
 using namespace std;
@@ -6,17 +11,18 @@ using namespace MishMesh;
 
 /**
  * Find faces connected to the given face using a breadth-first search.
- * @param input_mesh The mesh.
+ * @param mesh The mesh.
  * @param start_face The start face.
  * @returns A set of all faces reachable from the input face and the input face itself.
  */
-set<TriMesh::FaceHandle> MishMesh::get_connected_faces(const TriMesh &input_mesh, const TriMesh::FaceHandle start_face){
-	set<TriMesh::FaceHandle> faces{start_face};
-	list<TriMesh::FaceHandle> queue{start_face};
+template<typename MeshT>
+set<typename MeshT::FaceHandle> MishMesh::get_connected_faces(const MeshT &mesh, const typename MeshT::FaceHandle start_face){
+	set<MeshT::FaceHandle> faces{start_face};
+	deque<MeshT::FaceHandle> queue{start_face};
 	while(!queue.empty()){
-		auto face = queue.front();
+		auto fh = queue.front();
 		queue.pop_front();
-		for(auto f_it = input_mesh.cff_begin(face); f_it != input_mesh.cff_end(face); f_it++){
+		FOR_CFF(f_it, fh) {
 			if(faces.find(*f_it) != faces.end()) continue;
 			faces.insert(*f_it);
 			queue.push_back(*f_it);
@@ -27,17 +33,18 @@ set<TriMesh::FaceHandle> MishMesh::get_connected_faces(const TriMesh &input_mesh
 
 /**
  * Find vertices connected to the given vertex using a breadth-first search.
- * @param input_mesh The mesh.
+ * @param mesh The mesh.
  * @param start_vertex The start vertex.
  * @returns A set of all faces reachable from the input vertex and the input vertex itself.
  */
-set<TriMesh::VertexHandle> MishMesh::get_connected_vertices(const TriMesh &input_mesh, const TriMesh::VertexHandle start_vertex){
-	set<TriMesh::VertexHandle> vertices{start_vertex};
-	deque<TriMesh::VertexHandle> queue{start_vertex};
+template<typename MeshT>
+set<typename MeshT::VertexHandle> MishMesh::get_connected_vertices(const MeshT &mesh, const typename MeshT::VertexHandle start_vertex){
+	set<MeshT::VertexHandle> vertices{start_vertex};
+	deque<MeshT::VertexHandle> queue{start_vertex};
 	while(!queue.empty()){
-		auto vertex = queue.front();
+		auto vh = queue.front();
 		queue.pop_front();
-		for(auto v_it = input_mesh.cvv_begin(vertex); v_it != input_mesh.cvv_end(vertex); v_it++){
+		FOR_CVV(v_it, vh) {
 			if(vertices.find(*v_it) != vertices.end()) continue;
 			vertices.insert(*v_it);
 			queue.push_back(*v_it);
@@ -48,21 +55,22 @@ set<TriMesh::VertexHandle> MishMesh::get_connected_vertices(const TriMesh &input
 
 /**
  * Get the vertices of each connected component in the mesh.
- * @param input_mesh The mesh.
+ * @param mesh The mesh.
  * @returns A vector of sets of VertexHandles for the vertices of the connected components in the mesh.
  * @note The function does not guarantee a consistent order of the different connected groups with regard to
  * other functions dealing with connected components. Split the mesh and use get_connected_vertices on each submesh
  * when you need an ordered list of submeshes.
  */
-std::vector<std::set<TriMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const TriMesh &input_mesh) {
-	std::vector<std::set<TriMesh::VertexHandle>> result;
-	set<TriMesh::VertexHandle> vertices;
-	for(auto v : input_mesh.vertices()) {
+template<typename MeshT>
+std::vector<std::set<typename MeshT::VertexHandle>> MishMesh::get_connected_components_vertices(const MeshT &mesh) {
+	std::vector<std::set<MeshT::VertexHandle>> result;
+	set<MeshT::VertexHandle> vertices;
+	for(auto v : mesh.vertices()) {
 		vertices.insert(v);
 	}
 	while(!vertices.empty()) {
 		const auto start_vertex = *vertices.begin();
-		const auto component_vertices = get_connected_vertices(input_mesh, start_vertex);
+		const auto component_vertices = get_connected_vertices(mesh, start_vertex);
 		result.push_back(component_vertices);
 		for(auto &vh : component_vertices) {
 			vertices.erase(vh);
@@ -70,3 +78,10 @@ std::vector<std::set<TriMesh::VertexHandle>> MishMesh::get_connected_components_
 	}
 	return result;
 }
+
+template set<typename TriMesh::FaceHandle> MishMesh::get_connected_faces(const TriMesh &mesh, const TriMesh::FaceHandle start_face);
+template set<PolyMesh::FaceHandle> MishMesh::get_connected_faces(const PolyMesh &mesh, const PolyMesh::FaceHandle start_face);
+template set<TriMesh::VertexHandle> MishMesh::get_connected_vertices(const TriMesh &mesh, const TriMesh::VertexHandle start_vertex);
+template set<PolyMesh::VertexHandle> MishMesh::get_connected_vertices(const PolyMesh &mesh, const PolyMesh::VertexHandle start_vertex);
+template std::vector<std::set<TriMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const TriMesh &mesh);
+template std::vector<std::set<PolyMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const PolyMesh &mesh);

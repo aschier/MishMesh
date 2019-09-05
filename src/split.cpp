@@ -1,6 +1,9 @@
 #include "MishMesh/split.h"
 
 #include <MishMesh/search.h>
+#include <MishMesh/TriMesh.h>
+#include <MishMesh/PolyMesh.h>
+#include <MishMesh/macros.h>
 
 using namespace std;
 using namespace MishMesh;
@@ -10,34 +13,33 @@ using namespace MishMesh;
  * @param input_mesh The original mesh.
  * @param face_set A set of faces that should be included in the new mesh.
  * @param add_original_index_property When set to true, a property "orig_index" is added to the vertices and faces of the mesh.
- * @returns A TriMesh containing only the subset of the faces.
+ * @returns A MeshT mesh containing only the subset of the faces.
  * @note The method retains the connectivity of the original mesh,
  * but does not transfer any OpenMesh properties or other attributes.
  */
-TriMesh MishMesh::build_submesh(const TriMesh &input_mesh, const set<TriMesh::FaceHandle> &face_set, bool add_original_index_property) {
-	TriMesh submesh;
+template<typename MeshT>
+MeshT MishMesh::build_submesh(const MeshT &mesh, const set<typename MeshT::FaceHandle> &face_set, bool add_original_index_property) {
+	MeshT submesh;
 	OpenMesh::FPropHandleT<int> prop_orig_face_idx;
 	OpenMesh::VPropHandleT<int> prop_orig_vertex_idx;
 	if(add_original_index_property) {
 		submesh.add_property(prop_orig_face_idx, "orig_index");
 		submesh.add_property(prop_orig_vertex_idx, "orig_index");
 	}
-	map<TriMesh::VertexHandle, TriMesh::VertexHandle> vertex_map;
+	map<MeshT::VertexHandle, MeshT::VertexHandle> vertex_map;
 	for(auto &fh: face_set) {
-		array<TriMesh::VertexHandle, 3> vhs;
-		short i = 0;
-		for(auto v_it = input_mesh.cfv_ccwbegin(fh); v_it != input_mesh.cfv_ccwend(fh); v_it++) {
-			assert(i < 3);
+		vector<MeshT::VertexHandle> vhs;
+		FOR_CFV(v_it, fh) {
 			if(vertex_map.find(*v_it) == vertex_map.end()) {
-				const auto vh = submesh.add_vertex(input_mesh.point(*v_it));
+				const auto vh = submesh.add_vertex(mesh.point(*v_it));
 				vertex_map[*v_it] = vh;
 				if(add_original_index_property) {
 					submesh.property(prop_orig_vertex_idx, vh) = v_it->idx();
 				}
 			}
-			vhs[i++] = vertex_map[*v_it];
+			vhs.push_back(vertex_map[*v_it]);
 		}
-		const auto new_fh = submesh.add_face(vhs.data(), 3);
+		const auto new_fh = submesh.add_face(vhs);
 		if(add_original_index_property) {
 			submesh.property(prop_orig_face_idx, new_fh) = fh.idx();
 		}
@@ -51,9 +53,10 @@ TriMesh MishMesh::build_submesh(const TriMesh &input_mesh, const set<TriMesh::Fa
  * @param add_original_index_property When set to true, a property "orig_index" is added to the vertices and faces of the mesh.
  * @returns A vector with one mesh per connected component.
  */
-std::vector<TriMesh> MishMesh::split_connected_components(const TriMesh &input_mesh, bool add_original_index_property) {
-	vector<TriMesh> result_meshes;
-	set<TriMesh::FaceHandle> faces;
+template<typename MeshT>
+std::vector<MeshT> MishMesh::split_connected_components(const MeshT &input_mesh, bool add_original_index_property) {
+	vector<MeshT> result_meshes;
+	set<MeshT::FaceHandle> faces;
 	for(auto f : input_mesh.faces()) {
 		faces.insert(f);
 	}
@@ -62,9 +65,15 @@ std::vector<TriMesh> MishMesh::split_connected_components(const TriMesh &input_m
 		for(auto &f : component_faces){
 			faces.erase(f);
 		}
-		TriMesh component_mesh;
+		MeshT component_mesh;
 		component_mesh = build_submesh(input_mesh, component_faces, add_original_index_property);
 		result_meshes.push_back(component_mesh);
 	}
 	return result_meshes;
 }
+
+template std::vector<MishMesh::TriMesh> MishMesh::split_connected_components(const MishMesh::TriMesh &input_mesh, bool add_original_index_property);
+template std::vector<MishMesh::PolyMesh> MishMesh::split_connected_components(const MishMesh::PolyMesh &input_mesh, bool add_original_index_property);
+
+template MishMesh::TriMesh MishMesh::build_submesh(const MishMesh::TriMesh &input_mesh, const set<typename MishMesh::TriMesh::FaceHandle> &face_set, bool add_original_index_property);
+template MishMesh::PolyMesh MishMesh::build_submesh(const MishMesh::PolyMesh &input_mesh, const set<typename MishMesh::PolyMesh::FaceHandle> &face_set, bool add_original_index_property);
