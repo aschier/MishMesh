@@ -57,7 +57,7 @@ constexpr short box_indices[6][4]{
  */
 template<typename MeshT>
 void MishMesh::add_box(MeshT &mesh, const BBox<OpenMesh::Vec3d, 3> box) {
-		array<MeshT::VertexHandle, 8> vhs;
+		array<typename MeshT::VertexHandle, 8> vhs;
 		for(short j = 0; j < 8; j++) {
 			vhs[j] = mesh.add_vertex({
 				((j & 1) == 0 ? box.ltf[0] : box.rbn[0]),
@@ -66,7 +66,7 @@ void MishMesh::add_box(MeshT &mesh, const BBox<OpenMesh::Vec3d, 3> box) {
 				});
 		}
 		for(short k = 0; k < 6; k++) {
-			vector<MeshT::VertexHandle> face_vec{
+			vector<typename MeshT::VertexHandle> face_vec{
 				vhs[box_indices[k][3]],
 				vhs[box_indices[k][2]],
 				vhs[box_indices[k][1]],

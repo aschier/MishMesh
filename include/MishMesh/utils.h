@@ -1,6 +1,7 @@
 #pragma once
 #include <MishMesh/TriMesh.h>
 #include <array>
+#include <limits>
 
 namespace MishMesh {
 	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, TriMesh::VertexHandle &vh);
@@ -126,8 +127,8 @@ namespace MishMesh {
 	BBoxT bounding_box(const MeshT &mesh) {
 		BBoxT result;
 		for(short j = 0; j < 3; j++) {
-			result.ltf[j] = numeric_limits<double>::infinity();
-			result.rbn[j] = -numeric_limits<double>::infinity();
+			result.ltf[j] = std::numeric_limits<double>::infinity();
+			result.rbn[j] = -std::numeric_limits<double>::infinity();
 		}
 		for(auto vh : mesh.vertices()) {
 			auto &p = mesh.point(vh);

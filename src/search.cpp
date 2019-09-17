@@ -17,8 +17,8 @@ using namespace MishMesh;
  */
 template<typename MeshT>
 set<typename MeshT::FaceHandle> MishMesh::get_connected_faces(const MeshT &mesh, const typename MeshT::FaceHandle start_face){
-	set<MeshT::FaceHandle> faces{start_face};
-	deque<MeshT::FaceHandle> queue{start_face};
+	set<typename MeshT::FaceHandle> faces{start_face};
+	deque<typename MeshT::FaceHandle> queue{start_face};
 	while(!queue.empty()){
 		auto fh = queue.front();
 		queue.pop_front();
@@ -39,8 +39,8 @@ set<typename MeshT::FaceHandle> MishMesh::get_connected_faces(const MeshT &mesh,
  */
 template<typename MeshT>
 set<typename MeshT::VertexHandle> MishMesh::get_connected_vertices(const MeshT &mesh, const typename MeshT::VertexHandle start_vertex){
-	set<MeshT::VertexHandle> vertices{start_vertex};
-	deque<MeshT::VertexHandle> queue{start_vertex};
+	set<typename MeshT::VertexHandle> vertices{start_vertex};
+	deque<typename MeshT::VertexHandle> queue{start_vertex};
 	while(!queue.empty()){
 		auto vh = queue.front();
 		queue.pop_front();
@@ -63,8 +63,8 @@ set<typename MeshT::VertexHandle> MishMesh::get_connected_vertices(const MeshT &
  */
 template<typename MeshT>
 std::vector<std::set<typename MeshT::VertexHandle>> MishMesh::get_connected_components_vertices(const MeshT &mesh) {
-	std::vector<std::set<MeshT::VertexHandle>> result;
-	set<MeshT::VertexHandle> vertices;
+	std::vector<std::set<typename MeshT::VertexHandle>> result;
+	set<typename MeshT::VertexHandle> vertices;
 	for(auto v : mesh.vertices()) {
 		vertices.insert(v);
 	}

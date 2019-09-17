@@ -26,9 +26,9 @@ MeshT MishMesh::build_submesh(const MeshT &mesh, const set<typename MeshT::FaceH
 		submesh.add_property(prop_orig_face_idx, "orig_index");
 		submesh.add_property(prop_orig_vertex_idx, "orig_index");
 	}
-	map<MeshT::VertexHandle, MeshT::VertexHandle> vertex_map;
+	map<typename MeshT::VertexHandle, typename MeshT::VertexHandle> vertex_map;
 	for(auto &fh: face_set) {
-		vector<MeshT::VertexHandle> vhs;
+		vector<typename MeshT::VertexHandle> vhs;
 		FOR_CFV(v_it, fh) {
 			if(vertex_map.find(*v_it) == vertex_map.end()) {
 				const auto vh = submesh.add_vertex(mesh.point(*v_it));
@@ -56,7 +56,7 @@ MeshT MishMesh::build_submesh(const MeshT &mesh, const set<typename MeshT::FaceH
 template<typename MeshT>
 std::vector<MeshT> MishMesh::split_connected_components(const MeshT &input_mesh, bool add_original_index_property) {
 	vector<MeshT> result_meshes;
-	set<MeshT::FaceHandle> faces;
+	set<typename MeshT::FaceHandle> faces;
 	for(auto f : input_mesh.faces()) {
 		faces.insert(f);
 	}
