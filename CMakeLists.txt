@@ -45,6 +45,10 @@ add_library(MishMesh
 	include/MishMesh/simplification.h
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
+option(OM_STATIC_BUILD "Turn on when using a static OpenMesh libary" ON)
+if(${OM_STATIC_BUILD})
+    target_compile_definitions(MishMesh PUBLIC -DOM_STATIC_BUILD)
+endif()
 target_link_libraries(MishMesh PUBLIC
 	${OPENMESH_LIBRARIES}
 )
