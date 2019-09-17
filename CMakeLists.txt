@@ -111,6 +111,7 @@ endif(DOXYGEN_FOUND)
 
 configure_package_config_file(MishMeshConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
 install(TARGETS MishMesh EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(EXPORT MishMesh-targets FILE MishMeshTargets.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
