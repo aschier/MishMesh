@@ -101,13 +101,17 @@ namespace MishMesh {
 		/**
 		 * Clip a point to a bounding box.
 		 * @param point The point.
+		 * @param epsilon A distance epsilon for the test if the point lies inside the bounding box.
+		 *                The point is not clipped in the j-th dimension, when its distance to the box is
+		 *                less than epsilon * (rbn[j] - ltf[j]).
 		 * @returns The point, if it is inside the bounding box or a clipped point, when the point was outside the box.
 		 */
-		VectorT clip(VectorT point) const {
+		VectorT clip(VectorT point, double epsilon = FLT_EPSILON) const {
 			for(unsigned int j = 0; j < DIM; j++){
-				if(point[j] > rbn[j]){
+				double side_length = (rbn[j] - ltf[j]);
+				if(point[j] > rbn[j] + epsilon * side_length){
 					point[j] = rbn[j];
-				} else if(point[j] < ltf[j]){
+				} else if(point[j] < ltf[j] - epsilon * side_length){
 					point[j] = ltf[j];
 				}
 			}
