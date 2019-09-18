@@ -11,12 +11,15 @@ namespace MishMesh {
 	struct BBox {
 		VectorT ltf;
 		VectorT rbn;
+
 		BBox(){
 			for(short j = 0; j < DIM; j++){
 				ltf[j] = 0.0;
 				rbn[j] = 0.0;
 			}
 		}
+
+		BBox(VectorT ltf, VectorT rbn): ltf(ltf), rbn(rbn) {};
 
 		/**
 		 * Create a BBox with all coordinates 0.
@@ -42,7 +45,19 @@ namespace MishMesh {
 			return bbox;
 		}
 
-		BBox(VectorT ltf, VectorT rbn): ltf(ltf), rbn(rbn) {};
+		/**
+		 * Create an invalid BBox.
+		 * The BBox has ltf coordinates at infinity and rbn coordinates at -infinity, what makes it invalid.
+		 */
+		static BBox invalid() {
+			BBox bbox;
+			for(short j = 0; j < DIM; j++){
+				bbox.ltf[j] = std::numeric_limits<double>::infinity();
+				bbox.rbn[j] = -std::numeric_limits<double>::infinity();
+			}
+			return bbox;
+		}
+
 		/**
 		 * A BBox is valid, if all left-top(-far) values are smaller than the corresponding right-bottom(-near) values.
 		 * @returns true, when the bounding box is valid.
