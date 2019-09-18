@@ -1,6 +1,6 @@
 #include "MishMesh/visualization.h"
 #include <MishMesh/PolyMesh.h>
-#include <MishMesh/utils.h>
+#include <MishMesh/BBox.h>
 
 #include <array>
 
