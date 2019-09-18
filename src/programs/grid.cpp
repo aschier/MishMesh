@@ -2,6 +2,7 @@
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <MishMesh/TriMesh.h>
 #include <MishMesh/visualization.h>
+#include <MishMesh/BBox.h>
 
 int main(int argc, char **argv) {
 	int resolution[3] = {10, 10, 10};

@@ -1,6 +1,6 @@
 #pragma once
 #include <MishMesh/TriMesh.h>
-#include <MishMesh/utils.h>
+#include <MishMesh/BBox.h>
 #include <vector>
 
 namespace MishMesh{
