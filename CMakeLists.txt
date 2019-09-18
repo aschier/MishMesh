@@ -43,6 +43,7 @@ add_library(MishMesh
 	include/MishMesh/smoothing.h
 	src/simplification.cpp
 	include/MishMesh/simplification.h
+	include/MishMesh/BBox.h
 )
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
 option(OM_STATIC_BUILD "Turn on when using a static OpenMesh libary" ON)
