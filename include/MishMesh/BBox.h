@@ -36,8 +36,8 @@ namespace MishMesh {
 		static BBox infinity() {
 			BBox bbox;
 			for(short j = 0; j < DIM; j++){
-				bbox.ltf[j] = std::numeric_limits<double>::infinity();
-				bbox.rbn[j] = -std::numeric_limits<double>::infinity();
+				bbox.ltf[j] = -std::numeric_limits<double>::infinity();
+				bbox.rbn[j] = std::numeric_limits<double>::infinity();
 			}
 			return bbox;
 		}
