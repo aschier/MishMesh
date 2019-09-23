@@ -86,11 +86,15 @@ namespace MishMesh {
 		 * @param point the point.
 		 * @param bbox The bounding box.
 		 * @param exact When exact is true, the point must be inside the bounding box,
-		 *        otherwise it must be inside a bounding box that is FLT_EPSILON in each direction.
+		 *        otherwise it must be inside a bounding box that is std::numeric_limits<float>::epsilon()
+		 *        in each direction.
 		 * @returns true, when the point is inside the bounding box and false otherwise.
 		 */
 		bool contains(const VectorT point, bool exact = false) const {
-			double padding = exact ? 0 : FLT_EPSILON;
+			// It is intentional, that it is a float epsilon even when the data type is double,
+			// so it is not just a padding for rounding problems, but a large enough padding to
+			// counter other inaccuracies as well.
+			double padding = exact ? 0 : std::numeric_limits<float>::epsilon();
 			for(unsigned int j = 0; j < DIM; j++){
 				if(point[j] > rbn[j] + padding || point[j] < ltf[j] - padding){
 					return false;
@@ -106,7 +110,7 @@ namespace MishMesh {
 		 *                less than epsilon * (rbn[j] - ltf[j]).
 		 * @returns The point, if it is inside the bounding box or a clipped point, when the point was outside the box.
 		 */
-		VectorT clip(VectorT point, double epsilon = FLT_EPSILON) const {
+		VectorT clip(VectorT point, double epsilon = std::numeric_limits<float>::epsilon()) const {
 			for(unsigned int j = 0; j < DIM; j++){
 				double side_length = (rbn[j] - ltf[j]);
 				if(point[j] > rbn[j] + epsilon * side_length){
