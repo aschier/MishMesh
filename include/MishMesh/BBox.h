@@ -137,8 +137,8 @@ namespace MishMesh {
 	inline BBoxT bounding_box(const MeshT &mesh) {
 		BBoxT result = BBoxT::infinity();
 		for(short j = 0; j < 3; j++) {
-			result.ltf[j] = numeric_limits<double>::infinity();
-			result.rbn[j] = -numeric_limits<double>::infinity();
+			result.ltf[j] = std::numeric_limits<double>::infinity();
+			result.rbn[j] = -std::numeric_limits<double>::infinity();
 		}
 		for(auto vh : mesh.vertices()) {
 			auto &p = mesh.point(vh);
