@@ -8,14 +8,14 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_DEBUG_POSTFIX "d")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-find_package(OpenMesh 8.0   REQUIRED)
-#find_package(Eigen3   3.3.7 REQUIRED)
+find_package(OpenMesh 8.0 REQUIRED)
+find_package(Eigen3 3.3.7)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+	set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
 add_library(MishMesh
@@ -45,11 +45,13 @@ add_library(MishMesh
 	include/MishMesh/simplification.h
 	include/MishMesh/BBox.h
 )
+
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
 option(OM_STATIC_BUILD "Turn on when using a static OpenMesh libary" ON)
 if(${OM_STATIC_BUILD})
-    target_compile_definitions(MishMesh PUBLIC -DOM_STATIC_BUILD)
+	target_compile_definitions(MishMesh PUBLIC -DOM_STATIC_BUILD)
 endif()
+
 target_link_libraries(MishMesh PUBLIC
 	${OPENMESH_LIBRARIES}
 )
@@ -57,8 +59,17 @@ target_include_directories(MishMesh PUBLIC
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	${OPENMESH_INCLUDE_DIR}
-	#${EIGEN3_INCLUDE_DIR}
 )
+
+if(${EIGEN3_FOUND})
+	target_sources(MishMesh PRIVATE
+		src/laplace.cpp
+		include/MishMesh/laplace.h
+	)
+	target_include_directories(MishMesh PUBLIC
+		${EIGEN3_INCLUDE_DIR}
+	)
+endif()
 
 # programs
 add_executable(split_connected_components
