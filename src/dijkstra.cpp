@@ -40,7 +40,7 @@ namespace MishMesh {
 			queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
 		}
 
-		do {
+		while(!queue.empty()) {
 			PathEdge<MeshT> path_edge = queue.top();
 			queue.pop();
 			auto &heh = path_edge.halfedge_handle;
@@ -64,7 +64,7 @@ namespace MishMesh {
 					queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
 				}
 			}
-		} while(!queue.empty());
+		}
 
 		// Trace the path backwards
 		auto vh = target_vh;
