@@ -2,12 +2,14 @@
 
 #include <set>
 #include <MishMesh/dijkstra.h>
+#include <MishMesh/PolyMesh.h>
 
 namespace MishMesh {
+	template<typename MeshT>
 	struct MSTResult {
-		std::vector<DijkstraResult> paths;
-		const std::set<TriMesh::EdgeHandle> get_edges() const {
-			std::set<TriMesh::EdgeHandle> result;
+		std::vector<DijkstraResult<MeshT>> paths;
+		const std::set<PolyMesh::EdgeHandle> get_edges() const {
+			std::set<PolyMesh::EdgeHandle> result;
 			for(auto dr: paths) {
 				result.insert(dr.edges.begin(), dr.edges.end());
 			}
@@ -15,6 +17,9 @@ namespace MishMesh {
 		}
 	};
 
-	MSTResult minimum_spanning_tree(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param) = edge_length, void *param = nullptr);
-	std::vector<std::set<TriMesh::EdgeHandle>> minimum_spanning_trees(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+	template<typename MeshT>
+	MSTResult<MeshT> minimum_spanning_tree(MeshT &mesh, std::vector<typename MeshT::VertexHandle> vertices, double edge_cost_function(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param) = edge_length, void *param = nullptr);
+
+	template<typename MeshT>
+	std::vector<std::set<typename MeshT::EdgeHandle>> minimum_spanning_trees(MeshT &mesh, std::vector<typename MeshT::VertexHandle> vertices, double edge_cost_function(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param), void *edge_cost_param);
 }
