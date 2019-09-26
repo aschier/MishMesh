@@ -14,11 +14,12 @@ namespace MishMesh {
 	 * @param edge_cost_param A pointer to additional data passed to edge_cost_function.
 	 * @returns A list of edge sets, that form different spanning trees on the mesh connected components of the vertices.
 	 */
-	std::vector<std::set<TriMesh::EdgeHandle>> minimum_spanning_trees(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param) {
-		vector<vector<TriMesh::VertexHandle>> vertex_subsets;
+	template<typename MeshT>
+	std::vector<std::set<typename MeshT::EdgeHandle>> minimum_spanning_trees(MeshT &mesh, std::vector<typename MeshT::VertexHandle> vertices, double edge_cost_function(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param), void *edge_cost_param) {
+		vector<vector<typename MeshT::VertexHandle>> vertex_subsets;
 		auto cc_vertex_sets = get_connected_components_vertices(mesh);
 		for(auto &cc_vertex_set : cc_vertex_sets) {
-			vector<TriMesh::VertexHandle> vertex_subset;
+			vector<MeshT::VertexHandle> vertex_subset;
 			for(auto vh : vertices) {
 				if(cc_vertex_set.find(vh) != cc_vertex_set.end()) {
 					vertex_subset.push_back(vh);
@@ -28,7 +29,7 @@ namespace MishMesh {
 				vertex_subsets.push_back(vertex_subset);
 			}
 		}
-		vector<set<TriMesh::EdgeHandle>> result;
+		vector<set<MeshT::EdgeHandle>> result;
 		for(auto &vertex_subset : vertex_subsets) {
 			const auto mst_result = minimum_spanning_tree(mesh, vertex_subset, edge_cost_function, edge_cost_param);
 			result.push_back(mst_result.get_edges());
@@ -44,8 +45,9 @@ namespace MishMesh {
 	 * @param prop_vertex_shortest_path_length A mesh property, that stores the distance to the closest source vertex.
 	 * @param prop_edge_shortest_path_length An edge property, that stores the distance to the closest source vertex.
 	 */
-	DijkstraResult trace_path(TriMesh &mesh, TriMesh::VertexHandle target_vh, OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length){
-		DijkstraResult dijkstra_result;
+	template<typename MeshT>
+	DijkstraResult<MeshT> trace_path(MeshT &mesh, typename MeshT::VertexHandle target_vh, OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length){
+		DijkstraResult<MeshT> dijkstra_result;
 		dijkstra_result.length = mesh.property(prop_vertex_shortest_path_length, target_vh);
 		if(dijkstra_result.length == numeric_limits<double>::infinity()) {
 			// No path found
@@ -57,7 +59,7 @@ namespace MishMesh {
 		auto vh = target_vh;
 		do {
 			double smallest_distance = numeric_limits<double>::infinity();
-			TriMesh::HalfedgeHandle shortest_path_heh;
+			MeshT::HalfedgeHandle shortest_path_heh;
 			for(auto h_it = mesh.cvih_ccwbegin(vh); h_it != mesh.cvih_ccwend(vh); h_it++) {
 				if(mesh.from_vertex_handle(*h_it) == target_vh) continue; // Do not return to the target vertex itself.
 				double distance = mesh.property(prop_edge_shortest_path_length, *h_it);
@@ -88,7 +90,8 @@ namespace MishMesh {
 		return dijkstra_result;
 	}
 
-	priority_queue<PathEdge, vector<PathEdge>, GreaterPathlengh> initialize_search(MishMesh::TriMesh &mesh, const OpenMesh::ArrayKernel::VertexHandle &start_vh, double(*edge_cost_function)(MishMesh::TriMesh &mesh, OpenMesh::ArrayKernel::HalfedgeHandle edge, const void *param), void *edge_cost_param, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length, const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length) {
+	template<typename MeshT>
+	priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> initialize_search(MeshT &mesh, const OpenMesh::ArrayKernel::VertexHandle &start_vh, double(*edge_cost_function)(MeshT &mesh, OpenMesh::ArrayKernel::HalfedgeHandle edge, const void *param), void *edge_cost_param, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length, const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length) {
 
 		// Initialize distance properties
 		for(auto &v : mesh.vertices()) {
@@ -99,23 +102,24 @@ namespace MishMesh {
 		}
 		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
 
-		priority_queue<PathEdge, vector<PathEdge>, GreaterPathlengh> queue;
+		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue;
 		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {
 			const auto vh2 = mesh.to_vertex_handle(*h_it);
 			double distance = edge_cost_function(mesh, *h_it, edge_cost_param);
 			mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
 			mesh.property(prop_vertex_shortest_path_length, vh2) = distance;
-			queue.push(PathEdge{&mesh, &prop_edge_shortest_path_length, *h_it});
+			queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
 		}
 		return queue;
 	}
 
-	MSTResult minimum_spanning_tree(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param) {
-		MSTResult result;
+	template<typename MeshT>
+	MSTResult<MeshT> minimum_spanning_tree(MeshT &mesh, std::vector<typename MeshT::VertexHandle> vertices, double edge_cost_function(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param), void *edge_cost_param) {
+		MSTResult<MeshT> result;
 		if(vertices.size() < 2){
 			return {};
 		}
-		set<TriMesh::VertexHandle> targetVertices(vertices.begin(), vertices.end());
+		set<MeshT::VertexHandle> targetVertices(vertices.begin(), vertices.end());
 		assert(targetVertices.size() >= 2);
 
 		// Add the needed properties
@@ -127,10 +131,10 @@ namespace MishMesh {
 		// Use the first vertex as start vertex
 		auto start_vh = *targetVertices.begin();
 		targetVertices.erase(start_vh);
-		set<TriMesh::VertexHandle> visited_vertices{start_vh};
+		set<MeshT::VertexHandle> visited_vertices{start_vh};
 
 		// Initialize the queue with the edges reachable from the source vertex
-		priority_queue<PathEdge, vector<PathEdge>, GreaterPathlengh> queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
+		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
 
 		/*
 		   The edges of the current region store the distance to the closest source vertex.
@@ -157,10 +161,10 @@ namespace MishMesh {
 		 // As long as there are unfound target vertices search for a new path to any of the target vertices,
 		 // until the list of targetVertices is empty.
 		while(!targetVertices.empty()) {
-			TriMesh::VertexHandle target_vh;
+			MeshT::VertexHandle target_vh;
 			bool found_target = false;
 			do{
-				PathEdge path_edge = queue.top();
+				PathEdge<MeshT> path_edge = queue.top();
 				queue.pop();
 				auto &heh = path_edge.halfedge_handle;
 				auto vh = mesh.to_vertex_handle(heh);
@@ -178,7 +182,7 @@ namespace MishMesh {
 
 					// Add the adjacent unvisited vertices to the queue
 					if(visited_vertices.find(to_vh) == visited_vertices.end()) {
-						queue.push(PathEdge{&mesh, &prop_edge_shortest_path_length, *h_it});
+						queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
 					}
 					// When the vertex is a target vertex, we found a new path in the MST.
 					if(targetVertices.find(to_vh) != targetVertices.end()) {
@@ -197,7 +201,7 @@ namespace MishMesh {
 
 			if(found_target) {
 				// Trace the path backwards from the new target vertex to the closest source vertex.
-				DijkstraResult dijkstra_result = trace_path(mesh, target_vh, prop_vertex_shortest_path_length, prop_edge_shortest_path_length);
+				DijkstraResult<MeshT> dijkstra_result = trace_path(mesh, target_vh, prop_vertex_shortest_path_length, prop_edge_shortest_path_length);
 				result.paths.push_back(dijkstra_result);
 			}
 
@@ -216,4 +220,10 @@ namespace MishMesh {
 
 		return result;
 	}
+
+	template MSTResult<TriMesh> minimum_spanning_tree(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+	template MSTResult<PolyMesh> minimum_spanning_tree(PolyMesh &mesh, std::vector<PolyMesh::VertexHandle> vertices, double edge_cost_function(PolyMesh &mesh, const PolyMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+
+	template std::vector<std::set<TriMesh::EdgeHandle>> minimum_spanning_trees(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+	template std::vector<std::set<PolyMesh::EdgeHandle>> minimum_spanning_trees(PolyMesh &mesh, std::vector<PolyMesh::VertexHandle> vertices, double edge_cost_function(PolyMesh &mesh, const PolyMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
 }
