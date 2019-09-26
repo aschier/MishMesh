@@ -1,2 +1,6 @@
 version 0.1.0 (2019-09-25)
 	* Initial release
+
+version 0.1.1 (2019-09-26)
+	* Changed dijkstra and minimum_spanning_tree functions to use a
+	  template parameter for the mesh type.
