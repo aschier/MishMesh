@@ -30,7 +30,7 @@ namespace MishMesh {
 
 		// Initialize the queue with the edges reachable from the source vertex
 		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue;
-		set<MeshT::VertexHandle> visited_vertices{start_vh};
+		set<typename MeshT::VertexHandle> visited_vertices{start_vh};
 		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
 		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {
 			const auto vh2 = mesh.to_vertex_handle(*h_it);
@@ -78,7 +78,7 @@ namespace MishMesh {
 		size_t max_edge_count = mesh.n_edges();
 		do {
 			double smallest_distance = numeric_limits<double>::infinity();
-			MeshT::HalfedgeHandle heh;
+			typename MeshT::HalfedgeHandle heh;
 			for(auto h_it = mesh.cvih_ccwbegin(vh); h_it != mesh.cvih_ccwend(vh); h_it++) {
 				double distance = mesh.property(prop_edge_shortest_path_length, *h_it);
 				if(distance < smallest_distance) {

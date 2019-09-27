@@ -19,7 +19,7 @@ namespace MishMesh {
 		vector<vector<typename MeshT::VertexHandle>> vertex_subsets;
 		auto cc_vertex_sets = get_connected_components_vertices(mesh);
 		for(auto &cc_vertex_set : cc_vertex_sets) {
-			vector<MeshT::VertexHandle> vertex_subset;
+			vector<typename MeshT::VertexHandle> vertex_subset;
 			for(auto vh : vertices) {
 				if(cc_vertex_set.find(vh) != cc_vertex_set.end()) {
 					vertex_subset.push_back(vh);
@@ -29,7 +29,7 @@ namespace MishMesh {
 				vertex_subsets.push_back(vertex_subset);
 			}
 		}
-		vector<set<MeshT::EdgeHandle>> result;
+		vector<set<typename MeshT::EdgeHandle>> result;
 		for(auto &vertex_subset : vertex_subsets) {
 			const auto mst_result = minimum_spanning_tree(mesh, vertex_subset, edge_cost_function, edge_cost_param);
 			result.push_back(mst_result.get_edges());
@@ -59,7 +59,7 @@ namespace MishMesh {
 		auto vh = target_vh;
 		do {
 			double smallest_distance = numeric_limits<double>::infinity();
-			MeshT::HalfedgeHandle shortest_path_heh;
+			typename MeshT::HalfedgeHandle shortest_path_heh;
 			for(auto h_it = mesh.cvih_ccwbegin(vh); h_it != mesh.cvih_ccwend(vh); h_it++) {
 				if(mesh.from_vertex_handle(*h_it) == target_vh) continue; // Do not return to the target vertex itself.
 				double distance = mesh.property(prop_edge_shortest_path_length, *h_it);
@@ -119,7 +119,7 @@ namespace MishMesh {
 		if(vertices.size() < 2){
 			return {};
 		}
-		set<MeshT::VertexHandle> targetVertices(vertices.begin(), vertices.end());
+		set<typename MeshT::VertexHandle> targetVertices(vertices.begin(), vertices.end());
 		assert(targetVertices.size() >= 2);
 
 		// Add the needed properties
@@ -131,7 +131,7 @@ namespace MishMesh {
 		// Use the first vertex as start vertex
 		auto start_vh = *targetVertices.begin();
 		targetVertices.erase(start_vh);
-		set<MeshT::VertexHandle> visited_vertices{start_vh};
+		set<typename MeshT::VertexHandle> visited_vertices{start_vh};
 
 		// Initialize the queue with the edges reachable from the source vertex
 		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
@@ -161,7 +161,7 @@ namespace MishMesh {
 		 // As long as there are unfound target vertices search for a new path to any of the target vertices,
 		 // until the list of targetVertices is empty.
 		while(!targetVertices.empty()) {
-			MeshT::VertexHandle target_vh;
+			typename MeshT::VertexHandle target_vh;
 			bool found_target = false;
 			do{
 				PathEdge<MeshT> path_edge = queue.top();
