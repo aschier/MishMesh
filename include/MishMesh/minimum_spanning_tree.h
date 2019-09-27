@@ -2,14 +2,13 @@
 
 #include <set>
 #include <MishMesh/dijkstra.h>
-#include <MishMesh/PolyMesh.h>
 
 namespace MishMesh {
 	template<typename MeshT>
 	struct MSTResult {
 		std::vector<DijkstraResult<MeshT>> paths;
-		const std::set<PolyMesh::EdgeHandle> get_edges() const {
-			std::set<PolyMesh::EdgeHandle> result;
+		const std::set<typename MeshT::EdgeHandle> get_edges() const {
+			std::set<typename MeshT::EdgeHandle> result;
 			for(auto dr: paths) {
 				result.insert(dr.edges.begin(), dr.edges.end());
 			}
