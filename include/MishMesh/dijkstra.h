@@ -59,12 +59,19 @@ namespace MishMesh {
 		}
 	};
 
-
 	/**
 	 * Calculate the euclidean distance between the two endpoints of the edge.
 	 */
 	template<typename MeshT>
 	inline double edge_length(const MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param) {
+		return mesh.calc_edge_length(edge);
+	}
+
+	/**
+	 * Calculate the euclidean distance between the two endpoints of the edge.
+	 */
+	template<typename MeshT>
+	inline double edge_length(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param) {
 		return mesh.calc_edge_length(edge);
 	}
 
