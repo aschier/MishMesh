@@ -127,14 +127,19 @@ namespace MishMesh {
 		OpenMesh::HPropHandleT<double> prop_edge_shortest_path_length;
 		mesh.add_property(prop_vertex_shortest_path_length);
 		mesh.add_property(prop_edge_shortest_path_length);
+		mesh.request_vertex_status();
 
 		// Use the first vertex as start vertex
 		auto start_vh = *targetVertices.begin();
 		targetVertices.erase(start_vh);
-		set<typename MeshT::VertexHandle> visited_vertices{start_vh};
 
 		// Initialize the queue with the edges reachable from the source vertex
 		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
+
+		for(auto &vh : mesh.vertices()) {
+			mesh.status(vh).set_tagged(false); // not visited
+		}
+		mesh.status(start_vh).set_tagged(true);
 
 		/*
 		   The edges of the current region store the distance to the closest source vertex.
@@ -143,14 +148,14 @@ namespace MishMesh {
 		   to 0 and adding all new edges without a previous distance (i.e. their distance is their
 		   own length).
 		   The already visited edges now do NOT store a correct distance to the nearest source vertex,
-		   but because we use a priority queue, all NEW edges will be visisted via a path that points
+		   but because we use a priority queue, all NEW edges will be visited via a path that points
 		   to the nearest source vertex. This is true, because the paths from the new source vertex are
 		   traced before other paths, until their length becomes longer than the length of previous edges
 		   in the priority queue. Then the distance field will continue to grow in all directions.
-		   This makes sure, that each newly visisted vertex can use the distance field to trace a path to
+		   This makes sure, that each newly visited vertex can use the distance field to trace a path to
 		   the nearest source vertex, even when the paths between existing source vertices cannot be traced.
 
-		   Explanation: All vertices visisted after adding the n-th target vertex to the set of source vertices
+		   Explanation: All vertices visited after adding the n-th target vertex to the set of source vertices
 		   have the correct distance to the nearest source vertex, because the edges are added using a priority
 		   queue. Any vertex affected by a (now) wrong distances was already found and if it is the target vertex,
 		   the corresponding path was already added to the result paths. The result is a MST, because if there
@@ -158,8 +163,8 @@ namespace MishMesh {
 		   target vertex would have been found before the n-th target vertex.
 		 */
 
-		 // As long as there are unfound target vertices search for a new path to any of the target vertices,
-		 // until the list of targetVertices is empty.
+		// As long as there are unfound target vertices search for a new path to any of the target vertices,
+		// until the list of targetVertices is empty.
 		while(!targetVertices.empty()) {
 			typename MeshT::VertexHandle target_vh;
 			bool found_target = false;
@@ -168,20 +173,20 @@ namespace MishMesh {
 				queue.pop();
 				auto &heh = path_edge.halfedge_handle;
 				auto vh = mesh.to_vertex_handle(heh);
-				if(visited_vertices.find(vh) != visited_vertices.end()) continue;
-				visited_vertices.insert(vh);
+				if(mesh.status(vh).tagged()) continue;
+				mesh.status(vh).set_tagged(true);
 
 				// Iterate over all outgoing halfedges of the current vertex
 				for(auto h_it = mesh.cvoh_ccwbegin(vh); h_it != mesh.cvoh_ccwend(vh); h_it++) {
 					auto to_vh = mesh.to_vertex_handle(*h_it);
-					if(visited_vertices.find(to_vh) != visited_vertices.end()) continue;
+					if(mesh.status(to_vh).tagged()) continue;
 
 					double distance = mesh.property(prop_edge_shortest_path_length, heh) + edge_cost_function(mesh, *h_it, edge_cost_param);
 					mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
 					mesh.property(prop_vertex_shortest_path_length, to_vh) = distance;
 
 					// Add the adjacent unvisited vertices to the queue
-					if(visited_vertices.find(to_vh) == visited_vertices.end()) {
+					if(!mesh.status(to_vh).tagged()) {
 						queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
 					}
 					// When the vertex is a target vertex, we found a new path in the MST.
@@ -210,7 +215,10 @@ namespace MishMesh {
 				start_vh = *targetVertices.begin();
 				targetVertices.erase(targetVertices.begin());
 				queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
-				visited_vertices = {start_vh};
+				for(auto &vh : mesh.vertices()) {
+					mesh.status(vh).set_tagged(false); // not visited
+				}
+				mesh.status(start_vh).set_tagged(true);
 				continue;
 			}
 		}
