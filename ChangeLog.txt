@@ -1,6 +1,14 @@
-version 0.1.0 (2019-09-25)
-	* Initial release
+version 0.1.2 (2019-09-30)
+	* Provide a edge_length method non-const meshes in dijkstra.h.
+	* Added an euler_characteristic method in utils.h.
+	* Optimized minimum_spanning_tree.
+	* Added a calc_shortest_distances method, that calculates the
+	  distances on the mesh. This is basically Dijkstra's algorithm
+	  without stopping when a target is found.
 
 version 0.1.1 (2019-09-26)
 	* Changed dijkstra and minimum_spanning_tree functions to use a
 	  template parameter for the mesh type.
+
+version 0.1.0 (2019-09-25)
+	* Initial release

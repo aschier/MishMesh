@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.10)
 project(MishMesh)
-set(PROJECT_VERSION 0.1.1)
+set(PROJECT_VERSION 0.1.2)
 
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(CMakePackageConfigHelpers)
