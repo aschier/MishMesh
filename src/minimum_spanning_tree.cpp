@@ -92,7 +92,6 @@ namespace MishMesh {
 
 	template<typename MeshT>
 	priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> initialize_search(MeshT &mesh, const OpenMesh::ArrayKernel::VertexHandle &start_vh, double(*edge_cost_function)(MeshT &mesh, OpenMesh::ArrayKernel::HalfedgeHandle edge, const void *param), void *edge_cost_param, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length, const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length) {
-
 		// Initialize distance properties
 		for(auto &v : mesh.vertices()) {
 			mesh.property(prop_vertex_shortest_path_length, v) = numeric_limits<double>::infinity();
@@ -111,6 +110,48 @@ namespace MishMesh {
 			queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
 		}
 		return queue;
+	}
+
+	/**
+	 * Calculate all shortest distances from a given vertex on the mesh.
+	 * @param mesh The mesh.
+	 * @param start_vh The vertex from which the distances are calculated.
+	 * @param prop_vertex_shortest_path_length A vertex property, in which the distance from the start vertex is stored.
+	 * @param prop_edge_shortest_path_length A half edge property, in which the distance of the to_vertex from the start_vertex is stored.
+	 * @param edge_cost_function An edge cost function for measuring path lengths.
+	 * @param edge_cost_param A pointer to parameters for the edge cost function.
+	 */
+	template<typename MeshT>
+	void calc_shortest_distances(MeshT &mesh,
+		typename MeshT::VertexHandle start_vh,
+		OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length,
+		OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length,
+		double edge_cost_function(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param),
+		void *edge_cost_param) {
+		auto queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
+		while(!queue.empty()){
+			PathEdge<MeshT> path_edge = queue.top();
+			queue.pop();
+			auto &heh = path_edge.halfedge_handle;
+			auto vh = mesh.to_vertex_handle(heh);
+			if(mesh.status(vh).tagged()) continue;
+			mesh.status(vh).set_tagged(true);
+
+			// Iterate over all outgoing halfedges of the current vertex
+			for(auto h_it = mesh.cvoh_ccwbegin(vh); h_it != mesh.cvoh_ccwend(vh); h_it++) {
+				auto to_vh = mesh.to_vertex_handle(*h_it);
+				if(mesh.status(to_vh).tagged()) continue;
+
+				double distance = mesh.property(prop_edge_shortest_path_length, heh) + edge_cost_function(mesh, *h_it, edge_cost_param);
+				mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
+				mesh.property(prop_vertex_shortest_path_length, to_vh) = distance;
+
+				// Add the adjacent unvisited vertices to the queue
+				if(!mesh.status(to_vh).tagged()) {
+					queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
+				}
+			}
+		}
 	}
 
 	template<typename MeshT>
@@ -163,12 +204,12 @@ namespace MishMesh {
 		   target vertex would have been found before the n-th target vertex.
 		 */
 
-		// As long as there are unfound target vertices search for a new path to any of the target vertices,
-		// until the list of targetVertices is empty.
+		 // As long as there are unfound target vertices search for a new path to any of the target vertices,
+		 // until the list of targetVertices is empty.
 		while(!targetVertices.empty()) {
 			typename MeshT::VertexHandle target_vh;
 			bool found_target = false;
-			do{
+			while(!queue.empty() && !found_target) {
 				PathEdge<MeshT> path_edge = queue.top();
 				queue.pop();
 				auto &heh = path_edge.halfedge_handle;
@@ -202,7 +243,7 @@ namespace MishMesh {
 						break;
 					}
 				}
-			} while(!queue.empty() && !found_target);
+			};
 
 			if(found_target) {
 				// Trace the path backwards from the new target vertex to the closest source vertex.
@@ -228,6 +269,20 @@ namespace MishMesh {
 
 		return result;
 	}
+
+
+	template void calc_shortest_distances(TriMesh &mesh,
+		typename TriMesh::VertexHandle start_vh,
+		OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length,
+		OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length,
+		double edge_cost_function(TriMesh &mesh, const typename TriMesh::HalfedgeHandle edge, const void *param),
+		void *edge_cost_param);
+	template void calc_shortest_distances(PolyMesh &mesh,
+		typename PolyMesh::VertexHandle start_vh,
+		OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length,
+		OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length,
+		double edge_cost_function(PolyMesh &mesh, const typename PolyMesh::HalfedgeHandle edge, const void *param),
+		void *edge_cost_param);
 
 	template MSTResult<TriMesh> minimum_spanning_tree(TriMesh &mesh, std::vector<TriMesh::VertexHandle> vertices, double edge_cost_function(TriMesh &mesh, const TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
 	template MSTResult<PolyMesh> minimum_spanning_tree(PolyMesh &mesh, std::vector<PolyMesh::VertexHandle> vertices, double edge_cost_function(PolyMesh &mesh, const PolyMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
