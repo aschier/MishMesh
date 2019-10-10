@@ -112,7 +112,7 @@ void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandl
 	}
 	for(auto vh : mesh.vertices()) {
 		double value = mesh.property(vertexProperty, vh);
-		mesh.set_color(vh, {255 * value / (max_value - min_value), 0, 0});
+		mesh.set_color(vh, {255 * (value - min_value) / (max_value - min_value), 0, 0});
 	}
 }
 
