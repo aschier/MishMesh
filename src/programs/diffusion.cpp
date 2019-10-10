@@ -26,6 +26,11 @@ int main(int argc, char **argv) {
 		.type(po::i32)
 		.description("The start vertex for calculating geodesic distances.")
 		.fallback(0);
+	parser["steps"]
+		.abbreviation('S')
+		.type(po::i32)
+		.description("The number of diffusion steps.")
+		.fallback(1);
 	parser["diffusion"]
 		.abbreviation('d')
 		.type(po::f32)
@@ -42,7 +47,7 @@ int main(int argc, char **argv) {
 	MishMesh::TriMesh mesh;
 	OpenMesh::IO::read_mesh(mesh, parser["input"].get().string);
 
-	auto laplace = MishMesh::laplace_matrix(mesh, false);
+	auto laplace = MishMesh::laplace_matrix(mesh, false, true);
 	Eigen::SparseMatrix<double> eye(mesh.n_vertices(), mesh.n_vertices());
 	eye.setIdentity();
 	Eigen::VectorXd rhs(mesh.n_vertices());
@@ -52,11 +57,15 @@ int main(int argc, char **argv) {
 	rhs[idx] = value;
 	double d = parser["diffusion"].get().f32;
 	Eigen::SparseMatrix<double> A = eye - d*laplace;
-	MishMesh::apply_boundary_conditions(A, rhs, {std::make_pair(idx, value)});
 
 	Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
 	solver.compute(A);
-	Eigen::VectorXd result = solver.solve(rhs);
+	int steps = parser["steps"].get().i32;
+	Eigen::VectorXd result;
+	for(int i = 0; i < steps; i++) {
+		result = solver.solve(rhs);
+		rhs = result;
+	}
 	OpenMesh::VPropHandleT<double> heatProperty;
 	mesh.add_property(heatProperty);
 	for(auto vh : mesh.vertices()) {
