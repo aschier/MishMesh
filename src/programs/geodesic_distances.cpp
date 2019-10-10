@@ -10,7 +10,7 @@
 int main(int argc, char **argv) {
 	po::parser parser;
 	parser["help"]
-		.abbreviation('?')
+		.abbreviation('h')
 		.description("print this help screen")
 		.callback([&] { std::cout << parser << '\n'; });
 	parser["input"]
