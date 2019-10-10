@@ -97,7 +97,7 @@ double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHand
  * http://cg.cs.uni-bonn.de/de/publikationen/paper-details/novotni-2002-computing/
  *
  * @param[inout] mesh The mesh.
- * @param[in] A valid vertex in the mesh, that will be used as start vertex.
+ * @param[in] start_vh A valid vertex in the mesh, that will be used as start vertex.
  * @param[in] geodesicDistanceProperty A mesh property to store the geodesic distances. The method assumes, that the property is already added to the mesh.
  */
 void MishMesh::compute_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, const GeodesicDistanceProperty geodesicDistanceProperty) {
