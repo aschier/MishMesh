@@ -1,6 +1,7 @@
 #include "MishMesh/laplace.h"
 
 #include "MishMesh/macros.h"
+#include "MishMesh/utils.h"
 
 #include <cmath>
 
@@ -15,10 +16,11 @@ inline double cot(double angle) {
  * Create Eigen::Triplet sparse matrix entries for a Laplace matrix.
  * @param mesh The mesh for which the laplacian is built.
  * @param normalized Set if the Laplace matrix should be normalized to have -1 on the diagonal.
+ * @param area_weighted When area_weighted is set, the entries are divided by the vertex area (1/3 of the area of the adjacent faces).
  * @note You usually should use MishMesh::laplace_matrix instead of this function, except when you
  *       need to build more complicated matrices, e.g., a block matrix with a laplacian in it.
  */
-std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bool normalized) {
+std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bool normalized, const bool area_weighted) {
 	// the first n_vertices entries are the diagonal entries
 	vector<Eigen::Triplet<double>> triplets;
 	for(int i = 0; i < mesh.n_vertices(); i++) {
@@ -37,11 +39,18 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 	}
 
 	for(auto vh : mesh.vertices()) {
-		int from_idx = vh.idx();
+		double vertex_area = 0.0;
+		if(area_weighted) {
+			FOR_CVF(f_it, vh) {
+				vertex_area += compute_area(mesh, *f_it);
+			}
+			vertex_area /= 3.0;
+		}
 		FOR_CVOH(h_it, vh) {
 			const double length = mesh.calc_edge_length(*h_it);
 			auto heh1 = *h_it;
 			auto heh2 = mesh.opposite_halfedge_handle(*h_it);
+			int from_idx = mesh.from_vertex_handle(heh1).idx();
 			int to_idx = mesh.to_vertex_handle(heh1).idx();
 			double weight = 0.0;
 			if(!mesh.is_boundary(heh1)) {
@@ -50,8 +59,9 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 			if(!mesh.is_boundary(heh2)) {
 				weight += cot(mesh.property(prop_halfedge_angle, heh2));
 			}
-			if(!mesh.is_boundary(heh1) && !mesh.is_boundary(heh2)) {
-				weight /= 2.0;
+			weight /= 2.0;
+			if(area_weighted) {
+				weight /= vertex_area;
 			}
 			assert(weight != 0);
 			triplets[from_idx] = Eigen::Triplet<double>(from_idx, from_idx, triplets[from_idx].value() - weight);
@@ -67,6 +77,8 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 			triplets[i] = Eigen::Triplet<double>(triplets[i].row(), triplets[i].col(), triplets[i].value() / sqrt(diagonal[triplets[i].row()] * diagonal[triplets[i].col()]));
 		}
 	}
+
+	mesh.remove_property(prop_halfedge_angle);
 	return triplets;
 }
 
@@ -74,10 +86,10 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
  * Create a sparse Laplace matrix.
  * @param mesh The mesh for which the laplacian is built.
  * @param normalized Set if the Laplace matrix should be normalized to have -1 on the diagonal.
- * @param boundary_vertices A set of boundary vertices, that will have a 0 .. 0 1 0 .. 0 row in the matrix.
+ * @param area_weighted When area_weighted is set, the entries are divided by the vertex area (1/3 of the area of the adjacent faces).
  */
-Eigen::SparseMatrix<double> MishMesh::laplace_matrix(TriMesh & mesh, bool normalized) {
-	auto triplets = laplace_triplets(mesh, normalized);
+Eigen::SparseMatrix<double> MishMesh::laplace_matrix(TriMesh & mesh, bool normalized, const bool area_weighted) {
+	auto triplets = laplace_triplets(mesh, normalized, area_weighted);
 	Eigen::SparseMatrix<double> laplace(mesh.n_vertices(), mesh.n_vertices());
 	laplace.setFromTriplets(triplets.begin(), triplets.end());
 	return laplace;
