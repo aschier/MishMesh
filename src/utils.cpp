@@ -2,10 +2,18 @@
 #include <MishMesh/macros.h>
 
 #include <MishMesh/TriMesh.h>
+#include <MishMesh/PolyMesh.h>
 
 using namespace std;
 
 namespace MishMesh {
+	/**
+	 * Get the halfedge of a triangle, that is opposite to a given vertex.
+	 * @param mesh The mesh.
+	 * @param fh The face.
+	 * @param vh The vertex.
+	 * @returns The halfedge of the face, that is opposite to the vertex.
+	 */
 	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, TriMesh::VertexHandle &vh) {
 		TriMesh::HalfedgeHandle result_heh;
 		FOR_CFH(h_it, fh) {
@@ -18,8 +26,29 @@ namespace MishMesh {
 		return result_heh;
 	}
 
+	/**
+	 * Get the vertex handles of a face.
+	 * @param mesh The mesh.
+	 * @param fh The face.
+	 * @returns The vertex handles of the vertices of the given face.
+	 */
 	std::array<TriMesh::VertexHandle, 3> face_vertices(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
 		array<TriMesh::VertexHandle, 3> vhs;
+		short j = 0;
+		FOR_CFV(v_it, fh) {
+			vhs[j++] = *v_it;
+		}
+		return vhs;
+	}
+
+	/**
+	 * Get the vertex handles of a face.
+	 * @param mesh The mesh.
+	 * @param fh The face.
+	 * @returns The vertex handles of the vertices of the given face.
+	 */
+	std::vector<PolyMesh::VertexHandle> face_vertices(const PolyMesh &mesh, const PolyMesh::FaceHandle fh) {
+		vector<PolyMesh::VertexHandle> vhs;
 		short j = 0;
 		FOR_CFV(v_it, fh) {
 			vhs[j++] = *v_it;
