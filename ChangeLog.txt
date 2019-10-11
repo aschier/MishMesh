@@ -1,3 +1,10 @@
+version 0.1.3 (2019-10-11)
+	* Substract the minimum value of the data range when scaling the
+	  colors in colorize_mesh.
+	* Added face_vertices method for PolyMesh.
+	* Added an option for vertex area weighting to the laplace functions.
+	* Added Geodesics in Heat algorithm.
+
 version 0.1.2 (2019-09-30)
 	* Provide a edge_length method non-const meshes in dijkstra.h.
 	* Added an euler_characteristic method in utils.h.
