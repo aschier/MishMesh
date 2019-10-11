@@ -66,8 +66,10 @@ target_include_directories(MishMesh PUBLIC
 if(${EIGEN3_FOUND})
 	target_sources(MishMesh PRIVATE
 		src/laplace.cpp
+		src/heatGeodesics.cpp
 		include/MishMesh/laplace.h
 	)
+	target_compile_definitions(MishMesh PRIVATE HAS_EIGEN)
 	target_include_directories(MishMesh PUBLIC
 		${EIGEN3_INCLUDE_DIR}
 	)
@@ -113,6 +115,10 @@ if(${EIGEN3_FOUND})
 	target_link_libraries(diffusion
 		MishMesh)
 	set_target_properties(diffusion PROPERTIES FOLDER programs)
+
+	target_compile_definitions(diffusion PRIVATE HAS_EIGEN)
+	target_compile_definitions(geodesic_distances PRIVATE HAS_EIGEN)
+	install(TARGETS diffusion RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 # doxygen
@@ -135,7 +141,7 @@ endif(DOXYGEN_FOUND)
 configure_package_config_file(MishMeshConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
 write_basic_package_version_file( ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake COMPATIBILITY SameMajorVersion)
 install(TARGETS MishMesh EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(TARGETS split_connected_components mesh_smoother grid geodesic_distances diffusion RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(EXPORT MishMesh-targets FILE MishMeshTargets.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake

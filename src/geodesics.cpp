@@ -100,7 +100,7 @@ double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHand
  * @param[in] start_vh A valid vertex in the mesh, that will be used as start vertex.
  * @param[in] geodesicDistanceProperty A mesh property to store the geodesic distances. The method assumes, that the property is already added to the mesh.
  */
-void MishMesh::compute_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, const GeodesicDistanceProperty geodesicDistanceProperty) {
+void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, const GeodesicDistanceProperty geodesicDistanceProperty) {
 	/*
 	  The algorithm has three sets of vertices, fixed, close and unprocessed, and uses a region growing strategy similar to Dijkstra's algorithm to find
 	  shortest geodesic distances. When Dijkstra's algorithm encounters a vertex, it uses the edge length between the vertex with known distance and the new vertex

@@ -100,29 +100,51 @@ Eigen::SparseMatrix<double> MishMesh::laplace_matrix(TriMesh & mesh, bool normal
  * right hand side and replacing rows/columns of the boundary values in the laplace matrix with 0 .. 0 1 0 .. 0.
  * @param[inout] laplacian The laplace matrix.
  * @param[inout] the right hand side.
- * @param[in] boundary_conditions (index, value) pairs for the boundary conditions.
+ * @param[in] boundary_conditions given as (index, value) pairs.
  * @note The sparsity structure of the matrix is not changed, i.e. the non-zero off-diagonal entries that are
  *       set to zero are explicitly replaced with zero. You need to use makeCompressed on the result matrix,
  *       when you want to compress the zero values.
  */
 void MishMesh::apply_boundary_conditions(Eigen::SparseMatrix<double> &laplacian, Eigen::VectorXd &rhs, const vector<pair<Eigen::Index, double>> &boundary_conditions) {
+	vector<BoundaryCondition> bcs;
+	bcs.reserve(boundary_conditions.size());
+	std::transform(boundary_conditions.begin(), boundary_conditions.end(), std::back_inserter(bcs), [&](auto bc){return BoundaryCondition{bc.first, bc.second}; });
+	apply_boundary_conditions(laplacian, rhs, bcs);
+}
+
+/**
+ * Apply dirichlet boundary conditions to a matrix by adding the result for the boundary values to the
+ * right hand side and replacing rows/columns of the boundary values in the laplace matrix with 0 .. 0 d 0 .. 0.
+ * where d is BoundaryCondition::diagonal_value.
+ * @param[inout] laplacian The laplace matrix.
+ * @param[inout] the right hand side.
+ * @param[in] boundary_conditions boundary conditions given as BoundaryCondition structs.
+ * @note The sparsity structure of the matrix is not changed, i.e. the non-zero off-diagonal entries that are
+ *       set to zero are explicitly replaced with zero. You need to use makeCompressed on the result matrix,
+ *       when you want to compress the zero values.
+ */
+void MishMesh::apply_boundary_conditions(Eigen::SparseMatrix<double> &laplacian, Eigen::VectorXd &rhs, const vector<BoundaryCondition> &boundary_conditions) {
 	set<Eigen::Index> boundary_indices;
 	for(auto bc : boundary_conditions) {
-		boundary_indices.insert(bc.first);
-		rhs -= laplacian.col(bc.first) * bc.second;
+		boundary_indices.insert(bc.index);
+		rhs -= laplacian.col(bc.index) * bc.value;
 	}
 	for(auto bc : boundary_conditions) {
-		rhs[bc.first] = bc.second;
+		rhs[bc.index] = bc.value;
 	}
 	for(int k = 0; k < laplacian.outerSize(); ++k) {
 		for(Eigen::SparseMatrix<double>::InnerIterator it(laplacian, k); it; ++it) {
 			if(boundary_indices.find(it.col()) != boundary_indices.end() || boundary_indices.find(it.row()) != boundary_indices.end()) {
 				if(it.row() == it.col()) {
-					it.valueRef() = 1.0;
+					// handled below
+					// it.valueRef() = 1.0;
 				} else {
 					it.valueRef() = 0.0;
 				}
 			}
 		}
+	}
+	for(auto bc : boundary_conditions) {
+		laplacian.coeffRef(bc.index, bc.index) = bc.diagonal_value;
 	}
 }

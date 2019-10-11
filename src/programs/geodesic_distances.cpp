@@ -26,6 +26,18 @@ int main(int argc, char **argv) {
 		.type(po::i32)
 		.description("The start vertex for calculating geodesic distances.")
 		.fallback(0);
+#ifdef HAS_EIGEN
+	parser["method"]
+		.abbreviation('m')
+		.type(po::string)
+		.description("The method to compute geodesics distances. Options: \"novotni\" (\"n\"), \"heat\" (\"h\").")
+		.fallback("n");
+	parser["timestep"]
+		.abbreviation('t')
+		.type(po::f32)
+		.description("The timestep used for the Geodesics in Heat method.")
+		.fallback(0.1);
+#endif
 
 	parser.parse(argc, argv);
 
@@ -39,7 +51,19 @@ int main(int argc, char **argv) {
 
 	MishMesh::GeodesicDistanceProperty distanceProperty;
 	mesh.add_property(distanceProperty);
-	MishMesh::compute_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty);
+
+#ifdef HAS_EIGEN
+	if(parser["method"].get().string == "novotni" || parser["method"].get().string == "n") {
+		MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty);
+	} else if(parser["method"].get().string == "heat" || parser["method"].get().string == "h") {
+		MishMesh::compute_heat_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty, parser["timestep"].get().f32);
+	} else {
+		std::cerr << "Unknown method." << std::endl;
+		exit(1);
+	}
+#else
+	MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty);
+#endif
 
 	mesh.request_vertex_colors();
 	MishMesh::colorize_mesh(mesh, distanceProperty);
