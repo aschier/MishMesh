@@ -34,9 +34,9 @@ Functions
 ##### Searching
 * An implementation of Dijkstra's algorithm (shortest edge path search), that allows to use custom distance functions
 * Breadth first search for elements
-  * get faces reachable from a source face
-  * get vertices reachable from a source vertex
-  * get vertices on the same connected component as a start vertex
+  * Get faces reachable from a source face
+  * Get vertices reachable from a source vertex
+  * Get the sets of vertices of the connected components in a mesh.
 
 ##### Minimum Spanning Trees
 * Calculate a Minimum Spanning Tree of the Dijkstra paths between a set of vertices
