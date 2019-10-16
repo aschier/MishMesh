@@ -153,4 +153,23 @@ namespace MishMesh {
 		}
 		return result;
 	}
+
+	/**
+	 * Calculate the axis aligned bounding box of a set of points.
+	 * @param points The points.
+	 * @tparam DIM The dimension of the vector type.
+	 */
+	template<int DIM>
+	inline MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM> bounding_box(std::vector<OpenMesh::VectorT<double, DIM>> &points) {
+		MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM> result = MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM>::infinity();
+		result.ltf = -result.ltf;
+		result.rbn = -result.rbn;
+		for(auto point: points) {
+			for(short j = 0; j < DIM; j++) {
+				result.ltf[j] = std::min(result.ltf[j], point[j]);
+				result.rbn[j] = std::max(result.rbn[j], point[j]);
+			}
+		}
+		return result;
+	}
 }
