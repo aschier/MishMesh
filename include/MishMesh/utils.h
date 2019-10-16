@@ -10,6 +10,9 @@ namespace MishMesh {
 	std::array<TriMesh::VertexHandle, 3> face_vertices(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 	std::vector<PolyMesh::VertexHandle> face_vertices(const PolyMesh &mesh, const PolyMesh::FaceHandle fh);
 
+	std::array<OpenMesh::Vec3d, 3> face_points(const TriMesh &mesh, const TriMesh::FaceHandle fh);
+	std::vector<OpenMesh::Vec3d> face_points(const PolyMesh &mesh, const PolyMesh::FaceHandle fh);
+
 	template<int DIM>
 	double compute_area(const std::array<OpenMesh::VectorT<double, DIM>, 3> points);
 	double compute_area(const TriMesh &mesh, const std::array<TriMesh::VertexHandle, 3> vertices);

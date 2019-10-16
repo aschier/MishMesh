@@ -57,6 +57,32 @@ namespace MishMesh {
 	}
 
 	/**
+	 * Get the points of a face.
+	 * @param mesh The mesh.
+	 * @param fh The face.
+	 * @returns The points of the vertices of the given face.
+	 */
+	std::array<OpenMesh::Vec3d, 3> face_points(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
+		auto vhs = face_vertices(mesh, fh);
+		array<OpenMesh::Vec3d, 3> points;
+		std::transform(vhs.begin(), vhs.end(), points.begin(), [&](MishMesh::TriMesh::VertexHandle &vh) {return mesh.point(vh); });
+		return points;
+	}
+
+	/**
+	 * Get the points of a face.
+	 * @param mesh The mesh.
+	 * @param fh The face.
+	 * @returns The points of the vertices of the given face.
+	 */
+	std::vector<OpenMesh::Vec3d> face_points(const PolyMesh &mesh, const PolyMesh::FaceHandle fh) {
+		auto vhs = face_vertices(mesh, fh);
+		vector<OpenMesh::Vec3d> points;
+		std::transform(vhs.begin(), vhs.end(), points.begin(), [&](MishMesh::TriMesh::VertexHandle &vh) {return mesh.point(vh); });
+		return points;
+	}
+
+	/**
 	 * Compute the triangle area from three points.
 	 * @param points The coordinates of the triangle vertices.
 	 * @tparam DIM The dimension of the ambiant space for 2D / 3D vectors.
