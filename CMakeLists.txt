@@ -69,7 +69,7 @@ if(${EIGEN3_FOUND})
 		src/heatGeodesics.cpp
 		include/MishMesh/laplace.h
 	)
-	target_compile_definitions(MishMesh PRIVATE HAS_EIGEN)
+	target_compile_definitions(MishMesh PUBLIC HAS_EIGEN)
 	target_include_directories(MishMesh PUBLIC
 		${EIGEN3_INCLUDE_DIR}
 	)
