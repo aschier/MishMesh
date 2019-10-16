@@ -57,10 +57,10 @@ void MishMesh::compute_heat_geodesics(TriMesh &mesh, const TriMesh::VertexHandle
 	std::vector<OpenMesh::Vec3d> face_grad_u(mesh.n_faces(), OpenMesh::Vec3d(0,0,0));
 	for(auto fh : mesh.faces()) {
 		OpenMesh::Vec3d &x = face_grad_u[fh.idx()];
+		const OpenMesh::Vec3d &N = mesh.normal(fh);
 		FOR_CFV(v_it, fh) {
 			auto vh = *v_it;
 			auto heh = MishMesh::opposite_halfedge(mesh, fh, vh);
-			OpenMesh::Vec3d N = mesh.normal(fh);
 			OpenMesh::Vec3d ei = mesh.point(mesh.to_vertex_handle(heh)) - mesh.point(mesh.from_vertex_handle(heh));
 			x += u[v_it->idx()] * (N % ei);
 		}
