@@ -172,4 +172,26 @@ namespace MishMesh {
 		}
 		return result;
 	}
+
+	/**
+	 * Calculate the axis aligned bounding box of a set of points.
+	 * @param points The points.
+	 * @tparam DIM The dimension of the vector type.
+	 * @tparam VectorT The vector type. The vector is expected to allow indexing up to DIM using operator[].
+	 * @tparam IteratorT An iterator type over a list of VectorT objects, e.g. std::vector<std::array<double, 3>>::iterator.
+	 * @returns A bounding box, that contains the points.
+	 */
+	template<int DIM, typename VectorT, typename IteratorT>
+	inline MishMesh::BBox<VectorT, DIM> bounding_box(IteratorT begin, IteratorT end) {
+		MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM> result = MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM>::infinity();
+		result.ltf = -result.ltf;
+		result.rbn = -result.rbn;
+		for(IteratorT it = begin; it != end; it++) {
+			for(short j = 0; j < DIM; j++) {
+				result.ltf[j] = std::min(result.ltf[j], (*it)[j]);
+				result.rbn[j] = std::max(result.rbn[j], (*it)[j]);
+			}
+		}
+		return result;
+	}
 }
