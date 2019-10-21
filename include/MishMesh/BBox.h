@@ -158,25 +158,6 @@ namespace MishMesh {
 	 * Calculate the axis aligned bounding box of a set of points.
 	 * @param points The points.
 	 * @tparam DIM The dimension of the vector type.
-	 */
-	template<int DIM>
-	inline MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM> bounding_box(std::vector<OpenMesh::VectorT<double, DIM>> &points) {
-		MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM> result = MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM>::infinity();
-		result.ltf = -result.ltf;
-		result.rbn = -result.rbn;
-		for(auto point: points) {
-			for(short j = 0; j < DIM; j++) {
-				result.ltf[j] = std::min(result.ltf[j], point[j]);
-				result.rbn[j] = std::max(result.rbn[j], point[j]);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Calculate the axis aligned bounding box of a set of points.
-	 * @param points The points.
-	 * @tparam DIM The dimension of the vector type.
 	 * @tparam VectorT The vector type. The vector is expected to allow indexing up to DIM using operator[].
 	 * @tparam IteratorT An iterator type over a list of VectorT objects, e.g. std::vector<std::array<double, 3>>::iterator.
 	 * @returns A bounding box, that contains the points.
@@ -193,5 +174,28 @@ namespace MishMesh {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Calculate the axis aligned bounding box of a set of points.
+	 * @param points The points.
+	 * @tparam DIM The dimension of the vector type.
+	 * @returns A bounding box, that contains the points.
+	 */
+	template<int DIM>
+	inline MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM> bounding_box(std::vector<OpenMesh::VectorT<double, DIM>> &points) {
+		return bounding_box<DIM, OpenMesh::VectorT<double, DIM>>(points.begin(), points.end());
+	}
+
+	/**
+	 * Calculate the axis aligned bounding box of a set of points.
+	 * @param points The points.
+	 * @tparam DIM The dimension of the vector type.
+	 * @tparam NUM_VECTORS The number of vectors in the array.
+	 * @returns A bounding box, that contains the points.
+	 */
+	template<int DIM, int NUM_VECTORS>
+	inline MishMesh::BBox<OpenMesh::VectorT<double, DIM>, DIM> bounding_box(std::array<OpenMesh::VectorT<double, DIM>, NUM_VECTORS> &points) {
+		return bounding_box<DIM, OpenMesh::VectorT<double, DIM>>(points.begin(), points.end());
 	}
 }
