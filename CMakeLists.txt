@@ -46,6 +46,8 @@ add_library(MishMesh
 	src/simplification.cpp
 	include/MishMesh/simplification.h
 	include/MishMesh/BBox.h
+	include/MishMesh/sampling.h
+	src/sampling.cpp
 )
 
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
@@ -107,6 +109,13 @@ add_executable(grid
 target_link_libraries(grid
 	MishMesh)
 set_target_properties(grid PROPERTIES FOLDER programs)
+
+add_executable(sampling_test
+	src/programs/sampling_test.cpp
+)
+target_link_libraries(sampling_test
+	MishMesh)
+set_target_properties(sampling_test PROPERTIES FOLDER programs)
 
 if(${EIGEN3_FOUND})
 	add_executable(diffusion
