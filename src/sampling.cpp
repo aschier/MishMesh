@@ -7,10 +7,8 @@
 #include <cassert>
 
 namespace MishMesh {
-	static std::random_device rd;
-	static std::mt19937 randgen(rd());
-	static std::uniform_real_distribution<> real_dist(0, 1);
-	static auto random = bind(real_dist, randgen);
+	static std::default_random_engine randgen(std::random_device{}());
+	static auto random = [&](){return std::uniform_real_distribution<double>(0, 1)(randgen); };
 
 	/**
 	 * Sample a barycentric coordinate from a uniform random distribution.
@@ -66,9 +64,9 @@ namespace MishMesh {
 	 * @param outer_radius The outer radius.
 	 * @returns The coordinate of the sampled point.
 	 */
-	OpenMesh::Vec2d uniform_random_annulus_points(const OpenMesh::Vec2d center, const double inner_radius, const double outer_radius) {
-		const double theta = 2 * M_PI * real_dist(randgen);
-		const double r = sqrt(real_dist(randgen) * (outer_radius*outer_radius - inner_radius*inner_radius) + inner_radius*inner_radius);
+	OpenMesh::Vec2d uniform_random_annulus_point(const OpenMesh::Vec2d center, const double inner_radius, const double outer_radius) {
+		const double theta = 2 * M_PI * random();
+		const double r = sqrt(random() * (outer_radius*outer_radius - inner_radius*inner_radius) + inner_radius*inner_radius);
 		return {center[0] + r * cos(theta), center[1] + r * sin(theta)};
 	}
 }

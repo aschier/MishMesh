@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
 	mesh.clear();
 	for(int i = 0; i < 500; i++) {
-		auto p = MishMesh::uniform_random_annulus_points({0, 0}, 1.0, 0.5);
+		auto p = MishMesh::uniform_random_annulus_point({0, 0}, 1.0, 0.5);
 		mesh.add_vertex({p[0], p[1], 0.0});
 	}
 	OpenMesh::IO::write_mesh(mesh, "uniform_annulus.obj");
