@@ -102,6 +102,7 @@ namespace MishMesh {
 			}
 			return true;
 		}
+
 		/**
 		 * Clip a point to a bounding box.
 		 * @param point The point.
@@ -128,6 +129,24 @@ namespace MishMesh {
 				result += (rbn[j] - ltf[j])*(rbn[j] - ltf[j]);
 			}
 			return sqrt(result);
+		}
+
+		double max_side_length() const {
+			double result = 0.0;
+			for(short j = 0; j < DIM; j++) {
+				double width = (rbn[j] - ltf[j])*(rbn[j] - ltf[j]);
+				result = std::max(width, result);
+			}
+			return result;
+		}
+
+		double min_side_length() const {
+			double result = std::numeric_limits<double>::infinity();
+			for(short j = 0; j < DIM; j++) {
+				double width = (rbn[j] - ltf[j])*(rbn[j] - ltf[j]);
+				result = std::min(width, result);
+			}
+			return result;
 		}
 	};
 
