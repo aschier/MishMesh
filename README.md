@@ -47,6 +47,12 @@ Functions
 * Build a submesh from a set of faces of a mesh
 * Split mesh into its connected components
 
+##### Sampling
+* Uniform sampling inside triangles
+* Uniform sampling inside annuli (rings)
+* Poisson disk sampling inside triangles using the algorithm of Bridson (``Bridson, R. (2007). Fast Poisson disk sampling in arbitrary dimensions.
+	 * In ACM SIGGRAPH 2007 Sketches on - SIGGRAPH ’07, (San Diego, California: ACM Press), pp. 22-es.``) [[URL](https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)]
+
 ##### Visualization
 * Create an "edge mesh", that highlights a set of edges of a mesh
 * Create a "vertex mesh", that highlights a set of vertices of a mesh
@@ -83,5 +89,5 @@ FOR_CFV(v_it, fh) {
 * Compute a mesh laplacian with support for normalization and vertex area weighting
 
 ##### Geodesics
-* Compute geodesic distances using the algorithm of Novotni and Klein (``Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG’2002``) [[URL](http://cg.cs.uni-bonn.de/de/publikationen/paper-details/novotni-2002-computing/)]
-* Compute geodesic distances using the heat method (``Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1–11``) [[URL](https://dl.acm.org/citation.cfm?id=2516977)]
+* Compute geodesic distances using the algorithm of Novotni and Klein (``Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG’2002``) [[URL](http://cg.cs.uni-bonn.de/de/publikationen/paper-details/novotni-2002-computing/).
+* Compute geodesic distances using the heat method (``Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1–11``) [[URL](https://dl.acm.org/citation.cfm?id=2516977).

@@ -48,6 +48,8 @@ add_library(MishMesh
 	include/MishMesh/BBox.h
 	include/MishMesh/sampling.h
 	src/sampling.cpp
+	include/MishMesh/poisson_disk_sampling.h
+	src/poisson_disk_sampling.cpp
 )
 
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
