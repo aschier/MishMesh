@@ -155,21 +155,29 @@ namespace MishMesh {
 				if(!fast_point_in_triangle(new_point)) continue;
 				std::tie(idx_x, idx_y) = _grid_idx(new_point, true);
 				bool admissible = true;
+
 				auto from_point = bbox.clip(new_point - OpenMesh::Vec2d{min_distance, min_distance});
 				auto grid_from = _grid_idx(from_point);
 				auto to_point = bbox.clip(new_point + OpenMesh::Vec2d{min_distance, min_distance});
 				auto grid_to = _grid_idx(to_point);
+				// When clipping at the boundary, both points may lie in the same (boundary) cell.
+				if(grid_from == grid_to) continue;
+
+				// When one of the cells in the grid around the new point is occupied by another point,
+				// the new point is not admissible.
 				for(uint i = grid_from.first; i < grid_to.first; i++) for(uint j = grid_from.second; j < grid_to.second; j++) {
-					if(grid(i, j) == true){
+					if(grid(i, j)){
 						admissible = false;
 						break;
 					}
 				}
 				if(!admissible) continue;
 
+				// Store the point and mark it as occupied in the background grid.
 				grid.set(idx_x, idx_y, true);
 				active_list.push_back(new_point);
 				result.push_back(new_point);
+				break;
 			}
 		}
 		return result;
