@@ -161,7 +161,8 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 				try{
 					double distance = compute_distance(mesh, close_or_unprocessed_vh, trial_vh, fixed_vh, geodesicDistanceProperty);
 					double old_distance = mesh.property(geodesicDistanceProperty, close_or_unprocessed_vh); // current best distance
-					mesh.property(geodesicDistanceProperty, close_or_unprocessed_vh) = std::min(distance, old_distance);
+					distance = std::min(distance, old_distance);
+					mesh.property(geodesicDistanceProperty, close_or_unprocessed_vh) = distance;
 					if(mesh.status(close_or_unprocessed_vh).tagged2()) {
 						// If the vertex was unprocessed, add it to the close set.
 						mesh.status(close_or_unprocessed_vh).set_tagged2(false);
