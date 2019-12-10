@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	parser["output"]
 		.abbreviation('o')
 		.type(po::string)
-		.description("The output file prefix.");
+		.description("The output file.");
 	parser["startvertex"]
 		.abbreviation('s')
 		.type(po::i32)
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 	parser.parse(argc, argv);
 
 	if(!parser["input"].available() || !parser["output"].available()) {
-		std::cerr << "Please specify an input file and an output filename prefix." << std::endl;
+		std::cerr << "Please specify an input file and an output filename." << std::endl;
 		return 1;
 	}
 
