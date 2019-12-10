@@ -6,8 +6,6 @@
 using namespace std;
 using namespace MishMesh;
 
-class NoOverlap: public exception {};
-
 /**
  * Compute the two possible projected origin points for known distances from two points lying on the X-axis.
  * For symmetry reasons, there are two possible origins, that are (ox, oy) and (ox, -oy).
