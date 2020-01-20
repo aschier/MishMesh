@@ -14,7 +14,7 @@ namespace MishMesh {
 	 * @param vh The vertex.
 	 * @returns The halfedge of the face, that is opposite to the vertex.
 	 */
-	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, TriMesh::VertexHandle &vh) {
+	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, const TriMesh::VertexHandle &vh) {
 		TriMesh::HalfedgeHandle result_heh;
 		FOR_CFH(h_it, fh) {
 			if(mesh.from_vertex_handle(*h_it) != vh && mesh.to_vertex_handle(*h_it) != vh) {
