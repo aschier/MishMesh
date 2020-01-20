@@ -107,12 +107,17 @@ void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandl
 	double min_value = numeric_limits<double>::infinity();
 	for(auto vh : mesh.vertices()) {
 		double value = mesh.property(vertexProperty, vh);
+		if(!isfinite(value)) continue;
 		max_value = std::max(max_value, value);
 		min_value = std::min(min_value, value);
 	}
 	for(auto vh : mesh.vertices()) {
 		double value = mesh.property(vertexProperty, vh);
-		mesh.set_color(vh, {255 * (value - min_value) / (max_value - min_value), 0, 0});
+		if(isfinite(value)) {
+			mesh.set_color(vh, {255 * (value - min_value) / (max_value - min_value), 0, 0});
+		} else {
+			mesh.set_color(vh, {0, 0, 255});
+		}
 	}
 }
 
