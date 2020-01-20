@@ -1,4 +1,5 @@
 #include "MishMesh/transformations.h"
+#include "MishMesh/PolyMesh.h"
 
 using namespace std;
 
@@ -29,7 +30,16 @@ std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(std::array<OpenMesh::Vec
 	return embed_triangle(points[0], points[1], points[2]);
 }
 
+template<typename MeshT>
+std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(MeshT &mesh, const typename MeshT::HalfedgeHandle heh, const OpenMesh::Vec3d p) {
+	auto p1 = mesh.point(mesh.from_vertex_handle(heh));
+	auto p2 = mesh.point(mesh.to_vertex_handle(heh));
+	return MishMesh::embed_triangle(p1, p2, p);
+}
+
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 2> p1, OpenMesh::VectorT<double, 2> p2, OpenMesh::VectorT<double, 2> p3);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 3> p1, OpenMesh::VectorT<double, 3> p2, OpenMesh::VectorT<double, 3> p3);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(std::array<OpenMesh::VectorT<double, 2>, 3> points);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(std::array<OpenMesh::VectorT<double, 3>, 3> points);
+template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::HalfedgeHandle heh, const OpenMesh::Vec3d p);
+template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::HalfedgeHandle heh, const OpenMesh::Vec3d p);
