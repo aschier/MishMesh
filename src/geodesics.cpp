@@ -6,6 +6,8 @@
 using namespace std;
 using namespace MishMesh;
 
+typedef std::priority_queue<std::pair<double, TriMesh::VertexHandle>, std::vector<std::pair<double, TriMesh::VertexHandle>>, std::greater<std::pair<double, TriMesh::VertexHandle>>> VertexQueue;
+
 /**
  * Compute the two possible projected origin points for known distances from two points lying on the X-axis.
  * For symmetry reasons, there are two possible origins, that are (ox, oy) and (ox, -oy).
@@ -89,6 +91,22 @@ double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHand
 	return compute_distance(p, p1, p2, T1, T2);
 }
 
+void update_distance(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::VertexHandle update_vh, const MishMesh::TriMesh::VertexHandle fixed_vh1, const MishMesh::TriMesh::VertexHandle fixed_vh2, VertexQueue &close_vertices, const GeodesicDistanceProperty geodesicDistanceProperty) {
+	try{
+		double distance = compute_distance(mesh, update_vh, fixed_vh1, fixed_vh2, geodesicDistanceProperty);
+		double old_distance = mesh.property(geodesicDistanceProperty, update_vh); // current best distance
+		distance = std::min(distance, old_distance);
+		mesh.property(geodesicDistanceProperty, update_vh) = distance;
+		if(mesh.status(update_vh).tagged2()) {
+			// If the vertex was unprocessed, add it to the close set.
+			mesh.status(update_vh).set_tagged2(false);
+			close_vertices.push(make_pair(distance, update_vh));
+		}
+	} catch(NoOverlap) {
+		return;
+	}
+}
+
 /**
  * Compute geodesic distances on a mesh using the Method of Novotni and Klein
  * [Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG’2002.]
@@ -114,7 +132,7 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 	 */
 
 	mesh.request_vertex_status();
-	priority_queue<pair<double, TriMesh::VertexHandle>, std::vector<pair<double, TriMesh::VertexHandle>>, std::greater<pair<double, TriMesh::VertexHandle>>> close_vertices;
+	VertexQueue close_vertices;
 
 	for(auto vh : mesh.vertices()) {
 		mesh.status(vh).set_tagged(false); // True, when the vertex is fixed
@@ -155,20 +173,9 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 					close_or_unprocessed_vh = *v_it;
 				}
 			}
+			// (re-)calculcate distances from unprocessed and close vertices
 			if(fixed_vh.is_valid() && close_or_unprocessed_vh.is_valid()) {
-				try{
-					double distance = compute_distance(mesh, close_or_unprocessed_vh, trial_vh, fixed_vh, geodesicDistanceProperty);
-					double old_distance = mesh.property(geodesicDistanceProperty, close_or_unprocessed_vh); // current best distance
-					distance = std::min(distance, old_distance);
-					mesh.property(geodesicDistanceProperty, close_or_unprocessed_vh) = distance;
-					if(mesh.status(close_or_unprocessed_vh).tagged2()) {
-						// If the vertex was unprocessed, add it to the close set.
-						mesh.status(close_or_unprocessed_vh).set_tagged2(false);
-						close_vertices.push(make_pair(distance, close_or_unprocessed_vh));
-					}
-				} catch(NoOverlap) {
-					continue;
-				}
+				update_distance(mesh, close_or_unprocessed_vh, trial_vh, fixed_vh, close_vertices, geodesicDistanceProperty);
 			}
 		}
 	}
