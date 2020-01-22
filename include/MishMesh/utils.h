@@ -18,6 +18,8 @@ namespace MishMesh {
 	double compute_area(const TriMesh &mesh, const std::array<TriMesh::VertexHandle, 3> vertices);
 	double compute_area(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 
+	TriMesh::VertexHandle obtuse_vertex(const TriMesh &mesh, const TriMesh::FaceHandle fh);
+
 
 	template<typename MeshT>
 	inline size_t euler_characteristic(const MeshT &mesh) {

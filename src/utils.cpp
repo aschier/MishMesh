@@ -122,6 +122,29 @@ namespace MishMesh {
 		return compute_area(mesh, face_vertices(mesh, fh));
 	}
 
+	/**
+	 * Get the vertex with an obtuse angle in a triangle, if the face has an obtuse angle.
+	 * @param mesh The mesh.
+	 * @param fh The face handle.
+	 * @returns A vertex handle to the vertex that belongs to the obtuse angle,
+	 *          or an invalid vertex handle if the triangle has no obtuse angles.
+	 */
+	TriMesh::VertexHandle obtuse_vertex(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
+		std::array<double, 3> sqr_lengths;
+		std::array<TriMesh::VertexHandle, 3> vhs;
+		int i = 0;
+		FOR_CFH(h_it, fh) {
+			sqr_lengths[i] = mesh.calc_edge_sqr_length(*h_it);
+			vhs[i] = mesh.opposite_vh(*h_it);
+			i++;
+		}
+		size_t max_idx = std::distance(sqr_lengths.begin(), std::max_element(sqr_lengths.begin(), sqr_lengths.end()));
+		if(sqr_lengths[max_idx] / (sqr_lengths[(max_idx + 1) % 3] + sqr_lengths[(max_idx + 2) % 3]) > 1.0){
+			return vhs[max_idx];
+		}
+		return TriMesh::InvalidVertexHandle;
+	}
+
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 2>, 3> points);
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 3>, 3> points);
 }
