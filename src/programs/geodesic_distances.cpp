@@ -4,6 +4,7 @@
 #include <MishMesh/TriMesh.h>
 #include <MishMesh/visualization.h>
 #include <MishMesh/geodesics.h>
+#include <MishMesh/utils.h>
 
 #include "../thirdparty/ProgramOptions.hxx"
 
@@ -52,8 +53,18 @@ int main(int argc, char **argv) {
 	MishMesh::GeodesicDistanceProperty distanceProperty;
 	mesh.add_property(distanceProperty);
 
+	int num_obtuse = 0;
+	for(auto fh : mesh.faces()) {
+		if(MishMesh::obtuse_vertex(mesh, fh).is_valid()) {
+			num_obtuse++;
+		}
+	}
+
 #ifdef HAS_EIGEN
 	if(parser["method"].get().string == "novotni" || parser["method"].get().string == "n") {
+		if(num_obtuse > 0) {
+			std::cerr << "Warning: The mesh contains " << num_obtuse << " obtuse triangle(s), the result may be wrong." << std::endl;
+		}
 		MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty);
 	} else if(parser["method"].get().string == "heat" || parser["method"].get().string == "h") {
 		MishMesh::compute_heat_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty, parser["timestep"].get().f32);
@@ -62,6 +73,9 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 #else
+	if(num_obtuse > 0) {
+		std::cerr << "Warning: The mesh contains " << num_obtuse << " obtuse triangle(s), the result may be wrong." << std::endl;
+	}
 	MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty);
 #endif
 
