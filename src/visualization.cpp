@@ -121,6 +121,25 @@ void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandl
 	}
 }
 
+void MishMesh::cosine_colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty, double periods) {
+	assert(mesh.has_vertex_colors());
+	double max_value = -numeric_limits<double>::infinity();
+	double min_value = numeric_limits<double>::infinity();
+	for(auto vh : mesh.vertices()) {
+		double value = mesh.property(vertexProperty, vh);
+		if(!isfinite(value)) continue;
+		max_value = std::max(max_value, value);
+		min_value = std::min(min_value, value);
+	}
+	for(auto vh : mesh.vertices()) {
+		double value = ((mesh.property(vertexProperty, vh) - min_value) / (max_value - min_value)) * 2 * M_PI * periods;
+		if(isfinite(value)) {
+			mesh.set_color(vh, {static_cast<unsigned char>(255 * (1.0 + cos(value)) / 2.0), 0, 0});
+		} else {
+			mesh.set_color(vh, {0, 0, 255});
+		}
+	}
+}
 /**
  * Generate a regular grid of a bounding box defined by its top-left-far and right-bottom-near vertices.
  * @param resolution The number of grid points in each dimension.
