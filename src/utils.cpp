@@ -27,6 +27,46 @@ namespace MishMesh {
 	}
 
 	/**
+	 * Get the vertex handles of a half edge
+	 * @param mesh The mesh.
+	 * @param heh The halfedge.
+	 * @returns The vertex handles of the vertices of the given halfedge.
+	 */
+	std::array<TriMesh::VertexHandle, 2> edge_vertices(const TriMesh &mesh, const TriMesh::HalfedgeHandle heh) {
+		return {mesh.from_vertex_handle(heh), mesh.to_vertex_handle(heh)};
+	}
+
+	/**
+	 * Get the vertex handles of an edge
+	 * @param mesh The mesh.
+	 * @param eh The edge.
+	 * @returns The vertex handles of the vertices of the given edge.
+	 */
+	std::array<TriMesh::VertexHandle, 2> edge_vertices(const TriMesh &mesh, const TriMesh::EdgeHandle eh) {
+		return edge_vertices(mesh, mesh.halfedge_handle(eh, 0));
+	}
+
+	/**
+	 * Get the points of a half edge
+	 * @param mesh The mesh.
+	 * @param heh The halfedge.
+	 * @returns The points of the vertices of the given halfedge.
+	 */
+	std::array<OpenMesh::Vec3d, 2> edge_points(const TriMesh &mesh, const TriMesh::HalfedgeHandle heh) {
+		return { mesh.point(mesh.from_vertex_handle(heh)), mesh.point(mesh.to_vertex_handle(heh)) };
+	}
+
+	/**
+	 * Get the points of an edge
+	 * @param mesh The mesh.
+	 * @param eh The edge.
+	 * @returns The points of the vertices of the given halfedge.
+	 */
+	std::array<OpenMesh::Vec3d, 2> edge_points(const TriMesh &mesh, const TriMesh::EdgeHandle eh) {
+		return edge_points(mesh, mesh.halfedge_handle(eh, 0));
+	}
+
+	/**
 	 * Get the vertex handles of a face.
 	 * @param mesh The mesh.
 	 * @param fh The face.
