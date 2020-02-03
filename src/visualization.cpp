@@ -96,10 +96,11 @@ TriMesh MishMesh::vertex_mesh(const TriMesh &mesh, std::vector<TriMesh::VertexHa
 }
 
 /**
- * Colorize the mesh from black to red using a given vertex property. The colors will be scaled from minimum to maximum value.
+ * Colorize the mesh from black to red using a given vertex property. The colors are be scaled from minimum to maximum value.
+ *
  * @param[inout] mesh The mesh.
  * @param[in] vertexProperty The vertex property.
- * @note You need to request_vertex_color before using this method.
+ * @note You need to use request_vertex_color before using this method.
  */
 void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty) {
 	assert(mesh.has_vertex_colors());
@@ -121,7 +122,17 @@ void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandl
 	}
 }
 
-void MishMesh::cosine_colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty, double periods) {
+/**
+ * Colorize the mesh using a cosine function to create a repeating gradient red to black using a given vertex property.
+ * The values are be scaled from minimum to maximum value, so the number of cosine periods between minimum and maximum
+ * can be chosen using the periods parameter.
+ *
+ * @param[inout] mesh The mesh.
+ * @param[in] vertexProperty The vertex property.
+ * @param[in] periods The number of periods for the cosine function.
+ * @note You need to use request_vertex_color before using this method.
+ */
+void MishMesh::cosine_colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty, const double periods) {
 	assert(mesh.has_vertex_colors());
 	double max_value = -numeric_limits<double>::infinity();
 	double min_value = numeric_limits<double>::infinity();
@@ -140,6 +151,7 @@ void MishMesh::cosine_colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPr
 		}
 	}
 }
+
 /**
  * Generate a regular grid of a bounding box defined by its top-left-far and right-bottom-near vertices.
  * @param resolution The number of grid points in each dimension.
