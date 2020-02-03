@@ -16,7 +16,7 @@ array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, DIM
 	double v2x = (p2 - p1).norm();
 	assert(v2x != 0);
 	double v3x = (p2 - p1) | (p3 - p1) / (p2 - p1).norm();
-	double C = pow((p3 - p1).norm(), 2);
+	double C = (p3 - p1).sqrnorm();
 	double A = pow(v3x, 2);
 	double v3y = C > A ? sqrt(C-A) : sqrt(A-C);
 	OpenMesh::Vec2d v1 = {0, 0};
