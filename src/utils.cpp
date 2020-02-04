@@ -185,6 +185,38 @@ namespace MishMesh {
 		return TriMesh::InvalidVertexHandle;
 	}
 
+#ifdef HAS_EIGEN
+	/**
+	 * Convert a TriMesh to face and vertex vectors.
+	 * @param[in] mesh The mesh.
+	 * @returns A pair (V, F) with a Vx3 matrix of the vertices and a Fx3 matrix mapping faces to their vertices.
+	 * @note The function assumes that the mesh indices are consistent. Call mesh.garbage_collection() before
+	 *       using this function, when you elements from the mesh.
+	 */
+	template<typename VertexMatrixT, typename FaceMatrixT>
+	std::pair<VertexMatrixT, FaceMatrixT> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh) {
+		VertexMatrixT V(mesh.n_vertices(), 3);
+		for(int i = 0; i < V.rows(); i++) {
+			V.row(i) = Eigen::Vector3d(mesh.point(mesh.vertex_handle(i)).data());
+		}
+
+		FaceMatrixT F(mesh.n_faces(), 3);
+		for(int i = 0; i < F.rows(); i++) {
+			const auto fh = mesh.face_handle(i);
+			int v_idx = 0;
+			FOR_CFV(v_it, fh) {
+				F(i, v_idx) = v_it->idx();
+				v_idx++;
+			}
+		}
+
+		return std::make_pair(V, F);
+	}
+
+	template std::pair<Eigen::MatrixX3d, Eigen::MatrixX3i> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
+	template std::pair<Eigen::MatrixXd, Eigen::MatrixXi> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
+#endif
+
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 2>, 3> points);
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 3>, 3> points);
 }

@@ -4,6 +4,10 @@
 #include <array>
 #include <limits>
 
+#ifdef HAS_EIGEN
+#include <Eigen/Eigen>
+#endif
+
 namespace MishMesh {
 	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, const TriMesh::VertexHandle &vh);
 
@@ -26,9 +30,13 @@ namespace MishMesh {
 
 	TriMesh::VertexHandle obtuse_vertex(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 
-
 	template<typename MeshT>
 	inline size_t euler_characteristic(const MeshT &mesh) {
 		return mesh.n_vertices() - mesh.n_edges() + mesh.n_faces();
 	}
+
+#ifdef HAS_EIGEN
+	template<typename VertexMatrixT = Eigen::MatrixX3d, typename FaceMatrixT = Eigen::MatrixX3i>
+	std::pair<VertexMatrixT, FaceMatrixT> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
+#endif
 }
