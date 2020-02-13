@@ -29,6 +29,18 @@ int main(int argc, char **argv) {
 	std::cerr << "Sampled " << mesh.n_vertices() << " points in " << time.count() << "ms." << std::endl << std::endl;
 	OpenMesh::IO::write_mesh(mesh, "uniform_triangle.obj");
 
+	// Uniform circle sampling
+	mesh.clear();
+	std::cerr << "Sampling uniform inside an annulus:" << std::endl;
+	timepoint = clock::now();
+	for(int i = 0; i < 500; i++) {
+		auto p = MishMesh::uniform_random_circle_point({0, 0}, 1.0);
+		mesh.add_vertex({p[0], p[1], 0.0});
+	}
+	time = clock::now() - timepoint;
+	std::cerr << "Sampled " << mesh.n_vertices() << " points in " << time.count() << "ms." << std::endl << std::endl;
+	OpenMesh::IO::write_mesh(mesh, "uniform_circle.obj");
+
 	// Uniform annulus sampling
 	mesh.clear();
 	std::cerr << "Sampling uniform inside an annulus:" << std::endl;
@@ -59,6 +71,20 @@ int main(int argc, char **argv) {
 			mesh.add_vertex({p[0], p[1], 0.0});
 		}
 	}
+
+	std::cerr << "Poisson sampling inside a circle:" << std::endl;
+	for(int i = 1; i < 15; i++) {
+		OpenMesh::Vec2d center{1.1 * i, 1.6};
+		double min_dist = std::pow(10, -i * 0.15);
+		timepoint = clock::now();
+		auto points = MishMesh::poisson_disk_sampling_circle(center, 0.5, min_dist, 0.5 * min_dist / sqrt(2));
+		time = clock::now() - timepoint;
+		std::cerr << "Sampled " << points.size() << " points in " << time.count() << "ms." << std::endl;
+		for(auto p : points){
+			mesh.add_vertex({p[0], p[1], 0.0});
+		}
+	}
+
 	std::cerr << std::endl;
 	OpenMesh::IO::write_mesh(mesh, "poisson_sampling.obj");
 }

@@ -64,9 +64,22 @@ namespace MishMesh {
 	 * @param outer_radius The outer radius.
 	 * @returns The coordinate of the sampled point.
 	 */
+	OpenMesh::Vec2d uniform_random_circle_point(const OpenMesh::Vec2d center, const double radius) {
+		const double theta = 2 * M_PI * random();
+		const double r = random() * radius;
+		return {center[0] + r * cos(theta), center[1] + r * sin(theta)};
+	}
+
+	/**
+	 * Sample a random coordinate inside a annulus (ring) from a uniform random distribution.
+	 * @param center The center of the annulus.
+	 * @param inner_radius The inner radius.
+	 * @param outer_radius The outer radius.
+	 * @returns The coordinate of the sampled point.
+	 */
 	OpenMesh::Vec2d uniform_random_annulus_point(const OpenMesh::Vec2d center, const double inner_radius, const double outer_radius) {
 		const double theta = 2 * M_PI * random();
-		const double r = sqrt(random() * (outer_radius*outer_radius - inner_radius*inner_radius) + inner_radius*inner_radius);
+		const double r = sqrt(random() * (outer_radius*outer_radius - inner_radius * inner_radius) + inner_radius * inner_radius);
 		return {center[0] + r * cos(theta), center[1] + r * sin(theta)};
 	}
 }

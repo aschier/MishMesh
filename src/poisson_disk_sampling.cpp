@@ -110,10 +110,27 @@ namespace MishMesh {
 	}
 
 	/**
+	 * Subsample points in a circle using poisson disk sampling using the algorithm of Bridson.
+	 *
+	 * @param center The center of the circle.
+	 * @param radius The radius of the circle.
+	 * @param min_distance The minimum distance between two points.
+	 * @param cell_size The cell size for a background grid, that is used for checking if there is a point
+	 *                  with distance less than min_distance.
+	 * @param max_tries The number of tries to find a new point in the neighborhood of an active point,
+	 *                  before continuing with next active point.
+	 * @returns a vector containing the sampled points.
+	 * @note For the algorithm, you need to make sure that cell_size <= min_distance / sqrt(2)
+	 */
+	std::vector<OpenMesh::Vec2d> poisson_disk_sampling_circle(const OpenMesh::Vec2d center, const double radius, const double min_distance, const double cell_size, const int max_tries) {
+		BBox<OpenMesh::Vec2d, 2> bbox({center[0] - radius, center[1] - radius}, {center[0] + radius, center[1] + radius});
+		const double radius_2 = radius * radius;
+		std::function<bool(const OpenMesh::Vec2d &)> point_in_sphere_test = [&](const OpenMesh::Vec2d &p) { return (center - p).sqrnorm() < radius_2; };
+		return poisson_disk_sampling(bbox, point_in_sphere_test, {center}, min_distance, cell_size, max_tries);
+	}
+
+	/**
 	 * Subsample points in a triangle using poisson disk sampling using the algorithm of Bridson.
-	 * [Bridson, R. (2007). Fast Poisson disk sampling in arbitrary dimensions.
-	 * In ACM SIGGRAPH 2007 Sketches on - SIGGRAPH ’07, (San Diego, California: ACM Press), pp. 22-es.]
-	 * https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
 	 *
 	 * @param triangle_points Three points, that define a triangle.
 	 * @param min_distance The minimum distance between two points.
@@ -125,8 +142,30 @@ namespace MishMesh {
 	 * @note For the algorithm, you need to make sure that cell_size <= min_distance / sqrt(2)
 	 */
 	std::vector<OpenMesh::Vec2d> poisson_disk_sampling(const std::array<OpenMesh::Vec2d, 3> triangle_points, const double min_distance, const double cell_size, const int max_tries) {
-		std::vector<OpenMesh::Vec2d> result;
 		auto bbox = bounding_box<2, OpenMesh::Vec2d>(triangle_points.begin(), triangle_points.end());
+		auto fast_point_in_triangle = get_fast_point_in_triangle_function(triangle_points);
+		return poisson_disk_sampling(bbox, fast_point_in_triangle, std::vector<OpenMesh::Vec2d>(triangle_points.begin(), triangle_points.end()), min_distance, cell_size, max_tries);
+	}
+
+	/**
+	 * Subsample points using poisson disk sampling using the algorithm of Bridson.
+	 * [Bridson, R. (2007). Fast Poisson disk sampling in arbitrary dimensions.
+	 * In ACM SIGGRAPH 2007 Sketches on - SIGGRAPH ’07, (San Diego, California: ACM Press), pp. 22-es.]
+	 * https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
+	 *
+	 * @param bbox The bounding box of the target shape.
+	 * @param point_test A function, that returns true, when the point lies inside the target shape.
+	 * @param min_distance The minimum distance between two points.
+	 * @param cell_size The cell size for a background grid, that is used for checking if there is a point
+	 *                  with distance less than min_distance.
+	 * @param max_tries The number of tries to find a new point in the neighborhood of an active point,
+	 *                  before continuing with next active point.
+	 * @returns a vector containing the sampled points.
+	 * @note For the algorithm, you need to make sure that cell_size <= min_distance / sqrt(2)
+	 */
+	std::vector<OpenMesh::Vec2d> poisson_disk_sampling(MishMesh::BBox<OpenMesh::Vec2d, 2> bbox, std::function<bool(const OpenMesh::Vec2d &)> point_test, const std::vector<OpenMesh::Vec2d> initial_points,
+		const double min_distance, const double cell_size, const int max_tries) {
+		std::vector<OpenMesh::Vec2d> result;
 		assert(cell_size <= min_distance / sqrt(2));
 		const double max_length = bbox.max_side_length();
 		const uint N = static_cast<uint>(max_length / cell_size);
@@ -136,13 +175,11 @@ namespace MishMesh {
 		uint idx_x, idx_y;
 
 		std::vector<OpenMesh::Vec2d> active_list;
-		for(auto &p : triangle_points){
+		for(auto &p : initial_points){
 			std::tie(idx_x, idx_y) = _grid_idx(p);
 			grid.set(idx_x, idx_y, 1);
 			active_list.push_back(p);
 		}
-
-		auto fast_point_in_triangle = get_fast_point_in_triangle_function(triangle_points);
 
 		while(!active_list.empty()) {
 			// Choose a random point and remove it from the list
@@ -152,7 +189,7 @@ namespace MishMesh {
 			active_list.pop_back();
 			for(int t = 0; t < max_tries; t++) {
 				auto new_point = MishMesh::uniform_random_annulus_point(p, min_distance * 2, min_distance);
-				if(!fast_point_in_triangle(new_point)) continue;
+				if(!point_test(new_point)) continue;
 				std::tie(idx_x, idx_y) = _grid_idx(new_point, true);
 				bool admissible = true;
 

@@ -49,8 +49,9 @@ Functions
 
 ##### Sampling
 * Uniform sampling inside triangles
+* Uniform sampling inside circles
 * Uniform sampling inside annuli (rings)
-* Poisson disk sampling inside triangles using the algorithm of Bridson (``Bridson, R. (2007). Fast Poisson disk sampling in arbitrary dimensions.
+* Poisson disk sampling inside triangles and circles using the algorithm of Bridson (``Bridson, R. (2007). Fast Poisson disk sampling in arbitrary dimensions.
 	 * In ACM SIGGRAPH 2007 Sketches on - SIGGRAPH ’07, (San Diego, California: ACM Press), pp. 22-es.``) [[URL](https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)]
 
 ##### Visualization
