@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 
 	int num_obtuse = 0;
 	for(auto fh : mesh.faces()) {
-		if(MishMesh::obtuse_vertex(mesh, fh).is_valid()) {
+		if(MishMesh::is_obtuse(mesh, fh)) {
 			num_obtuse++;
 		}
 	}
