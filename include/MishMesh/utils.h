@@ -30,16 +30,34 @@ namespace MishMesh {
 
 	TriMesh::VertexHandle obtuse_vertex(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 
-	/// Return true, when the face contains an obtuse vertex
+	/**
+	 * Test if a face has an obtuse angle.
+	 * @param mesh The mesh.
+	 * @param fh a face handle in the mesh.
+	 * @returns True, if the face has an obtuse angle.
+	 */
 	inline bool is_obtuse(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
 		return obtuse_vertex(mesh, fh).is_valid();
 	};
 
-	/// Return true, when vh is an obtuse vertex in the face fh
+	/**
+	 * Test if a vertex of a face belongs to an obtuse angle.
+	 * @param mesh The mesh.
+	 * @param fh a face handle in the mesh.
+	 * @param vh a vertex handle in the mesh.
+	 * @returns True, if the vertex belongs to an obtuse angle in the face.
+	 * @note The method does not test if the vertex belongs to the face and
+	 *       always returns false when the vertex does not belong to the face.
+	 */
 	inline bool is_obtuse(const TriMesh &mesh, const TriMesh::FaceHandle fh, const TriMesh::VertexHandle vh) {
 		return obtuse_vertex(mesh, fh) == vh;
 	};
 
+	/**
+	 * Computes the euler characteristic of a mesh.
+	 * @param mesh The mesh.
+	 * @returns The euler characteristic.
+	 */
 	template<typename MeshT>
 	inline size_t euler_characteristic(const MeshT &mesh) {
 		return mesh.n_vertices() - mesh.n_edges() + mesh.n_faces();
