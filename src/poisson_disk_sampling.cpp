@@ -177,7 +177,6 @@ namespace MishMesh {
 				grid.set(idx_x, idx_y, true);
 				active_list.push_back(new_point);
 				result.push_back(new_point);
-				break;
 			}
 		}
 		return result;
