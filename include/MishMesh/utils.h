@@ -30,6 +30,16 @@ namespace MishMesh {
 
 	TriMesh::VertexHandle obtuse_vertex(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 
+	/// Return true, when the face contains an obtuse vertex
+	inline bool is_obtuse(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
+		return obtuse_vertex(mesh, fh).is_valid();
+	};
+
+	/// Return true, when vh is an obtuse vertex in the face fh
+	inline bool is_obtuse(const TriMesh &mesh, const TriMesh::FaceHandle fh, const TriMesh::VertexHandle vh) {
+		return obtuse_vertex(mesh, fh) == vh;
+	};
+
 	template<typename MeshT>
 	inline size_t euler_characteristic(const MeshT &mesh) {
 		return mesh.n_vertices() - mesh.n_edges() + mesh.n_faces();
