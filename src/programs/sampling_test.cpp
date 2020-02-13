@@ -87,4 +87,20 @@ int main(int argc, char **argv) {
 
 	std::cerr << std::endl;
 	OpenMesh::IO::write_mesh(mesh, "poisson_sampling.obj");
+
+	// Sphere sampling
+	std::cerr << "Sampling fibonnaci spheres:" << std::endl;
+	mesh.clear();
+	for(int i = 1; i < 15; i++) {
+		timepoint = clock::now();
+		auto points = MishMesh::fibonacci_sphere({2.2 * i, 0, 0}, 1.0, static_cast<uint>(pow(1.8, i+4)));
+		time = clock::now() - timepoint;
+		std::cerr << "Sampled " << points.size() << " points in " << time.count() << "ms." << std::endl;
+		for(auto p : points) {
+			mesh.add_vertex({p[0], p[1], p[2]});
+		}
+	}
+
+	std::cerr << std::endl;
+	OpenMesh::IO::write_mesh(mesh, "fibonnaci_sphere.obj");
 }

@@ -82,4 +82,26 @@ namespace MishMesh {
 		const double r = sqrt(random() * (outer_radius*outer_radius - inner_radius * inner_radius) + inner_radius * inner_radius);
 		return {center[0] + r * cos(theta), center[1] + r * sin(theta)};
 	}
+
+	/**
+	 * Sample evenly spaced points on a sphere.
+	 * @param center The center of the sphere.
+	 * @param radius The radius of the sphere.
+	 * @param samples The number of samples.
+	 * @returns The sampled points.
+	 */
+	std::vector<OpenMesh::Vec3d> fibonacci_sphere(const OpenMesh::Vec3d center, const double radius, const uint samples) {
+		std::vector<OpenMesh::Vec3d> result;
+		const double offset = 2.0 / samples;
+		const double increment = M_PI * (3.0 - sqrt(5.0));
+		for(uint i = 0; i < samples; i++) {
+			const double y = ((i*offset - 1)) + (offset / 2.0);
+			const double r = sqrt(1 - y * y);
+			const double phi = (i + 1) % samples * increment;
+			const double x = cos(phi) * r;
+			const double z = sin(phi) * r;
+			result.push_back(center + OpenMesh::Vec3d{radius * x, radius * y, radius * z});
+		}
+		return result;
+	}
 }
