@@ -89,5 +89,5 @@ FOR_CFV(v_it, fh) {
 * Compute a mesh laplacian with support for normalization and vertex area weighting
 
 ##### Geodesics
-* Compute geodesic distances using the algorithm of Novotni and Klein (``Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG’2002``) [[URL](http://cg.cs.uni-bonn.de/de/publikationen/paper-details/novotni-2002-computing/).
-* Compute geodesic distances using the heat method (``Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1–11``) [[URL](https://dl.acm.org/citation.cfm?id=2516977).
+* Compute geodesic distances using the algorithm of Novotni and Klein (``Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG’2002``) [[URL](http://cg.cs.uni-bonn.de/de/publikationen/paper-details/novotni-2002-computing/)].
+* Compute geodesic distances using the heat method (``Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1–11``) [[URL](https://dl.acm.org/citation.cfm?id=2516977)].
