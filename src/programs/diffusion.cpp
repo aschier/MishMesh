@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 	double d = parser["diffusion"].get().f32;
 	Eigen::SparseMatrix<double> A = eye - d*laplace;
 
-	Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
+	Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> solver;
 	solver.compute(A);
 	int steps = parser["steps"].get().i32;
 	Eigen::VectorXd result;
