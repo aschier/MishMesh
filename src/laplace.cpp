@@ -8,10 +8,6 @@
 using namespace std;
 using namespace MishMesh;
 
-inline double cot(double angle) {
-	return std::cos(angle) / std::sin(angle);
-}
-
 /**
  * Create Eigen::Triplet sparse matrix entries for a Laplace matrix.
  * @param mesh The mesh for which the laplacian is built.
@@ -26,16 +22,18 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 	for(int i = 0; i < mesh.n_vertices(); i++) {
 		triplets.push_back(Eigen::Triplet<double>(i, i, 0.0));
 	}
-	OpenMesh::HPropHandleT<double> prop_halfedge_angle;
-	mesh.add_property(prop_halfedge_angle);
+	OpenMesh::HPropHandleT<double> prop_cot_halfedge_angle;
+	mesh.add_property(prop_cot_halfedge_angle);
 
 	for(auto heh : mesh.halfedges()) {
 		if(mesh.is_boundary(heh)) {
 			continue;
 		}
 		auto next_heh = mesh.next_halfedge_handle(heh);
-		mesh.property(prop_halfedge_angle, heh) = mesh.calc_sector_angle(next_heh);
-		assert(mesh.property(prop_halfedge_angle, heh) <= M_PI);
+		OpenMesh::Vec3d v0, v1;
+		mesh.calc_sector_vectors(next_heh, v0, v1);
+		double cot = (v0 | v1) / (v0 % v1).norm();
+		mesh.property(prop_cot_halfedge_angle, heh) = cot;
 	}
 
 	for(auto vh : mesh.vertices()) {
@@ -54,10 +52,10 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 			int to_idx = mesh.to_vertex_handle(heh1).idx();
 			double weight = 0.0;
 			if(!mesh.is_boundary(heh1)) {
-				weight += cot(mesh.property(prop_halfedge_angle, heh1));
+				weight += mesh.property(prop_cot_halfedge_angle, heh1);
 			}
 			if(!mesh.is_boundary(heh2)) {
-				weight += cot(mesh.property(prop_halfedge_angle, heh2));
+				weight += mesh.property(prop_cot_halfedge_angle, heh2);
 			}
 			weight /= 2.0;
 			if(area_weighted) {
@@ -78,7 +76,7 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 		}
 	}
 
-	mesh.remove_property(prop_halfedge_angle);
+	mesh.remove_property(prop_cot_halfedge_angle);
 	return triplets;
 }
 

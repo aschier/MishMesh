@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 	parser["diffusion"]
 		.abbreviation('d')
 		.type(po::f32)
-		.description("The diffusion factor. The program solves for (I - d*L)*x = rhs.")
+		.description("The diffusion factor d. The program solves for (I - d*L)*x = rhs.")
 		.fallback(10.0);
 
 	parser.parse(argc, argv);
