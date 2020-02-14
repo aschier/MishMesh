@@ -27,6 +27,11 @@ int main(int argc, char **argv) {
 		.type(po::i32)
 		.description("The start vertex for calculating geodesic distances.")
 		.fallback(0);
+	parser["periods"]
+		.abbreviation('p')
+		.type(po::f32)
+		.description("The number of cosinus periods for coloring isolines of the geodesic distance.")
+		.fallback(0);
 #ifdef HAS_EIGEN
 	parser["method"]
 		.abbreviation('m')
@@ -80,7 +85,14 @@ int main(int argc, char **argv) {
 #endif
 
 	mesh.request_vertex_colors();
-	MishMesh::colorize_mesh(mesh, distanceProperty);
+
+	if(parser["periods"].get().f32 == 0) {
+		MishMesh::colorize_mesh(mesh, distanceProperty);
+	} else {
+		MishMesh::cosine_colorize_mesh(mesh, distanceProperty, parser["periods"].get().f32);
+
+	}
+
 	OpenMesh::IO::write_mesh(mesh, parser["output"].get().string, OpenMesh::IO::Options::VertexColor);
 
 	return 0;
