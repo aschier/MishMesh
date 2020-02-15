@@ -8,7 +8,7 @@
 
 namespace MishMesh {
 	static std::default_random_engine randgen(std::random_device{}());
-	static auto random = [&](){return std::uniform_real_distribution<double>(0, 1)(randgen); };
+	static auto random = [](){return std::uniform_real_distribution<double>(0, 1)(randgen); };
 
 	/**
 	 * Sample a barycentric coordinate from a uniform random distribution.

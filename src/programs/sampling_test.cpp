@@ -7,6 +7,7 @@
 
 #include <array>
 #include <chrono>
+#include <iostream>
 
 int main(int argc, char **argv) {
 	typedef std::chrono::high_resolution_clock clock;
