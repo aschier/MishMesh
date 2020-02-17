@@ -196,8 +196,12 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 			}
 			// (re-)calculcate distances from unprocessed and close vertices
 			if(fixed_vh.is_valid() && close_or_unprocessed_vh.is_valid()) {
-				double new_distance = compute_distance(mesh, close_or_unprocessed_vh, trial_vh, fixed_vh, geodesicDistanceProperty);
-				update_distance(mesh, close_or_unprocessed_vh, new_distance, close_vertices, geodesicDistanceProperty);
+				try {
+					double new_distance = compute_distance(mesh, close_or_unprocessed_vh, trial_vh, fixed_vh, geodesicDistanceProperty);
+					update_distance(mesh, close_or_unprocessed_vh, new_distance, close_vertices, geodesicDistanceProperty);
+				} catch(NoOverlap) {
+					// Do not update the distance.
+				}
 			}
 		}
 	}
