@@ -1,12 +1,13 @@
 #include "MishMesh/geodesics.h"
 #include <MishMesh/macros.h>
 #include <MishMesh/transformations.h>
-#include <queue>
+#include <MishMesh/utils.h>
+#include <OpenMesh/Tools/Utils/HeapT.hh>
+
 
 using namespace std;
 using namespace MishMesh;
 
-typedef std::priority_queue<std::pair<double, TriMesh::VertexHandle>, std::vector<std::pair<double, TriMesh::VertexHandle>>, std::greater<std::pair<double, TriMesh::VertexHandle>>> VertexQueue;
 
 /**
  * Compute the two possible projected origin points for known distances from two points lying on the X-axis.
@@ -91,18 +92,33 @@ double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHand
 	return compute_distance(p, p1, p2, T1, T2);
 }
 
-void update_distance(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::VertexHandle update_vh, const MishMesh::TriMesh::VertexHandle fixed_vh1, const MishMesh::TriMesh::VertexHandle fixed_vh2, VertexQueue &close_vertices, const GeodesicDistanceProperty geodesicDistanceProperty) {
-	try{
-		double distance = compute_distance(mesh, update_vh, fixed_vh1, fixed_vh2, geodesicDistanceProperty);
-		double old_distance = mesh.property(geodesicDistanceProperty, update_vh); // current best distance
-		distance = std::min(distance, old_distance);
-		mesh.property(geodesicDistanceProperty, update_vh) = distance;
-		if(mesh.status(update_vh).tagged2()) {
-			// If the vertex was unprocessed, add it to the close set.
-			mesh.status(update_vh).set_tagged2(false);
-			close_vertices.push(make_pair(distance, update_vh));
-		}
-	} catch(NoOverlap) {
+/**
+ * Update the geodesic distance value of a vertex and reorder the close_vertices heap.
+ * @param mesh The mesh.
+ * @param update_vh The vertex handle to update.
+ * @param new_distance The new distance value.
+ * @param close_vertices A vertex heap, that is updated with the new distance.
+ * @param geodesicDistanceProperty A vertex property storing the geodesic distance.
+ * @note When the vertex heap does not contain update_vh, it is inserted.
+ */
+void update_distance(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::VertexHandle update_vh, const double new_distance, VertexHeap &close_vertices, const GeodesicDistanceProperty geodesicDistanceProperty) {
+	assert(!mesh.status(update_vh).tagged()); // The vertex is not fixed
+
+	const double old_distance = mesh.property(geodesicDistanceProperty, update_vh); // current best distance
+	if(new_distance > old_distance) return;
+
+	mesh.property(geodesicDistanceProperty, update_vh) = new_distance;
+
+	// If the vertex was unprocessed, add it to the close set.
+	if(mesh.status(update_vh).tagged2()) {
+		assert(!close_vertices.is_stored(update_vh));
+		mesh.status(update_vh).set_tagged2(false);
+		close_vertices.insert(update_vh);
+		return;
+	} else {
+		assert(!mesh.status(update_vh).tagged());
+		assert(close_vertices.is_stored(update_vh));
+		close_vertices.update(update_vh);
 		return;
 	}
 }
@@ -132,7 +148,12 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 	 */
 
 	mesh.request_vertex_status();
-	VertexQueue close_vertices;
+
+	HeapIndexProperty propHeapIndex;
+	mesh.add_property(propHeapIndex);
+
+	VertexHeapInterface<MishMesh::TriMesh::VertexHandle> heapInterface(mesh, geodesicDistanceProperty, propHeapIndex);
+	VertexHeap close_vertices(heapInterface);
 
 	for(auto vh : mesh.vertices()) {
 		mesh.status(vh).set_tagged(false); // True, when the vertex is fixed
@@ -149,14 +170,15 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 		auto vh = mesh.to_vertex_handle(*h_it);
 		double distance = mesh.calc_edge_length(*h_it);
 		mesh.property(geodesicDistanceProperty, vh) = distance;
-		close_vertices.push(make_pair(distance, vh));
+		assert(!close_vertices.is_stored(vh));
+		close_vertices.insert(vh);
 		mesh.status(vh).set_tagged2(false);
 	}
 
 	// In each iteration, we pick a trial vertex from the close set and update the distances of its neighbor vertices, that are close or unprocessed
 	while(!close_vertices.empty()) {
-		auto trial_vh = close_vertices.top().second;
-		close_vertices.pop();
+		auto trial_vh = close_vertices.front();
+		close_vertices.pop_front();
 		assert(isfinite(mesh.property(geodesicDistanceProperty, trial_vh)));
 		mesh.status(trial_vh).set_tagged(true);
 		// For each face adjacent to the trial vertex that contains a close or unprocessed vertex and a fixed vertex,
@@ -175,7 +197,8 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 			}
 			// (re-)calculcate distances from unprocessed and close vertices
 			if(fixed_vh.is_valid() && close_or_unprocessed_vh.is_valid()) {
-				update_distance(mesh, close_or_unprocessed_vh, trial_vh, fixed_vh, close_vertices, geodesicDistanceProperty);
+				double new_distance = compute_distance(mesh, close_or_unprocessed_vh, trial_vh, fixed_vh, geodesicDistanceProperty);
+				update_distance(mesh, close_or_unprocessed_vh, new_distance, close_vertices, geodesicDistanceProperty);
 			}
 		}
 	}

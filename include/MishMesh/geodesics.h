@@ -2,10 +2,56 @@
 
 #include <MishMesh/TriMesh.h>
 #include <exception>
+#include <OpenMesh/Tools/Utils/HeapT.hh>
 
 namespace MishMesh {
 	class NoOverlap: public std::exception {};
 	typedef OpenMesh::VPropHandleT<double> GeodesicDistanceProperty;
+	typedef OpenMesh::VPropHandleT<int> HeapIndexProperty;
+
+	template<typename HeapEntry>
+	struct VertexHeapInterface {
+		 VertexHeapInterface(MishMesh::TriMesh &_mesh, const GeodesicDistanceProperty _propDistance, const HeapIndexProperty _propHeapIndex):
+			  mesh(_mesh), propDistance(_propDistance), propHeapIndex(_propHeapIndex) {
+			  for(auto &vh : mesh.vertices()) {
+				   mesh.property(propHeapIndex, vh) = -1;
+			  }
+		 }
+		 /// Comparison of two HeapEntry's: strict less
+		 bool less(const HeapEntry& _e1, const HeapEntry& _e2) {
+			  return mesh.property(propDistance, _e1) < mesh.property(propDistance, _e2);
+		 };
+
+		 /// Comparison of two HeapEntry's: strict greater
+		 bool greater(const HeapEntry& _e1, const HeapEntry& _e2) {
+			  return mesh.property(propDistance, _e1) > mesh.property(propDistance, _e2);
+		 }
+
+		 /// Get the heap position of HeapEntry _e
+		 int get_heap_position(const HeapEntry& _e) {
+			  return mesh.property(propHeapIndex, _e);
+		 };
+
+		 /// Set the heap position of HeapEntry _e
+		 void set_heap_position(HeapEntry& _e, int _i) {
+			  mesh.property(propHeapIndex, _e) = _i;
+		 };
+
+		 const GeodesicDistanceProperty propDistance;
+		 const HeapIndexProperty propHeapIndex;
+		 TriMesh &mesh;
+	};
+	typedef OpenMesh::Utils::HeapT<MishMesh::TriMesh::VertexHandle, VertexHeapInterface<MishMesh::TriMesh::VertexHandle>> VertexHeap;
+
+	inline void insert_or_update(VertexHeap heap, TriMesh::VertexHandle vh) {
+		 if(heap.is_stored(vh)) {
+			  heap.update(vh);
+		 } else{
+			  heap.insert(vh);
+		 };
+	}
+
+
 	enum GeodesicType {
 		NOVOTNI,
 		HEAT,
