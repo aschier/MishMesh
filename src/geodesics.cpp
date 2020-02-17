@@ -4,7 +4,6 @@
 #include <MishMesh/utils.h>
 #include <OpenMesh/Tools/Utils/HeapT.hh>
 
-
 using namespace std;
 using namespace MishMesh;
 
@@ -20,10 +19,10 @@ using namespace MishMesh;
  * @throws NoOverlap when there are no points with the given distances from the two vertices, i.e,
  *         the two circles with radius T1, T2 around the vertices have no intersection.
  */
-pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::compute_projected_origins(double edge_length, double T1, double T2) {
+pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::compute_projected_origins(double edge_length_2, double T1_2, double T2_2) {
 	OpenMesh::Vec2d o1;
-	double A = 2 * pow(T1, 2.0) * pow(edge_length, 2.0) - pow(edge_length, 4.0) + 2 * pow(T2, 2.0) * pow(edge_length, 2.0);
-	double B = pow(pow(T1, 2.0) - pow(T2, 2.0), 2.0);
+	double A = 2 * T1_2 * edge_length_2 - pow(edge_length_2, 2) + 2 * T2_2 * edge_length_2;
+	double B = pow(T1_2 - T2_2, 2);
 	assert(isfinite(A));
 	assert(isfinite(B));
 
@@ -31,11 +30,11 @@ pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::compute_projected_origins(doubl
 		throw NoOverlap();
 	}
 
-	double ox = 0.5 * (pow(edge_length, 2) + pow(T1, 2) - pow(T2, 2)) / edge_length;
+	double edge_length = sqrt(edge_length_2);
+	double ox = 0.5 * (edge_length_2 + T1_2 - T2_2) / edge_length;
 	double oy = 0.5 * sqrt(A - B) / edge_length;
 	return make_pair(OpenMesh::Vec2d{ox, oy}, OpenMesh::Vec2d{ox, -oy});
 }
-
 
 /**
  * Compute the geodesic distance of the point p to the origin from points p1, p2 and their distances T1, T2 to the origin.
@@ -50,20 +49,20 @@ pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::compute_projected_origins(doubl
  * @returns The geodesic distance of p to the origin.
  */
 template<int DIM>
-double MishMesh::compute_distance(const OpenMesh::VectorT<double, DIM> p, const OpenMesh::VectorT<double, DIM> p1, const OpenMesh::VectorT<double, DIM> p2, const double T1, const double T2) {
+double MishMesh::compute_distance(const OpenMesh::VectorT<double, DIM> p, const OpenMesh::VectorT<double, DIM> p1, const OpenMesh::VectorT<double, DIM> p2, const double T1_2, const double T2_2) {
 	auto points = embed_triangle(p1, p2, p);
-	double v2x = points[1][0];
+	double v2x_2 = (p1 - p2).sqrnorm();
 	auto v3 = points[2];
 
-	assert(isfinite(T1));
-	assert(isfinite(T2));
+	assert(isfinite(T1_2));
+	assert(isfinite(T2_2));
 
 	try{
 		OpenMesh::Vec2d o1, o2;
-		std::tie(o1, o2) = compute_projected_origins(v2x, T1, T2);
-		double T3 = max((v3 - o1).norm(), (v3 - o2).norm());
-		assert(isfinite(T3));
-		return T3;
+		std::tie(o1, o2) = compute_projected_origins(v2x_2, T1_2, T2_2);
+		double T3_2 = max((v3 - o1).sqrnorm(), (v3 - o2).sqrnorm());
+		assert(isfinite(T3_2));
+		return T3_2;
 	} catch(NoOverlap) {
 		throw NoOverlap();
 	}
@@ -86,10 +85,10 @@ double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHand
 	auto p2 = mesh.point(edge_vh2);
 	auto p = mesh.point(vh3);
 
-	double T1 = mesh.property(distProp, edge_vh1);
-	double T2 = mesh.property(distProp, edge_vh2);
-	assert(isfinite(T1) && isfinite(T2));
-	return compute_distance(p, p1, p2, T1, T2);
+	double T1_2 = mesh.property(distProp, edge_vh1);
+	double T2_2 = mesh.property(distProp, edge_vh2);
+	assert(isfinite(T1_2) && isfinite(T2_2));
+	return compute_distance(p, p1, p2, T1_2, T2_2);
 }
 
 /**
@@ -168,7 +167,7 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 	// Set the distance of the neighbor vertices from the edge length and change them from unprocesses to close
 	FOR_CVOH(h_it, start_vh) {
 		auto vh = mesh.to_vertex_handle(*h_it);
-		double distance = mesh.calc_edge_length(*h_it);
+		double distance = mesh.calc_edge_sqr_length(*h_it);
 		mesh.property(geodesicDistanceProperty, vh) = distance;
 		assert(!close_vertices.is_stored(vh));
 		close_vertices.insert(vh);
@@ -201,6 +200,9 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 				update_distance(mesh, close_or_unprocessed_vh, new_distance, close_vertices, geodesicDistanceProperty);
 			}
 		}
+	}
+	for(auto vh : mesh.vertices()) {
+		mesh.property(geodesicDistanceProperty, vh) = sqrt(mesh.property(geodesicDistanceProperty, vh));
 	}
 	mesh.release_vertex_status();
 }

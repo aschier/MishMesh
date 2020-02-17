@@ -90,7 +90,6 @@ int main(int argc, char **argv) {
 		MishMesh::colorize_mesh(mesh, distanceProperty);
 	} else {
 		MishMesh::cosine_colorize_mesh(mesh, distanceProperty, parser["periods"].get().f32);
-
 	}
 
 	OpenMesh::IO::write_mesh(mesh, parser["output"].get().string, OpenMesh::IO::Options::VertexColor);
