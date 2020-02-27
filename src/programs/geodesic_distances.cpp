@@ -8,6 +8,8 @@
 
 #include "../thirdparty/ProgramOptions.hxx"
 
+#include <MishMesh/TriMesh.h>
+
 int main(int argc, char **argv) {
 	po::parser parser;
 	parser["help"]
@@ -43,9 +45,14 @@ int main(int argc, char **argv) {
 		.type(po::f32)
 		.description("The timestep used for the Geodesics in Heat method.")
 		.fallback(0.1);
+	parser["no-obtuse"]
+		.abbreviation('O')
+		.description("Do not handle obtuse triangles.");
 #endif
 
 	parser.parse(argc, argv);
+
+	bool handle_obtuse = !parser["no-obtuse"].available();
 
 	if(!parser["input"].available() || !parser["output"].available()) {
 		std::cerr << "Please specify an input file and an output filename." << std::endl;
@@ -58,19 +65,9 @@ int main(int argc, char **argv) {
 	MishMesh::GeodesicDistanceProperty distanceProperty;
 	mesh.add_property(distanceProperty);
 
-	int num_obtuse = 0;
-	for(auto fh : mesh.faces()) {
-		if(MishMesh::is_obtuse(mesh, fh)) {
-			num_obtuse++;
-		}
-	}
-
 #ifdef HAS_EIGEN
 	if(parser["method"].get().string == "novotni" || parser["method"].get().string == "n") {
-		if(num_obtuse > 0) {
-			std::cerr << "Warning: The mesh contains " << num_obtuse << " obtuse triangle(s), the result may be wrong." << std::endl;
-		}
-		MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty);
+		MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty, handle_obtuse);
 	} else if(parser["method"].get().string == "heat" || parser["method"].get().string == "h") {
 		MishMesh::compute_heat_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty, parser["timestep"].get().f32);
 	} else {
@@ -78,10 +75,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 #else
-	if(num_obtuse > 0) {
-		std::cerr << "Warning: The mesh contains " << num_obtuse << " obtuse triangle(s), the result may be wrong." << std::endl;
-	}
-	MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty);
+	MishMesh::compute_novotni_geodesics(mesh, mesh.vertex_handle(parser["startvertex"].get().i32), distanceProperty, handle_obtuse);
 #endif
 
 	mesh.request_vertex_colors();
