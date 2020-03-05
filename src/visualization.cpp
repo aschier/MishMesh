@@ -48,7 +48,7 @@ constexpr short box_indices[6][4]{
 };
 
 /**
- * Add a given by a MishMesh::Bbox object box to a mesh.
+ * Add a box given by a MishMesh::Bbox object to a mesh.
  * @param mesh The mesh.
  * @param box The box.
  * @tparam MeshT the type of the mesh, e.g. MishMesh::TriMesh or MishMesh::PolyMesh.

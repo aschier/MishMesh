@@ -74,7 +74,7 @@ namespace MishMesh {
 	/**
 	 * An internal function for a point in triangle test, when certain values used in the algorithm
 	 * are already calculated.
-	 * @note Do not use directly.
+	 * @note Do not use this function directly, but use get_fast_point_in_triangle.
 	 * @see get_fast_point_in_triangle_function
 	 */
 	inline bool _fast_point_in_triangle(

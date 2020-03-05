@@ -81,7 +81,7 @@ double MishMesh::compute_distance(const OpenMesh::VectorT<double, DIM> p, const 
  * @param edge_vh2 The second vertex of the edge opposite to vh3.
  * @param distProp A mesh property storing the geodesic distances from an origin.
  * @returns The geodesic distance of the vertex from the origin.
- * @note The distances from edge_vh1 and edge_vh2 must be already computed for this function to work.
+ * @note The distances of edge_vh1 and edge_vh2 must be already computed for this function to work.
  */
 double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHandle &vh3, const TriMesh::VertexHandle &edge_vh1, const TriMesh::VertexHandle &edge_vh2, const OpenMesh::VPropHandleT<double> &distProp) {
 	auto p1 = mesh.point(edge_vh1);
