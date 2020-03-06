@@ -11,7 +11,7 @@ set(CMAKE_DEBUG_POSTFIX "d")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 find_package(OpenMesh 8.0 REQUIRED)
-find_package(Eigen3 3.3.7)
+find_package(Eigen3 3.3.7 QUIET)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -77,6 +77,8 @@ if(${EIGEN3_FOUND})
 	target_include_directories(MishMesh PUBLIC
 		${EIGEN3_INCLUDE_DIR}
 	)
+else()
+	message("Eigen3 was not found. Functions that need Eigen will not be available.")
 endif()
 
 # programs
