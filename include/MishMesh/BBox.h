@@ -84,7 +84,6 @@ namespace MishMesh {
 		/**
 		 * Check if a point is in a given bounding box.
 		 * @param point the point.
-		 * @param bbox The bounding box.
 		 * @param exact When exact is true, the point must be inside the bounding box,
 		 *        otherwise it must be inside a bounding box that is std::numeric_limits<float>::epsilon()
 		 *        in each direction.
@@ -175,10 +174,11 @@ namespace MishMesh {
 
 	/**
 	 * Calculate the axis aligned bounding box of a set of points.
-	 * @param points The points.
 	 * @tparam DIM The dimension of the vector type.
 	 * @tparam VectorT The vector type. The vector is expected to allow indexing up to DIM using operator[].
 	 * @tparam IteratorT An iterator type over a list of VectorT objects, e.g. std::vector<std::array<double, 3>>::iterator.
+	 * @param begin The begin iterator for a container of VectorT.
+	 * @param end The end iterator for a container of VectorT.
 	 * @returns A bounding box, that contains the points.
 	 */
 	template<int DIM, typename VectorT, typename IteratorT>

@@ -14,9 +14,9 @@ inline OpenMesh::Vec2d rotate_cw(const OpenMesh::Vec2d v) { return {v[1], -v[0]}
  * Compute the two possible projected origin points for known distances from two points lying on the X-axis.
  * For symmetry reasons, there are two possible origins, that are (ox, oy) and (ox, -oy).
  *
- * @param edge_length The distance between the two points.
- * @param T1 The distance of the first point from the origin.
- * @param T2 The distance of the second point from the origin.
+ * @param edge_length_2 The squared distance between the two points.
+ * @param T1_2 The squared distance of the first point from the origin.
+ * @param T2_2 The squared distance of the second point from the origin.
  * @returns a pair with the two possible origin points.
  * @throws NoOverlap when there are no points with the given distances from the two vertices, i.e,
  *         the two circles with radius T1, T2 around the vertices have no intersection.
@@ -47,8 +47,8 @@ pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::compute_projected_origins(doubl
  * @param p The point for which the distance should be calculcated.
  * @param p1 A point with known distance.
  * @param p2 A second point with known distance.
- * @param T1 The distance between p1 and the origin.
- * @param T2 The distance between p2 and the origin.
+ * @param T1_2 The squared distance between p1 and the origin.
+ * @param T2_2 The squared distance between p2 and the origin.
  * @returns The geodesic distance of p to the origin.
  */
 template<int DIM>
@@ -153,7 +153,7 @@ std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> calc_acute_section(const std::array<
  * When this virtual vertex is found, the distance between the obtuse vertex and the virtual vertex can be calculated in the plane.
  * @param mesh The mesh.
  * @param heh The halfedge opposite of the obtuse vertex.
- * @param other_vh The third vertex in the triangle, that is not fixed, yet.
+ * @param obtuse_vh The obtuse vertex in the triangle.
  * @param propDistance A GeodesicDistanceProperty for accessing the geodesic distances.
  * @returns a pair of the distance between the obtuse vertex and the virtual vertex in the plane and the
  *          vertex handle of the virtual vertex.
@@ -309,6 +309,7 @@ std::pair<double, TriMesh::VertexHandle> find_virtual_vertex(TriMesh &mesh, TriM
  * @param[inout] mesh The mesh.
  * @param[in] start_vh A valid vertex in the mesh, that will be used as start vertex.
  * @param[in] geodesicDistanceProperty A mesh property to store the geodesic distances. The method assumes, that the property is already added to the mesh.
+ * @param handle_obtuse Set to true, to enable handling of obtuse triangles by using virtual vertices.
  */
 void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, const GeodesicDistanceProperty geodesicDistanceProperty, const bool handle_obtuse) {
 	/*

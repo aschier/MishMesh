@@ -60,8 +60,7 @@ namespace MishMesh {
 	/**
 	 * Sample a random coordinate inside a annulus (ring) from a uniform random distribution.
 	 * @param center The center of the annulus.
-	 * @param inner_radius The inner radius.
-	 * @param outer_radius The outer radius.
+	 * @param radius The radius of the circle.
 	 * @returns The coordinate of the sampled point.
 	 */
 	OpenMesh::Vec2d uniform_random_circle_point(const OpenMesh::Vec2d center, const double radius) {

@@ -40,7 +40,6 @@ namespace MishMesh {
 	/**
 	 * Trace the path from a target vertex backward to the a source vertex.
 	 * @param mesh The mesh.
-	 * @param target_vh The start vertex handle.
 	 * @param target_vh The target vertex handle.
 	 * @param prop_vertex_shortest_path_length A mesh property, that stores the distance to the closest source vertex.
 	 * @param prop_edge_shortest_path_length An edge property, that stores the distance to the closest source vertex.

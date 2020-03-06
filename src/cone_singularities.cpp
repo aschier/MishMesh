@@ -102,7 +102,9 @@ Eigen::VectorXd MishMesh::cone_singularities::compute_curvature_flow(const Eigen
  * Compute the new curvature of a mesh with cone singularities removed.
  * @param[in] K_orig The original curvature.
  * @param singularity_indices A set of indices of vertices which are cone singularities.
+ * @param P_matrix the P matrix from the algorithm. Use the build_P_matrix method to build the matrix.
  * @returns A vector with the new curvature.
+ * @see build_P_matrix
  */
 Eigen::VectorXd MishMesh::cone_singularities::compute_new_curvature(const Eigen::VectorXd &K_orig, const std::set<size_t> &singularity_indices, const Eigen::SparseMatrix<double> &P_matrix) {
 	Eigen::VectorXd K_new(K_orig.rows());

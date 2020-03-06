@@ -155,6 +155,7 @@ namespace MishMesh {
 	 *
 	 * @param bbox The bounding box of the target shape.
 	 * @param point_test A function, that returns true, when the point lies inside the target shape.
+	 * @param initial_points Points that are already given before sampling.
 	 * @param min_distance The minimum distance between two points.
 	 * @param cell_size The cell size for a background grid, that is used for checking if there is a point
 	 *                  with distance less than min_distance.
@@ -225,7 +226,7 @@ namespace MishMesh {
 	 * @param min_distance The minimum distance between two points.
 	 * @returns a vector containing the sampled points.
 	 */
-	std::vector<OpenMesh::Vec2d> poisson_disk_sampling(const std::array<OpenMesh::Vec2d, 3> points, const double min_distance){
-		return poisson_disk_sampling(points, min_distance, min_distance / sqrt(2.0));
+	std::vector<OpenMesh::Vec2d> poisson_disk_sampling(const std::array<OpenMesh::Vec2d, 3> triangle_points, const double min_distance){
+		return poisson_disk_sampling(triangle_points, min_distance, min_distance / sqrt(2.0));
 	};
 }
