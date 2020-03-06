@@ -73,6 +73,11 @@ if(${EIGEN3_FOUND})
 		src/heatGeodesics.cpp
 		include/MishMesh/laplace.h
 	)
+	target_sources(MishMesh PRIVATE
+		src/cone_singularities.cpp
+		src/cone_singularities_impl.h
+		include/MishMesh/cone_singularities.h
+	)
 	target_compile_definitions(MishMesh PUBLIC HAS_EIGEN)
 	target_include_directories(MishMesh PUBLIC
 		${EIGEN3_INCLUDE_DIR}
@@ -122,6 +127,7 @@ target_link_libraries(sampling_test
 set_target_properties(sampling_test PROPERTIES FOLDER programs)
 
 if(${EIGEN3_FOUND})
+	# Diffusion (laplace operator) example program
 	add_executable(diffusion
 		src/programs/diffusion.cpp
 	)
@@ -130,8 +136,26 @@ if(${EIGEN3_FOUND})
 	set_target_properties(diffusion PROPERTIES FOLDER programs)
 
 	target_compile_definitions(diffusion PRIVATE HAS_EIGEN)
+
+	# Compile definitions for geodesic_distances with heat geodesics
 	target_compile_definitions(geodesic_distances PRIVATE HAS_EIGEN)
-	install(TARGETS diffusion RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+	# Cone Singularities example programs
+	add_executable(cone_singularities
+		src/programs/cone_singularities.cpp
+	)
+	target_link_libraries(cone_singularities
+		MishMesh)
+	set_target_properties(cone_singularities PROPERTIES FOLDER programs)
+	add_executable(cone_cuts
+		src/programs/cone_cuts.cpp
+	)
+	target_link_libraries(cone_cuts
+		MishMesh)
+	set_target_properties(cone_cuts PROPERTIES FOLDER programs)
+
+	# install targets
+	install(TARGETS diffusion cone_singularities cone_cuts RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 # doxygen
