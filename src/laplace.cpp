@@ -61,7 +61,6 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 			if(area_weighted) {
 				weight /= vertex_area;
 			}
-			assert(weight != 0);
 			triplets[from_idx] = Eigen::Triplet<double>(from_idx, from_idx, triplets[from_idx].value() - weight);
 			triplets.push_back(Eigen::Triplet<double>(from_idx, to_idx, weight));
 		}
