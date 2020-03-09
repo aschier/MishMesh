@@ -93,3 +93,6 @@ FOR_CFV(v_it, fh) {
 ##### Geodesics
 * Compute geodesic distances using the algorithm of Novotni and Klein (``Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG’2002``) [[URL](http://cg.cs.uni-bonn.de/de/publikationen/paper-details/novotni-2002-computing/)].
 * Compute geodesic distances using the heat method (``Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1–11``) [[URL](https://dl.acm.org/citation.cfm?id=2516977)].
+
+##### Cone Singularities
+* Compute cone singularities on the mesh using the algorithm of Ben-Chen et. al (``Ben-Chen, M., Gotsman, C., & Bunin, G. (2008). Conformal Flattening by Curvature Prescription and Metric Scaling. Computer Graphics Forum, 27(2), 449–458``) [[URL](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-8659.2008.01142.x)].
