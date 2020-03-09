@@ -65,6 +65,7 @@ namespace MishMesh {
 	void compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, const GeodesicDistanceProperty geodesicDistanceProperty, const bool handle_obtuse=true);
 #ifdef HAS_EIGEN
 	void compute_heat_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, GeodesicDistanceProperty geodesicDistanceProperty, double t = 0.1);
+	void compute_heat_geodesics(TriMesh &mesh, const std::vector<TriMesh::VertexHandle> start_vhs, GeodesicDistanceProperty geodesicDistanceProperty, double t = 0.1);
 #endif
 
 	inline void compute_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, GeodesicDistanceProperty geodesicDistanceProperty, GeodesicType geodesicType = NOVOTNI) {

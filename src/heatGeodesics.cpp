@@ -11,7 +11,7 @@
 
 /**
  * Compute geodesic distances on a mesh using the heat method by Crane, Wischedel and Wardetzky.
- * [Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1–11.]
+ * [Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1-11.]
  * https://dl.acm.org/citation.cfm?id=2516977
  *
  * @param[inout] mesh The mesh.
@@ -20,6 +20,22 @@
  * @param[in] t The timestep for the heat diffusion step in the algorithm.
  */
 void MishMesh::compute_heat_geodesics(TriMesh &mesh, const TriMesh::VertexHandle start_vh, GeodesicDistanceProperty geodesicGeodesicDistanceProperty, double t) {
+	return compute_heat_geodesics(mesh, std::vector<TriMesh::VertexHandle>{start_vh}, geodesicGeodesicDistanceProperty, t);
+}
+
+/**
+ * Compute geodesic distances on a mesh using the heat method by Crane, Wischedel and Wardetzky.
+ * [Crane, K., Weischedel, C., and Wardetzky, M. (2013). Geodesics in Heat. ACM Trans. Graph. 32, 1-11.]
+ * https://dl.acm.org/citation.cfm?id=2516977
+ *
+ * @param[inout] mesh The mesh.
+ * @param[in] start_vhs A list of valid vertices in the mesh, that will be used as start vertices.
+ * @param[in] geodesicGeodesicDistanceProperty A mesh property to store the geodesic distances. The method assumes, that the property is already added to the mesh
+ * @param[in] t The timestep for the heat diffusion step in the algorithm.
+ */
+void MishMesh::compute_heat_geodesics(TriMesh &mesh, const std::vector<TriMesh::VertexHandle> start_vhs, GeodesicDistanceProperty geodesicGeodesicDistanceProperty, double t) {
+	if(start_vhs.empty()) return;
+
 	mesh.request_face_normals();
 	mesh.update_face_normals();
 
@@ -28,7 +44,9 @@ void MishMesh::compute_heat_geodesics(TriMesh &mesh, const TriMesh::VertexHandle
 
 	// Set the initial heat distribution
 	Eigen::VectorXd u0 = Eigen::VectorXd::Zero(mesh.n_vertices());
-	u0[start_vh.idx()] = 1.0;
+	for(auto start_vh : start_vhs) {
+		u0[start_vh.idx()] = 1.0;
+	}
 
 	// Calculate the vertex areas as 1/3 of the triangles around a vertex
 	Eigen::VectorXd vertex_areas(mesh.n_vertices());
@@ -102,7 +120,7 @@ void MishMesh::compute_heat_geodesics(TriMesh &mesh, const TriMesh::VertexHandle
 
 	// The distance of the source vertex is always 0, so we can use it as boundary condition
 	// to get an unique solution of the poisson equation.
-	std::vector<std::pair<Eigen::Index, double>> bc{std::make_pair(start_vh.idx(), 0.0)};
+	std::vector<std::pair<Eigen::Index, double>> bc{std::make_pair(start_vhs[0].idx(), 0.0)};
 	MishMesh::apply_boundary_conditions(Lc, vertex_div_u, bc);
 	luSolver.compute(Lc);
 	Eigen::VectorXd phi = luSolver.solve(vertex_div_u);
