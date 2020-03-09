@@ -8,8 +8,6 @@
 
 #include "../thirdparty/ProgramOptions.hxx"
 
-#include <MishMesh/TriMesh.h>
-
 int main(int argc, char **argv) {
 	po::parser parser;
 	parser["help"]
