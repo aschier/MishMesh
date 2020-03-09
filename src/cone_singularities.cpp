@@ -136,20 +136,18 @@ Eigen::VectorXd MishMesh::cone_singularities::compute_new_curvature(const Eigen:
  * @param mode The ConeAdditionMode, which cones should be added in each iteration.
  * @returns The new curvature, i.e. the K from the last iteration, or the K from the iteration with the best convergence criterion, when use_optimal_phi is set.
  */
-Eigen::VectorXd MishMesh::cone_singularities::optimize_curvature(MishMesh::TriMesh &mesh, const Eigen::VectorXd &K_orig, std::set<size_t> &singularity_indices, const Eigen::SparseLU<Eigen::SparseMatrix<double>> &laplace_LU, const double phi_epsilon, const int max_iterations, const bool use_optimal_phi, MishMesh::ConeAdditionMode mode)
-{
-	double min_phi, max_phi;
+Eigen::VectorXd MishMesh::cone_singularities::optimize_curvature(MishMesh::TriMesh &mesh, const Eigen::VectorXd &K_orig, std::set<size_t> &singularity_indices, const Eigen::SparseLU<Eigen::SparseMatrix<double>> &laplace_LU, const double phi_epsilon, const int max_iterations, const bool use_optimal_phi, MishMesh::ConeAdditionMode mode) {
 	int iter = 0;
-	Eigen::VectorXd phi;
 	Eigen::VectorXd optimal_K_new;
 	double optimal_phi_range = numeric_limits<double>::infinity();
 	size_t optimal_num_singularities;
 	auto optimal_singularity_indices = singularity_indices;
 	Eigen::VectorXd K_new = compute_target_gauss_curvature(K_orig, singularity_indices);
-	do {
-		phi = compute_curvature_flow(K_orig, K_new, laplace_LU);
-		min_phi = phi.minCoeff();
-		max_phi = phi.maxCoeff();
+	Eigen::VectorXd phi = compute_curvature_flow(K_orig, K_new, laplace_LU);
+	double min_phi = phi.minCoeff();
+	double max_phi = phi.maxCoeff();
+	DEBUG_OUTPUT(string("current (max_phi - min_phi): ") + std::to_string(max_phi - min_phi));
+	while(max_phi - min_phi > phi_epsilon && ++iter < max_iterations) {
 		size_t argmin_phi, argmax_phi;
 		for(auto si: singularity_indices) {
 			phi[si] = numeric_limits<double>::infinity();
@@ -169,7 +167,10 @@ Eigen::VectorXd MishMesh::cone_singularities::optimize_curvature(MishMesh::TriMe
 
 		Eigen::SparseMatrix<double> P_matrix = build_P_matrix(mesh, singularity_indices);
 		K_new = compute_new_curvature(K_orig, singularity_indices, P_matrix);
-		double phi_range = abs(max_phi - min_phi);
+		phi = compute_curvature_flow(K_orig, K_new, laplace_LU);
+		min_phi = phi.minCoeff();
+		max_phi = phi.maxCoeff();
+		double phi_range = max_phi - min_phi;
 		if(use_optimal_phi) {
 			if(phi_range < optimal_phi_range) {
 				optimal_phi_range = phi_range;
@@ -180,13 +181,13 @@ Eigen::VectorXd MishMesh::cone_singularities::optimize_curvature(MishMesh::TriMe
 		} else {
 			optimal_num_singularities = singularity_indices.size();
 		}
-		DEBUG_OUTPUT(string("current max_phi - min_phi: ") + std::to_string(phi_range));
 		if(use_optimal_phi) {
 			DEBUG_OUTPUT(string("optimal max_phi - min_phi: ") + std::to_string(optimal_phi_range));
 		}
-		DEBUG_OUTPUT("");
-	} while(max_phi - min_phi > phi_epsilon && ++iter < max_iterations);
+		DEBUG_OUTPUT(string("new (max_phi - min_phi): ") + std::to_string(phi_range));
+	}
 
+	DEBUG_OUTPUT("");
 	DEBUG_OUTPUT(string("original curvature sum: ") + std::to_string(K_orig.sum()));
 	DEBUG_OUTPUT(string("new curvature sum: ") + std::to_string(K_new.sum()));
 	DEBUG_OUTPUT(string("difference: ") + std::to_string(K_new.sum() - K_orig.sum()));
