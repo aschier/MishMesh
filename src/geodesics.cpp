@@ -366,14 +366,14 @@ void MishMesh::compute_novotni_geodesics(TriMesh &mesh, const TriMesh::VertexHan
 			TriMesh::VertexHandle fixed_vh;
 			TriMesh::VertexHandle close_or_unprocessed_vh1, close_or_unprocessed_vh2;
 			// Look for a fixed and a non-fixed vertex
-#ifdef _DEBUG
+#ifndef NDEBUG
 			int num_fixed = 0;
 #endif
 			FOR_CFV(v_it, *f_it) {
 				if(*v_it == trial_vh) continue; // trial
 				if(mesh.status(*v_it).tagged()) {
 					fixed_vh = *v_it;
-#ifdef _DEBUG
+#ifndef NDEBUG
 					num_fixed++;
 #endif
 					continue;
