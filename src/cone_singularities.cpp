@@ -147,7 +147,7 @@ Eigen::VectorXd MishMesh::cone_singularities::optimize_curvature(MishMesh::TriMe
 	double min_phi = phi.minCoeff();
 	double max_phi = phi.maxCoeff();
 	DEBUG_OUTPUT(string("current (max_phi - min_phi): ") + std::to_string(max_phi - min_phi));
-	while(max_phi - min_phi > phi_epsilon && ++iter < max_iterations) {
+	while(max_phi - min_phi > phi_epsilon && ++iter <= max_iterations) {
 		size_t argmin_phi, argmax_phi;
 		for(auto si: singularity_indices) {
 			phi[si] = numeric_limits<double>::infinity();
