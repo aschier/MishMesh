@@ -238,8 +238,21 @@ Eigen::VectorXd MishMesh::cone_singularities::compute_target_gauss_curvature(con
  * @returns A vector with the vertex handles of the cone singularities.
  */
 std::vector<MishMesh::TriMesh::VertexHandle> MishMesh::compute_cone_singularities(MishMesh::TriMesh &mesh, double epsilon, int max_iterations, const MishMesh::ConeAdditionMode mode, set<size_t> initial_singularities) {
-	Eigen::SparseLU<Eigen::SparseMatrix<double>> laplace_LU;
+	cone_singularities::LaplaceSolver laplace_LU;
 	MishMesh::cone_singularities::build_solver(laplace_LU, mesh, false);
+	return cone_singularities::compute_cone_singularities(mesh, laplace_LU, epsilon, max_iterations, mode, initial_singularities);
+}
+/**
+ * Compute the cone singularities for a mesh.
+ * @param mesh The mesh.
+ * @param A precomputed LU solver for the mesh laplacian. Use build_solver to initialize the solver.
+ * @param epsilon Convergence criterion for the iteration: When phi_max - phi_min < phi_epsilon, the algorithm is converged.
+ * @param max_iterations Stopping criterion: After a maximum of max_iterations, the algorithm is stopped.
+ * @param mode The ConeAdditionMode which cones should be added in each iteration.
+ * @param initial_singularities A initial set of singularities for the algorithm.
+ * @returns A vector with the vertex handles of the cone singularities.
+ */
+std::vector<MishMesh::TriMesh::VertexHandle> MishMesh::cone_singularities::compute_cone_singularities(MishMesh::TriMesh &mesh, LaplaceSolver &solver, double epsilon, int max_iterations, const MishMesh::ConeAdditionMode mode, set<size_t> initial_singularities) {
 	Eigen::VectorXd K_orig = MishMesh::cone_singularities::compute_gauss_curvature(mesh);
 
 	set<size_t> singularity_indices;
@@ -250,7 +263,7 @@ std::vector<MishMesh::TriMesh::VertexHandle> MishMesh::compute_cone_singularitie
 		singularity_indices = MishMesh::cone_singularities::get_initial_singularities(mesh, K_orig);
 	}
 
-	Eigen::VectorXd result_curvature = MishMesh::cone_singularities::optimize_curvature(mesh, K_orig, singularity_indices, laplace_LU, epsilon, max_iterations, false, mode);
+	Eigen::VectorXd result_curvature = MishMesh::cone_singularities::optimize_curvature(mesh, K_orig, singularity_indices, solver, epsilon, max_iterations, false, mode);
 	std::vector<MishMesh::TriMesh::VertexHandle> result{};
 	std::transform(singularity_indices.begin(), singularity_indices.end(), std::back_inserter(result), [&](size_t idx){return mesh.vertex_handle(static_cast<uint>(idx)); });
 	return result;
