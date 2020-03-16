@@ -140,7 +140,7 @@ Eigen::VectorXd MishMesh::cone_singularities::optimize_curvature(MishMesh::TriMe
 	int iter = 0;
 	Eigen::VectorXd optimal_K_new;
 	double optimal_phi_range = numeric_limits<double>::infinity();
-	size_t optimal_num_singularities;
+	size_t optimal_num_singularities = 0;
 	auto optimal_singularity_indices = singularity_indices;
 	Eigen::VectorXd K_new = compute_target_gauss_curvature(K_orig, singularity_indices);
 	Eigen::VectorXd phi = compute_curvature_flow(K_orig, K_new, laplace_LU);
@@ -187,17 +187,14 @@ Eigen::VectorXd MishMesh::cone_singularities::optimize_curvature(MishMesh::TriMe
 		DEBUG_OUTPUT(string("new (max_phi - min_phi): ") + std::to_string(phi_range));
 	}
 
-	DEBUG_OUTPUT("");
-	DEBUG_OUTPUT(string("original curvature sum: ") + std::to_string(K_orig.sum()));
-	DEBUG_OUTPUT(string("new curvature sum: ") + std::to_string(K_new.sum()));
-	DEBUG_OUTPUT(string("difference: ") + std::to_string(K_new.sum() - K_orig.sum()));
-	DEBUG_OUTPUT(string("singularities used: ") + std::to_string(optimal_num_singularities));
 	if(use_optimal_phi) {
 		singularity_indices = optimal_singularity_indices;
-		return optimal_K_new;
-	} else {
-		return K_new;
+		K_new = optimal_K_new;
 	}
+	DEBUG_OUTPUT("");
+	DEBUG_OUTPUT(string("singularities used: ") + std::to_string(singularity_indices.size()));
+
+	return K_new;
 }
 
 /**
