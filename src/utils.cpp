@@ -123,6 +123,27 @@ namespace MishMesh {
 	}
 
 	/**
+	 * Get the nearest vertex handle of a face from given barycentric coordinates
+	 * @param mesh The mesh.
+	 * @param fh The face handle.
+	 * @param barycentric_coordinates Barycentric coordinates that sum to 1.0.
+	 * @returns The nearest vertex to the point inside the triangle.
+	 */
+	template<typename VectorT>
+	MishMesh::TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const VectorT barycentric_coordinates) {
+		assert(barycentric_coordinates[0] + barycentric_coordinates[1] + barycentric_coordinates[2] == 1.0);
+
+		auto vhs = face_vertices(mesh, fh);
+		if(barycentric_coordinates[0] >= 1 / 3.) {
+			return vhs[0];
+		} else if(barycentric_coordinates[1] > 1 / 3.) {
+			return vhs[1];
+		} else {
+			return vhs[2];
+		}
+	}
+
+	/**
 	 * Compute the triangle area from three points.
 	 * @param points The coordinates of the triangle vertices.
 	 * @tparam DIM The dimension of the ambiant space for 2D / 3D vectors.
@@ -215,8 +236,10 @@ namespace MishMesh {
 
 	template std::pair<Eigen::MatrixX3d, Eigen::MatrixX3i> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
 	template std::pair<Eigen::MatrixXd, Eigen::MatrixXi> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
+	template TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const Eigen::Vector3d barycentric_coordinates);
 #endif
 
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 2>, 3> points);
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 3>, 3> points);
+	template TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const std::array<double, 3> barycentric_coordinates);
 }

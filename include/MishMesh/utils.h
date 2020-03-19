@@ -23,6 +23,9 @@ namespace MishMesh {
 	std::array<OpenMesh::Vec3d, 3> face_points(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 	std::vector<OpenMesh::Vec3d> face_points(const PolyMesh &mesh, const PolyMesh::FaceHandle fh);
 
+	template<typename VectorT>
+	TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const VectorT barycentric_coordinates);
+
 	template<int DIM>
 	double compute_area(const std::array<OpenMesh::VectorT<double, DIM>, 3> points);
 	double compute_area(const TriMesh &mesh, const std::array<TriMesh::VertexHandle, 3> vertices);
