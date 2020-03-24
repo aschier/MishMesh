@@ -49,7 +49,7 @@ pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::compute_projected_origins(doubl
  * @param p2 A second point with known distance.
  * @param T1_2 The squared distance between p1 and the origin.
  * @param T2_2 The squared distance between p2 and the origin.
- * @returns The geodesic distance of p to the origin.
+ * @returns The squared geodesic distance of p to the origin.
  */
 template<int DIM>
 double MishMesh::compute_distance(const OpenMesh::VectorT<double, DIM> p, const OpenMesh::VectorT<double, DIM> p1, const OpenMesh::VectorT<double, DIM> p2, const double T1_2, const double T2_2) {
@@ -155,8 +155,7 @@ std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> calc_acute_section(const std::array<
  * @param heh The halfedge opposite of the obtuse vertex.
  * @param obtuse_vh The obtuse vertex in the triangle.
  * @param propDistance A GeodesicDistanceProperty for accessing the geodesic distances.
- * @returns a pair of the distance between the obtuse vertex and the virtual vertex in the plane and the
- *          vertex handle of the virtual vertex.
+ * @returns a pair with the squared distance between the obtuse vertex and the origin and the vertex handle of the virtual vertex.
  */
 std::pair<double, TriMesh::VertexHandle> find_virtual_vertex(TriMesh &mesh, TriMesh::HalfedgeHandle heh,
 	const TriMesh::VertexHandle obtuse_vh, GeodesicDistanceProperty propDistance) {
@@ -303,7 +302,7 @@ std::pair<double, TriMesh::VertexHandle> find_virtual_vertex(TriMesh &mesh, TriM
 
 /**
  * Compute geodesic distances on a mesh using the Method of Novotni and Klein
- * [Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG’2002.]
+ * [Novotni, M., & Klein, R. (2002). Computing geodesic distances on triangular meshes. In In Proc. of WSCG 2002.]
  * http://cg.cs.uni-bonn.de/de/publikationen/paper-details/novotni-2002-computing/
  *
  * @param[inout] mesh The mesh.
