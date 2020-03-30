@@ -1,5 +1,6 @@
 #include "MishMesh/transformations.h"
 #include "MishMesh/PolyMesh.h"
+#include "MishMesh/utils.h"
 
 using namespace std;
 
@@ -36,6 +37,12 @@ std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(MeshT &mesh, const typen
 	auto p2 = mesh.point(mesh.to_vertex_handle(heh));
 	return MishMesh::embed_triangle(p1, p2, p);
 }
+
+std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(TriMesh &mesh, const TriMesh::HalfedgeHandle heh) {
+	OpenMesh::Vec3d p = mesh.point(mesh.opposite_vh(heh));
+	return embed_triangle(mesh, heh, p);
+}
+
 
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 2> p1, OpenMesh::VectorT<double, 2> p2, OpenMesh::VectorT<double, 2> p3);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 3> p1, OpenMesh::VectorT<double, 3> p2, OpenMesh::VectorT<double, 3> p3);
