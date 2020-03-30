@@ -51,13 +51,12 @@ namespace MishMesh {
 		 };
 	}
 
-
 	enum GeodesicType {
 		NOVOTNI,
 		HEAT,
 	};
 
-	std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double edge_length, double T1, double T2);
+	std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> compute_projected_origins(double edge_length_2, double T1_2, double T2_2);
 	template<int DIM>
 	double compute_distance(const OpenMesh::VectorT<double, DIM> p, const OpenMesh::VectorT<double, DIM> p1, const OpenMesh::VectorT<double, DIM> p2, const double T1, const double T2);
 	double compute_distance(const TriMesh &mesh, const TriMesh::VertexHandle &vh3, const TriMesh::VertexHandle &edge_vh1, const TriMesh::VertexHandle &edge_vh2, const OpenMesh::VPropHandleT<double> &distProp);
@@ -79,4 +78,8 @@ namespace MishMesh {
 			assert(false);
 		}
 	}
+
+	void update_distance(MishMesh::TriMesh & mesh, const MishMesh::TriMesh::VertexHandle update_vh, const double new_distance, VertexHeap & close_vertices, const GeodesicDistanceProperty geodesicDistanceProperty);
+	std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> calc_acute_section(const std::array<OpenMesh::Vec2d, 3> triangle_points);
+	std::pair<double, TriMesh::VertexHandle> find_virtual_vertex(TriMesh & mesh, TriMesh::HalfedgeHandle heh, const TriMesh::VertexHandle obtuse_vh, GeodesicDistanceProperty propDistance);
 }

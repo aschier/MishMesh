@@ -103,7 +103,7 @@ double MishMesh::compute_distance(const TriMesh &mesh, const TriMesh::VertexHand
  * @param geodesicDistanceProperty A vertex property storing the geodesic distance.
  * @note When the vertex heap does not contain update_vh, it is inserted.
  */
-void update_distance(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::VertexHandle update_vh, const double new_distance, VertexHeap &close_vertices, const GeodesicDistanceProperty geodesicDistanceProperty) {
+void MishMesh::update_distance(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::VertexHandle update_vh, const double new_distance, VertexHeap &close_vertices, const GeodesicDistanceProperty geodesicDistanceProperty) {
 	assert(!mesh.status(update_vh).tagged()); // The vertex is not fixed
 
 	const double old_distance = mesh.property(geodesicDistanceProperty, update_vh); // current best distance
@@ -130,7 +130,7 @@ void update_distance(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::VertexHan
  * @param An array of 2D points defining the triangle.
  * @returns A pair of vectors defining the section.
  */
-std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> calc_acute_section(const std::array<OpenMesh::Vec2d, 3> triangle_points) {
+std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> MishMesh::calc_acute_section(const std::array<OpenMesh::Vec2d, 3> triangle_points) {
 	assert(((triangle_points[0] - triangle_points[2]) | (triangle_points[1] - triangle_points[2])) < 0); // the angle is obtuse
 	// Construct vectors orthogonal to the edges, that point inside the section spanned by
 	// the triangle edges (v0, v2) and (v1, v2). The two vectors span an acute section, when the original section was obtuse.
@@ -157,7 +157,7 @@ std::pair<OpenMesh::Vec2d, OpenMesh::Vec2d> calc_acute_section(const std::array<
  * @param propDistance A GeodesicDistanceProperty for accessing the geodesic distances.
  * @returns a pair with the squared distance between the obtuse vertex and the origin and the vertex handle of the virtual vertex.
  */
-std::pair<double, TriMesh::VertexHandle> find_virtual_vertex(TriMesh &mesh, TriMesh::HalfedgeHandle heh,
+std::pair<double, TriMesh::VertexHandle> MishMesh::find_virtual_vertex(TriMesh &mesh, TriMesh::HalfedgeHandle heh,
 	const TriMesh::VertexHandle obtuse_vh, GeodesicDistanceProperty propDistance) {
 	const auto points2D = embed_triangle(mesh, heh, mesh.point(obtuse_vh));
 	auto trial_point_2D = points2D[0];
