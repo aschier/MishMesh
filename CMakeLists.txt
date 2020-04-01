@@ -9,6 +9,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(CMAKE_DEBUG_POSTFIX "d")
 
+option(MISHMESH_BUILD_EXAMPLE_PROGRAMS "Build MishMesh example programs" ON)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 find_package(OpenMesh 8.0 REQUIRED)
 find_package(Eigen3 3.3.7 QUIET)
@@ -86,77 +88,79 @@ else()
 	message("Eigen3 was not found. Functions that need Eigen will not be available.")
 endif()
 
-# programs
-add_executable(split_connected_components
-	src/programs/split_connected_components.cpp
-	thirdparty/ProgramOptions.hxx
-)
-target_link_libraries(split_connected_components
-	MishMesh)
-set_target_properties(split_connected_components PROPERTIES FOLDER programs)
-
-add_executable(geodesic_distances
-	src/programs/geodesic_distances.cpp
-	thirdparty/ProgramOptions.hxx
-)
-target_link_libraries(geodesic_distances
-	MishMesh)
-set_target_properties(geodesic_distances PROPERTIES FOLDER programs)
-
-add_executable(mesh_smoother
-	src/programs/mesh_smoother.cpp
-	thirdparty/ProgramOptions.hxx
-)
-target_link_libraries(mesh_smoother
-	MishMesh)
-
-set_target_properties(mesh_smoother PROPERTIES FOLDER programs)
-
-add_executable(grid
-	src/programs/grid.cpp
-)
-target_link_libraries(grid
-	MishMesh)
-set_target_properties(grid PROPERTIES FOLDER programs)
-
-add_executable(sampling_test
-	src/programs/sampling_test.cpp
-)
-target_link_libraries(sampling_test
-	MishMesh)
-set_target_properties(sampling_test PROPERTIES FOLDER programs)
-
-if(${EIGEN3_FOUND})
-	# Diffusion (laplace operator) example program
-	add_executable(diffusion
-		src/programs/diffusion.cpp
+if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
+	# programs
+	add_executable(split_connected_components
+		src/programs/split_connected_components.cpp
+		thirdparty/ProgramOptions.hxx
 	)
-	target_link_libraries(diffusion
+	target_link_libraries(split_connected_components
 		MishMesh)
-	set_target_properties(diffusion PROPERTIES FOLDER programs)
+	set_target_properties(split_connected_components PROPERTIES FOLDER programs)
 
-	target_compile_definitions(diffusion PRIVATE HAS_EIGEN)
-
-	# Compile definitions for geodesic_distances with heat geodesics
-	target_compile_definitions(geodesic_distances PRIVATE HAS_EIGEN)
-
-	# Cone Singularities example programs
-	add_executable(cone_singularities
-		src/programs/cone_singularities.cpp
+	add_executable(geodesic_distances
+		src/programs/geodesic_distances.cpp
+		thirdparty/ProgramOptions.hxx
 	)
-	target_link_libraries(cone_singularities
+	target_link_libraries(geodesic_distances
 		MishMesh)
-	set_target_properties(cone_singularities PROPERTIES FOLDER programs)
-	add_executable(cone_cuts
-		src/programs/cone_cuts.cpp
-	)
-	target_link_libraries(cone_cuts
-		MishMesh)
-	set_target_properties(cone_cuts PROPERTIES FOLDER programs)
+	set_target_properties(geodesic_distances PROPERTIES FOLDER programs)
 
-	# install targets
-	install(TARGETS diffusion cone_singularities cone_cuts RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
+	add_executable(mesh_smoother
+		src/programs/mesh_smoother.cpp
+		thirdparty/ProgramOptions.hxx
+	)
+	target_link_libraries(mesh_smoother
+		MishMesh)
+
+	set_target_properties(mesh_smoother PROPERTIES FOLDER programs)
+
+	add_executable(grid
+		src/programs/grid.cpp
+	)
+	target_link_libraries(grid
+		MishMesh)
+	set_target_properties(grid PROPERTIES FOLDER programs)
+
+	add_executable(sampling_test
+		src/programs/sampling_test.cpp
+	)
+	target_link_libraries(sampling_test
+		MishMesh)
+	set_target_properties(sampling_test PROPERTIES FOLDER programs)
+
+	if(${EIGEN3_FOUND})
+		# Diffusion (laplace operator) example program
+		add_executable(diffusion
+			src/programs/diffusion.cpp
+		)
+		target_link_libraries(diffusion
+			MishMesh)
+		set_target_properties(diffusion PROPERTIES FOLDER programs)
+
+		target_compile_definitions(diffusion PRIVATE HAS_EIGEN)
+
+		# Compile definitions for geodesic_distances with heat geodesics
+		target_compile_definitions(geodesic_distances PRIVATE HAS_EIGEN)
+
+		# Cone Singularities example programs
+		add_executable(cone_singularities
+			src/programs/cone_singularities.cpp
+		)
+		target_link_libraries(cone_singularities
+			MishMesh)
+		set_target_properties(cone_singularities PROPERTIES FOLDER programs)
+		add_executable(cone_cuts
+			src/programs/cone_cuts.cpp
+		)
+		target_link_libraries(cone_cuts
+			MishMesh)
+		set_target_properties(cone_cuts PROPERTIES FOLDER programs)
+
+		# install targets
+		install(TARGETS diffusion cone_singularities cone_cuts RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	endif(${EIGEN3_FOUND})
+endif(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 
 # doxygen
 find_package(Doxygen)
@@ -178,7 +182,10 @@ endif(DOXYGEN_FOUND)
 configure_package_config_file(MishMeshConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
 write_basic_package_version_file( ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake COMPATIBILITY SameMajorVersion)
 install(TARGETS MishMesh EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
+	install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 
 install(EXPORT MishMesh-targets FILE MishMeshTargets.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake
