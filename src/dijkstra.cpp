@@ -29,7 +29,7 @@ namespace MishMesh {
 		}
 
 		// Initialize the queue with the edges reachable from the source vertex
-		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue;
+		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlength<MeshT>> queue;
 		set<typename MeshT::VertexHandle> visited_vertices{start_vh};
 		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
 		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {

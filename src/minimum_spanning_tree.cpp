@@ -90,7 +90,7 @@ namespace MishMesh {
 	}
 
 	template<typename MeshT>
-	priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> initialize_search(MeshT &mesh, const OpenMesh::ArrayKernel::VertexHandle &start_vh, double(*edge_cost_function)(MeshT &mesh, OpenMesh::ArrayKernel::HalfedgeHandle edge, const void *param), void *edge_cost_param, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length, const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length) {
+	priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlength<MeshT>> initialize_search(MeshT &mesh, const OpenMesh::ArrayKernel::VertexHandle &start_vh, double(*edge_cost_function)(MeshT &mesh, OpenMesh::ArrayKernel::HalfedgeHandle edge, const void *param), void *edge_cost_param, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length, const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length) {
 		// Initialize distance properties
 		for(auto &v : mesh.vertices()) {
 			mesh.property(prop_vertex_shortest_path_length, v) = numeric_limits<double>::infinity();
@@ -100,7 +100,7 @@ namespace MishMesh {
 		}
 		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
 
-		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue;
+		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlength<MeshT>> queue;
 		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {
 			const auto vh2 = mesh.to_vertex_handle(*h_it);
 			double distance = edge_cost_function(mesh, *h_it, edge_cost_param);
@@ -174,7 +174,7 @@ namespace MishMesh {
 		targetVertices.erase(start_vh);
 
 		// Initialize the queue with the edges reachable from the source vertex
-		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlengh<MeshT>> queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
+		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlength<MeshT>> queue = initialize_search(mesh, start_vh, edge_cost_function, edge_cost_param, prop_edge_shortest_path_length, prop_vertex_shortest_path_length);
 
 		for(auto &vh : mesh.vertices()) {
 			mesh.status(vh).set_tagged(false); // not visited

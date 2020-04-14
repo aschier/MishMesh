@@ -50,8 +50,8 @@ namespace MishMesh {
 	/**
 	 * A comparator, that compares two PathEdges by the length of the path up to this edge.
 	 */
-	template<typename MeshT>
-	class GreaterPathlengh {
+	template <typename MeshT>
+	class GreaterPathlength {
 	public:
 		bool operator()(const PathEdge<MeshT> &a, const PathEdge<MeshT> &b) const {
 			return a.mesh->property(*a.prop_edge_shortest_path_length, a.halfedge_handle) > b.mesh->property(*b.prop_edge_shortest_path_length, b.halfedge_handle);
