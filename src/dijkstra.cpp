@@ -12,7 +12,7 @@ namespace MishMesh {
 	 * @param edge_cost_function A function, that assigns a cost to a HalfedgeHandle. By default, the length of the edge is used.
 	 * @param edge_cost_param A pointer to additional data passed to edge_cost_function.
 	 */
-	template<typename MeshT>
+	template<typename MeshT, typename ComparatorT>
 	DijkstraResult<MeshT> dijkstra(const typename MeshT::VertexHandle start_vh, const typename MeshT::VertexHandle target_vh, MeshT &mesh, double edge_cost_function(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param), void *edge_cost_param) {
 		DijkstraResult<MeshT> result;
 
@@ -29,7 +29,7 @@ namespace MishMesh {
 		}
 
 		// Initialize the queue with the edges reachable from the source vertex
-		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlength<MeshT>> queue;
+		priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, ComparatorT> queue;
 		set<typename MeshT::VertexHandle> visited_vertices{start_vh};
 		mesh.property(prop_vertex_shortest_path_length, start_vh) = 0;
 		for(auto h_it = mesh.cvoh_ccwbegin(start_vh); h_it != mesh.cvoh_ccwend(start_vh); h_it++) {
@@ -37,7 +37,7 @@ namespace MishMesh {
 			double distance = edge_cost_function(mesh, *h_it, edge_cost_param);
 			mesh.property(prop_edge_shortest_path_length, *h_it) = distance;
 			mesh.property(prop_vertex_shortest_path_length, vh2) = distance;
-			queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
+			queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it, &start_vh, &target_vh});
 		}
 
 		while(!queue.empty()) {
@@ -61,7 +61,7 @@ namespace MishMesh {
 					break;
 				}
 				if(visited_vertices.find(vh2) == visited_vertices.end()) {
-					queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it});
+					queue.push(PathEdge<MeshT>{&mesh, &prop_edge_shortest_path_length, *h_it, &start_vh, &target_vh});
 				}
 			}
 		}
@@ -107,6 +107,8 @@ namespace MishMesh {
 		return result;
 	}
 
-	template DijkstraResult<TriMesh> dijkstra(const typename TriMesh::VertexHandle start_vh, const typename TriMesh::VertexHandle target_vh, TriMesh &mesh, double edge_cost_function(TriMesh &mesh, const typename TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
-	template DijkstraResult<PolyMesh> dijkstra(const typename PolyMesh::VertexHandle start_vh, const typename PolyMesh::VertexHandle target_vh, PolyMesh &mesh, double edge_cost_function(PolyMesh &mesh, const typename PolyMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+	template DijkstraResult<TriMesh> dijkstra<TriMesh, GreaterPathlength<TriMesh>>(const typename TriMesh::VertexHandle start_vh, const typename TriMesh::VertexHandle target_vh, TriMesh &mesh, double edge_cost_function(TriMesh &mesh, const typename TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+	template DijkstraResult<PolyMesh> dijkstra<PolyMesh, GreaterPathlength<PolyMesh>>(const typename PolyMesh::VertexHandle start_vh, const typename PolyMesh::VertexHandle target_vh, PolyMesh &mesh, double edge_cost_function(PolyMesh &mesh, const typename PolyMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+	template DijkstraResult<TriMesh> dijkstra<TriMesh, L2HeuristicComparator<TriMesh>>(const typename TriMesh::VertexHandle start_vh, const typename TriMesh::VertexHandle target_vh, TriMesh &mesh, double edge_cost_function(TriMesh &mesh, const typename TriMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
+	template DijkstraResult<PolyMesh> dijkstra<PolyMesh, L2HeuristicComparator<PolyMesh>>(const typename PolyMesh::VertexHandle start_vh, const typename PolyMesh::VertexHandle target_vh, PolyMesh &mesh, double edge_cost_function(PolyMesh &mesh, const typename PolyMesh::HalfedgeHandle edge, const void *param), void *edge_cost_param);
 }
