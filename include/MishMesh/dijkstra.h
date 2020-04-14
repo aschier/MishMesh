@@ -5,7 +5,6 @@
 
 #include <MishMesh/PolyMesh.h>
 #include <MishMesh/TriMesh.h>
-#include <MishMesh/OpenMesh/DoublePrecisionTraits.h>
 
 namespace MishMesh {
 	/**
