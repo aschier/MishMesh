@@ -237,6 +237,7 @@ namespace MishMesh {
 	template std::pair<Eigen::MatrixX3d, Eigen::MatrixX3i> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
 	template std::pair<Eigen::MatrixXd, Eigen::MatrixXi> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
 	template TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const Eigen::Vector3d barycentric_coordinates);
+	template TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const Eigen::Vector3f barycentric_coordinates);
 #endif
 
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 2>, 3> points);
