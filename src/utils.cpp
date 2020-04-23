@@ -1,8 +1,8 @@
 #include "MishMesh/utils.h"
 #include <MishMesh/macros.h>
 
-#include <MishMesh/TriMesh.h>
 #include <MishMesh/PolyMesh.h>
+#include <MishMesh/TriMesh.h>
 
 using namespace std;
 
@@ -53,7 +53,7 @@ namespace MishMesh {
 	 * @returns The points of the vertices of the given halfedge.
 	 */
 	std::array<OpenMesh::Vec3d, 2> edge_points(const TriMesh &mesh, const TriMesh::HalfedgeHandle heh) {
-		return { mesh.point(mesh.from_vertex_handle(heh)), mesh.point(mesh.to_vertex_handle(heh)) };
+		return {mesh.point(mesh.from_vertex_handle(heh)), mesh.point(mesh.to_vertex_handle(heh))};
 	}
 
 	/**
@@ -105,7 +105,7 @@ namespace MishMesh {
 	std::array<OpenMesh::Vec3d, 3> face_points(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
 		auto vhs = face_vertices(mesh, fh);
 		array<OpenMesh::Vec3d, 3> points;
-		std::transform(vhs.begin(), vhs.end(), points.begin(), [&](MishMesh::TriMesh::VertexHandle &vh) {return mesh.point(vh); });
+		std::transform(vhs.begin(), vhs.end(), points.begin(), [&](MishMesh::TriMesh::VertexHandle &vh) { return mesh.point(vh); });
 		return points;
 	}
 
@@ -118,7 +118,7 @@ namespace MishMesh {
 	std::vector<OpenMesh::Vec3d> face_points(const PolyMesh &mesh, const PolyMesh::FaceHandle fh) {
 		auto vhs = face_vertices(mesh, fh);
 		vector<OpenMesh::Vec3d> points;
-		std::transform(vhs.begin(), vhs.end(), points.begin(), [&](MishMesh::TriMesh::VertexHandle &vh) {return mesh.point(vh); });
+		std::transform(vhs.begin(), vhs.end(), points.begin(), [&](MishMesh::TriMesh::VertexHandle &vh) { return mesh.point(vh); });
 		return points;
 	}
 
@@ -155,7 +155,7 @@ namespace MishMesh {
 		double l12 = (points[2] - points[1]).norm();
 		double l20 = (points[0] - points[2]).norm();
 		double s = (l01 + l12 + l20) / 2.0;
-		return sqrt(s*(s - l01)*(s - l12)*(s - l20));
+		return sqrt(s * (s - l01) * (s - l12) * (s - l20));
 	}
 
 	/**
@@ -167,7 +167,7 @@ namespace MishMesh {
 	double compute_area(const TriMesh &mesh, const array<TriMesh::VertexHandle, 3> vertices) {
 		array<OpenMesh::Vec3d, 3> points;
 		short j = 0;
-		for(auto v : vertices){
+		for(auto v : vertices) {
 			points[j++] = mesh.point(v);
 		}
 		return compute_area(points);
@@ -200,7 +200,7 @@ namespace MishMesh {
 			i++;
 		}
 		size_t max_idx = std::distance(sqr_lengths.begin(), std::max_element(sqr_lengths.begin(), sqr_lengths.end()));
-		if(sqr_lengths[max_idx] / (sqr_lengths[(max_idx + 1) % 3] + sqr_lengths[(max_idx + 2) % 3]) > 1.0){
+		if(sqr_lengths[max_idx] / (sqr_lengths[(max_idx + 1) % 3] + sqr_lengths[(max_idx + 2) % 3]) > 1.0) {
 			return vhs[max_idx];
 		}
 		return TriMesh::InvalidVertexHandle;
