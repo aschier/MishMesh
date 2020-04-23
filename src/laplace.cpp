@@ -11,12 +11,11 @@ using namespace MishMesh;
 /**
  * Create Eigen::Triplet sparse matrix entries for a Laplace matrix.
  * @param mesh The mesh for which the laplacian is built.
- * @param normalized Set if the Laplace matrix should be normalized to have -1 on the diagonal.
  * @param area_weighted When area_weighted is set, the entries are divided by the vertex area (1/3 of the area of the adjacent faces).
  * @note You usually should use MishMesh::laplace_matrix instead of this function, except when you
  *       need to build more complicated matrices, e.g., a block matrix with a laplacian in it.
  */
-std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bool normalized, const bool area_weighted) {
+std::vector<Eigen::Triplet<double>> MishMesh::cotan_laplace_triplets(TriMesh &mesh, const bool area_weighted) {
 	// the first n_vertices entries are the diagonal entries
 	vector<Eigen::Triplet<double>> triplets;
 	for(int i = 0; i < mesh.n_vertices(); i++) {
@@ -66,17 +65,26 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
 		}
 	}
 
-	if(normalized) {
-		vector<double> diagonal;
-		std::transform(triplets.begin(), triplets.begin() + mesh.n_vertices(), std::back_inserter(diagonal), [&](Eigen::Triplet<double> &t) -> auto {return abs(t.value()); });
-		// normalized laplacian = D^{-0.5} L D^{-0.5}
-		for(int i = 0; i < triplets.size(); i++) {
-			triplets[i] = Eigen::Triplet<double>(triplets[i].row(), triplets[i].col(), triplets[i].value() / sqrt(diagonal[triplets[i].row()] * diagonal[triplets[i].col()]));
-		}
-	}
-
 	mesh.remove_property(prop_cot_halfedge_angle);
 	return triplets;
+}
+
+/**
+ * Normalize laplace triplets, such that the all rows and colums of the resulting matrix sum up to 1.
+ * @param triplets The laplace triplets.
+ * @param rows The number of rows (and columns as a laplacian is a square matrix) of the laplace matrix.
+ */
+void MishMesh::normalize_laplace_triplets(std::vector<Eigen::Triplet<double>> &triplets, const uint rows) {
+	vector<double> diagonal;
+	std::transform(
+	    triplets.begin(), triplets.begin() + rows,
+	    std::back_inserter(diagonal), [&](Eigen::Triplet<double> & t) -> auto { return abs(t.value()); });
+	// normalized laplacian = D^{-0.5} L D^{-0.5}
+	for(int i = 0; i < triplets.size(); i++) {
+		triplets[i] = Eigen::Triplet<double>(
+		    triplets[i].row(), triplets[i].col(),
+		    triplets[i].value() / sqrt(diagonal[triplets[i].row()] * diagonal[triplets[i].col()]));
+	}
 }
 
 /**
@@ -85,8 +93,11 @@ std::vector<Eigen::Triplet<double>> MishMesh::laplace_triplets(TriMesh &mesh, bo
  * @param normalized Set if the Laplace matrix should be normalized to have -1 on the diagonal.
  * @param area_weighted When area_weighted is set, the entries are divided by the vertex area (1/3 of the area of the adjacent faces).
  */
-Eigen::SparseMatrix<double> MishMesh::laplace_matrix(TriMesh & mesh, bool normalized, const bool area_weighted) {
-	auto triplets = laplace_triplets(mesh, normalized, area_weighted);
+Eigen::SparseMatrix<double> MishMesh::laplace_matrix(TriMesh &mesh, bool normalized, const bool area_weighted) {
+	auto triplets = cotan_laplace_triplets(mesh, area_weighted);
+	if(normalized) {
+		normalize_laplace_triplets(triplets, mesh.n_vertices());
+	}
 	Eigen::SparseMatrix<double> laplace(mesh.n_vertices(), mesh.n_vertices());
 	laplace.setFromTriplets(triplets.begin(), triplets.end());
 	return laplace;
@@ -105,7 +116,7 @@ Eigen::SparseMatrix<double> MishMesh::laplace_matrix(TriMesh & mesh, bool normal
 void MishMesh::apply_boundary_conditions(Eigen::SparseMatrix<double> &laplacian, Eigen::VectorXd &rhs, const vector<pair<Eigen::Index, double>> &boundary_conditions) {
 	vector<BoundaryCondition> bcs;
 	bcs.reserve(boundary_conditions.size());
-	std::transform(boundary_conditions.begin(), boundary_conditions.end(), std::back_inserter(bcs), [&](auto bc){return BoundaryCondition{bc.first, bc.second}; });
+	std::transform(boundary_conditions.begin(), boundary_conditions.end(), std::back_inserter(bcs), [&](auto bc) { return BoundaryCondition{bc.first, bc.second}; });
 	apply_boundary_conditions(laplacian, rhs, bcs);
 }
 

@@ -1,15 +1,16 @@
 #pragma once
 
-#include <vector>
 #include <set>
+#include <vector>
 
 #include <MishMesh/TriMesh.h>
 
 #include <Eigen/Eigen>
 #include <Eigen/SparseCore>
 
-namespace MishMesh{
-	std::vector<Eigen::Triplet<double>> laplace_triplets(TriMesh &mesh, bool normalized, const bool area_weighted = false);
+namespace MishMesh {
+	std::vector<Eigen::Triplet<double>> cotan_laplace_triplets(TriMesh &mesh, const bool area_weighted = false);
+	void normalize_laplace_triplets(std::vector<Eigen::Triplet<double>> &triplets, const uint rows);
 	Eigen::SparseMatrix<double> laplace_matrix(TriMesh &mesh, bool normalized, const bool area_weighted = false);
 
 	struct BoundaryCondition {

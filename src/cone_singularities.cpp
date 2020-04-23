@@ -276,7 +276,7 @@ std::vector<MishMesh::TriMesh::VertexHandle> MishMesh::cone_singularities::compu
  * @returns The matrix.
  */
 Eigen::SparseMatrix<double> MishMesh::cone_singularities::build_P_matrix(MishMesh::TriMesh &mesh, const set<size_t> &singularity_indices) {
-	auto triplets = MishMesh::laplace_triplets(mesh, false);
+	auto triplets = MishMesh::cotan_laplace_triplets(mesh);
 	std::vector<Eigen::Triplet<double>> new_triplets;
 	for(int i = 0; i < triplets.size(); i++) {
 		if(std::find(singularity_indices.begin(), singularity_indices.end(), triplets[i].row()) != singularity_indices.end()) {
