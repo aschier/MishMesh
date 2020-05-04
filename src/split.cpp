@@ -48,6 +48,24 @@ MeshT MishMesh::build_submesh(const MeshT &mesh, const set<typename MeshT::FaceH
 }
 
 /**
+ * Build a mesh from a subset of faces of another mesh.
+ * @param input_mesh The original mesh.
+ * @param face_index_set A set of face indices that should be included in the new mesh.
+ * @param add_original_index_property When set to true, a property "orig_index" is added to the vertices and faces of the mesh.
+ * @returns A MeshT mesh containing only the subset of the faces.
+ * @note The method retains the connectivity of the original mesh,
+ * but does not transfer any OpenMesh properties or other attributes.
+ */
+template<typename MeshT>
+MeshT MishMesh::build_submesh(const MeshT &mesh, const set<int> &face_index_set, bool add_original_index_property) {
+	std::set<typename MeshT::FaceHandle> face_set;
+	for(auto idx: face_index_set) {
+		face_set.insert(mesh.face_handle(idx));
+	}
+	return build_submesh(mesh, face_set, add_original_index_property);
+}
+
+/**
  * Split the mesh into its connected components.
  * @param input_mesh the mesh.
  * @param add_original_index_property When set to true, a property "orig_index" is added to the vertices and faces of the mesh.
@@ -77,3 +95,6 @@ template std::vector<MishMesh::PolyMesh> MishMesh::split_connected_components(co
 
 template MishMesh::TriMesh MishMesh::build_submesh(const MishMesh::TriMesh &input_mesh, const set<typename MishMesh::TriMesh::FaceHandle> &face_set, bool add_original_index_property);
 template MishMesh::PolyMesh MishMesh::build_submesh(const MishMesh::PolyMesh &input_mesh, const set<typename MishMesh::PolyMesh::FaceHandle> &face_set, bool add_original_index_property);
+
+template MishMesh::TriMesh MishMesh::build_submesh(const MishMesh::TriMesh &input_mesh, const set<int> &face_index_set, bool add_original_index_property);
+template MishMesh::PolyMesh MishMesh::build_submesh(const MishMesh::PolyMesh &input_mesh, const set<int> &face_index_set, bool add_original_index_property);
