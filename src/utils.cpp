@@ -91,7 +91,7 @@ namespace MishMesh {
 		vector<PolyMesh::VertexHandle> vhs;
 		short j = 0;
 		FOR_CFV(v_it, fh) {
-			vhs[j++] = *v_it;
+			vhs.push_back(*v_it);
 		}
 		return vhs;
 	}
