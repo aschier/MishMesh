@@ -10,6 +10,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_DEBUG_POSTFIX "d")
 
 option(MISHMESH_BUILD_EXAMPLE_PROGRAMS "Build MishMesh example programs" ON)
+# When you include MishMesh as subdirectory you can prevent it from being
+# installed together with your program by switching off its install targets.
+option(MISHMESH_INSTALL_TARGETS "Create install targets for MishMesh." ON)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 find_package(OpenMesh 8.0 REQUIRED)
@@ -160,7 +163,9 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		set_target_properties(cone_cuts PROPERTIES FOLDER programs)
 
 		# install targets
-		install(TARGETS diffusion cone_singularities cone_cuts RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+		if(MISHMESH_INSTALL_TARGETS)
+			install(TARGETS diffusion cone_singularities cone_cuts RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+		endif(MISHMESH_INSTALL_TARGETS)
 	endif(${EIGEN3_FOUND})
 endif(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 
@@ -181,15 +186,17 @@ if(DOXYGEN_FOUND)
 	add_dependencies(doxygen create_doc_directories)
 endif(DOXYGEN_FOUND)
 
-configure_package_config_file(MishMeshConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
-write_basic_package_version_file( ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake COMPATIBILITY SameMajorVersion)
-install(TARGETS MishMesh EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(MISHMESH_INSTALL_TARGETS)
+	configure_package_config_file(MishMeshConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
+	write_basic_package_version_file( ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake COMPATIBILITY SameMajorVersion)
+	install(TARGETS MishMesh EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
-	install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
+	if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
+		install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	endif(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 
-install(EXPORT MishMesh-targets FILE MishMeshTargets.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
-install(DIRECTORY include/MishMesh DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h" PATTERN ".git" EXCLUDE)
+	install(EXPORT MishMesh-targets FILE MishMeshTargets.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake
+		          ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
+	install(DIRECTORY include/MishMesh DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h" PATTERN ".git" EXCLUDE)
+endif(MISHMESH_INSTALL_TARGETS)
