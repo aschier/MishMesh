@@ -102,7 +102,8 @@ TriMesh MishMesh::vertex_mesh(const TriMesh &mesh, std::vector<TriMesh::VertexHa
  * @param[in] vertexProperty The vertex property.
  * @note You need to use request_vertex_color before using this method.
  */
-void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty) {
+template<typename MeshT>
+void MishMesh::colorize_mesh(MeshT &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty) {
 	assert(mesh.has_vertex_colors());
 	double max_value = -numeric_limits<double>::infinity();
 	double min_value = numeric_limits<double>::infinity();
@@ -235,3 +236,6 @@ TriMesh MishMesh::isosurface_grid_mesh(const int resolution[3], const BBox<OpenM
 
 template void MishMesh::add_box(MishMesh::TriMesh &mesh, const BBox<OpenMesh::Vec3d, 3> box);
 template void MishMesh::add_box(MishMesh::PolyMesh &mesh, const BBox<OpenMesh::Vec3d, 3> box);
+
+template void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty);
+template void MishMesh::colorize_mesh(MishMesh::PolyMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty);
