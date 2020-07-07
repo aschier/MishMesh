@@ -118,7 +118,7 @@ namespace MishMesh {
 	std::vector<OpenMesh::Vec3d> face_points(const PolyMesh &mesh, const PolyMesh::FaceHandle fh) {
 		auto vhs = face_vertices(mesh, fh);
 		vector<OpenMesh::Vec3d> points;
-		std::transform(vhs.begin(), vhs.end(), points.begin(), [&](MishMesh::TriMesh::VertexHandle &vh) { return mesh.point(vh); });
+		std::transform(vhs.begin(), vhs.end(), std::back_inserter(points), [&](MishMesh::PolyMesh::VertexHandle &vh) { return mesh.point(vh); });
 		return points;
 	}
 
