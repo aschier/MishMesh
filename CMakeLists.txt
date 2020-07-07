@@ -57,6 +57,8 @@ add_library(MishMesh
 	src/poisson_disk_sampling.cpp
 	include/MishMesh/VTK.h
 	src/VTK.cpp
+	include/MishMesh/OBJ.h
+	src/OBJ.cpp
 )
 
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
