@@ -59,6 +59,10 @@ add_library(MishMesh
 	src/VTK.cpp
 	include/MishMesh/OBJ.h
 	src/OBJ.cpp
+	include/MishMesh/dual_contouring.h
+	src/meshing/dual_contouring.cpp
+	src/meshing/vertexfit.hpp
+	src/meshing/grid.hpp
 )
 
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
@@ -136,6 +140,13 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		MishMesh)
 	set_target_properties(sampling_test PROPERTIES FOLDER programs)
 
+	add_executable(meshing_test
+		src/programs/meshing_test.cpp
+	)
+	target_link_libraries(meshing_test
+		MishMesh)
+	set_target_properties(meshing_test PROPERTIES FOLDER programs)
+
 	if(${EIGEN3_FOUND})
 		# Diffusion (laplace operator) example program
 		add_executable(diffusion
@@ -144,7 +155,6 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		target_link_libraries(diffusion
 			MishMesh)
 		set_target_properties(diffusion PROPERTIES FOLDER programs)
-
 		target_compile_definitions(diffusion PRIVATE HAS_EIGEN)
 
 		# Compile definitions for geodesic_distances with heat geodesics
