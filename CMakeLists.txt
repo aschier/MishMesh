@@ -7,7 +7,8 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(CMAKE_DEBUG_POSTFIX "d")
+set(CMAKE_DEBUG_POSTFIX "-debug")
+set(CMAKE_RELEASE_POSTFIX "-release")
 
 option(MISHMESH_BUILD_EXAMPLE_PROGRAMS "Build MishMesh example programs" ON)
 # When you include MishMesh as subdirectory you can prevent it from being
