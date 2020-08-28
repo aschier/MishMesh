@@ -11,7 +11,7 @@ struct SphereParameter {
 std::pair<double, OpenMesh::Vec3d> sphere(const OpenMesh::Vec3d p, void *data = nullptr) {
 	SphereParameter *sphere_param = (SphereParameter *)data;
 	double distance = (p - sphere_param->center).sqrnorm() - (sphere_param->radius * sphere_param->radius);
-	auto normal = (p - sphere_param->center);
+	auto normal = (p - sphere_param->center).normalized();
 	if(normal.norm() == 0) {
 		// When a grid point lies on the center of the sphere, there is no useful normal.
 		normal = {1.0, 0, 0};
