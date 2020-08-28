@@ -14,8 +14,9 @@ option(MISHMESH_BUILD_EXAMPLE_PROGRAMS "Build MishMesh example programs" ON)
 # installed together with your program by switching off its install targets.
 option(MISHMESH_INSTALL_TARGETS "Create install targets for MishMesh." ON)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
-find_package(OpenMesh 8.0 REQUIRED)
+# Version 8.1 is required, but OpenMesh does not provide a package version file
+find_package(OpenMesh REQUIRED)
+
 find_package(Eigen3 3.3.7 QUIET)
 
 find_package(OpenMP)
@@ -72,12 +73,11 @@ if(${OM_STATIC_BUILD})
 endif()
 
 target_link_libraries(MishMesh PUBLIC
-	${OPENMESH_LIBRARIES}
+	OpenMeshCore
 )
 target_include_directories(MishMesh PUBLIC
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	${OPENMESH_INCLUDE_DIR}
 )
 
 if(${EIGEN3_FOUND})

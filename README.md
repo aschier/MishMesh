@@ -6,7 +6,7 @@ A mishmash of useful mesh functions.
 Dependencies
 ------------
 
-- OpenMESH
+- OpenMESH 8.1
 
 Optional Dependencies
 ---------------------
