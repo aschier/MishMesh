@@ -33,6 +33,26 @@ namespace MishMesh {
 
 	TriMesh::VertexHandle obtuse_vertex(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 
+	enum Flatness {
+		X,
+		Y,
+		Z,
+		NONFLAT,
+		DEGENERATE
+	};
+
+	/** Test if a mesh is flat.
+	 * @param mesh The mesh.
+	 * @param eps An optional epsilon for ignoring small differences
+	 * @tparam MeshT the mesh type
+	 * @returns Flatness::X, Flatness:Y, Flatness::Z if the mesh is flat in one direction,
+	 *          Flatness::NONFLAT if the mesh is not flat and Flatness::DEGENERATE when the mesh
+	 *          is flat in more than one direction, i.e., all points are collinar, or the mesh has
+	 *          no faces.
+	 */
+	template<typename MeshT>
+	Flatness is_flat(const MeshT &mesh, double eps = 0);
+
 	/**
 	 * Test if a face has an obtuse angle.
 	 * @param mesh The mesh.

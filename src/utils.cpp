@@ -206,6 +206,44 @@ namespace MishMesh {
 		return TriMesh::InvalidVertexHandle;
 	}
 
+	template<typename MeshT>
+	Flatness is_flat(const MeshT &mesh, double eps) {
+		if(mesh.n_vertices() < 3) {
+			return Flatness::DEGENERATE;
+		}
+		const auto p1 = mesh.point(mesh.vertex_handle(0));
+
+		bool flat_x = true;
+		bool flat_y = true;
+		bool flat_z = true;
+		for(const auto vh : mesh.vertices()) {
+			const auto p2 = mesh.point(vh);
+			if(abs(p1[0] - p2[0]) > eps) flat_x = false;
+			if(abs(p1[1] - p2[1]) > eps) flat_y = false;
+			if(abs(p1[2] - p2[2]) > eps) flat_z = false;
+
+			if(flat_x == false && flat_y == false && flat_z == false) return Flatness::NONFLAT;
+		}
+		// When two dimensions are constant for all points, the points are collinear
+		if(flat_x == true && flat_y == true) return Flatness::DEGENERATE;
+		if(flat_y == true && flat_z == true) return Flatness::DEGENERATE;
+		if(flat_z == true && flat_x == true) return Flatness::DEGENERATE;
+
+		if(flat_x) {
+			assert(!flat_y && !flat_z);
+			return Flatness::X;
+		}
+		if(flat_y) {
+			assert(!flat_x && !flat_z);
+			return Flatness::Y;
+		}
+		if(flat_z) {
+			assert(!flat_x && !flat_y);
+			return Flatness::Z;
+		}
+		return Flatness::DEGENERATE;
+	}
+
 #ifdef HAS_EIGEN
 	/**
 	 * Convert a TriMesh to face and vertex vectors.
@@ -243,4 +281,7 @@ namespace MishMesh {
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 2>, 3> points);
 	template double compute_area(const std::array<OpenMesh::VectorT<double, 3>, 3> points);
 	template TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const std::array<double, 3> barycentric_coordinates);
+
+	template Flatness is_flat(const TriMesh &mesh, double eps);
+	template Flatness is_flat(const PolyMesh &mesh, double eps);
 }

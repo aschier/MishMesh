@@ -148,6 +148,13 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		MishMesh)
 	set_target_properties(meshing_test PROPERTIES FOLDER programs)
 
+	add_executable(test_flatness
+		src/programs/test_flatness.cpp
+	)
+	target_link_libraries(test_flatness
+		MishMesh)
+	set_target_properties(test_flatness PROPERTIES FOLDER programs)
+
 	if(${EIGEN3_FOUND})
 		# Diffusion (laplace operator) example program
 		add_executable(diffusion
