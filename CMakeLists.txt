@@ -155,6 +155,13 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		MishMesh)
 	set_target_properties(test_flatness PROPERTIES FOLDER programs)
 
+	add_executable(icosphere
+		src/programs/icosphere.cpp
+	)
+	target_link_libraries(icosphere
+		MishMesh)
+	set_target_properties(icosphere PROPERTIES FOLDER programs)
+
 	if(${EIGEN3_FOUND})
 		# Diffusion (laplace operator) example program
 		add_executable(diffusion
