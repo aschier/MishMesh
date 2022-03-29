@@ -2,6 +2,7 @@
 
 #include <OpenMesh/Core/Geometry/VectorT.hh>
 #include <vector>
+#include <limits>
 
 namespace MishMesh {
 	/** A simple bounding box defined by the left-top(-far) and right-bottom(-near) point
