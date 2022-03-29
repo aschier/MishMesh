@@ -14,8 +14,6 @@ namespace MishMesh {
 	 */
 	template<typename MeshT, typename ComparatorT>
 	DijkstraResult<MeshT> dijkstra(const typename MeshT::VertexHandle start_vh, const typename MeshT::VertexHandle target_vh, MeshT &mesh, double edge_cost_function(MeshT &mesh, const typename MeshT::HalfedgeHandle edge, const void *param), void *edge_cost_param) {
-		DijkstraResult<MeshT> result;
-
 		OpenMesh::VPropHandleT<double> prop_vertex_shortest_path_length;
 		OpenMesh::HPropHandleT<double> prop_edge_shortest_path_length;
 		mesh.add_property(prop_vertex_shortest_path_length);
@@ -67,6 +65,28 @@ namespace MishMesh {
 		}
 
 		// Trace the path backwards
+		auto result = trace_path(mesh, target_vh, prop_vertex_shortest_path_length, prop_edge_shortest_path_length);
+
+		mesh.remove_property(prop_vertex_shortest_path_length);
+		mesh.remove_property(prop_edge_shortest_path_length);
+
+		return result;
+	}
+
+	/**
+	 * Find the a start vertex (with vertex_distance = 0) starting from a given target vertex.
+	 * @param mesh The mesh.
+	 * @param target_vh A vertex in the mesh.
+	 * @param prop_vertex_shortest_path_length A vertex property storing the distance from the nearest source vertex.
+	 * @param prop_edge_shortest_path_length A halfedge property storing the distance from the nearest source vertex reached via the edge.
+	 * @note When multiple source vertices are present, the algorithm finds one of the sources with minimal distance to the target.
+	 */
+	template<typename MeshT>
+	DijkstraResult<MeshT> trace_path(const MeshT &mesh,
+	                                 const typename MeshT::VertexHandle &target_vh,
+	                                 const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length,
+	                                 const OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length) {
+		DijkstraResult<MeshT> result;
 		auto vh = target_vh;
 		result.length = mesh.property(prop_vertex_shortest_path_length, target_vh);
 		if(result.length == numeric_limits<double>::infinity()) {
@@ -74,7 +94,7 @@ namespace MishMesh {
 			return {};
 		}
 		result.vertices.push_back(target_vh);
-		size_t edge_count = 0;
+		size_t edge_count = -1;
 		size_t max_edge_count = mesh.n_edges();
 		do {
 			double smallest_distance = numeric_limits<double>::infinity();
@@ -88,7 +108,7 @@ namespace MishMesh {
 			}
 			assert(smallest_distance != numeric_limits<double>::infinity());
 			assert(heh.is_valid());
-			if(!heh.is_valid()) return{};
+			if(!heh.is_valid()) return {};
 
 			result.edges.push_back(mesh.edge_handle(heh));
 			result.vertices.push_back(mesh.from_vertex_handle(heh));
@@ -97,13 +117,9 @@ namespace MishMesh {
 			if(++edge_count > max_edge_count) {
 				return {};
 			}
-		} while(vh != start_vh);
+		} while(mesh.property(prop_vertex_shortest_path_length, vh) > 0);
 		std::reverse(result.edges.begin(), result.edges.end());
 		std::reverse(result.vertices.begin(), result.vertices.end());
-
-		mesh.remove_property(prop_vertex_shortest_path_length);
-		mesh.remove_property(prop_edge_shortest_path_length);
-
 		return result;
 	}
 
