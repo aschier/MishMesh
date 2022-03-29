@@ -1,11 +1,12 @@
-#include <OpenMesh/Core/IO/MeshIO.hh>
 #include <MishMesh/TriMesh.h>
 #include <MishMesh/PolyMesh.h>
 #include <MishMesh/macros.h>
 #include <MishMesh/utils.h>
+#include <MishMesh/OBJ.h>
 
 #include <vector>
 #include <array>
+#include <iostream>
 
 /**
  * Create a simple icosahedron mesh
@@ -134,7 +135,7 @@ int main(int argc, char **argv) {
 	MishMesh::TriMesh mesh = create_isosahedron();
 	refine_1_to_4(mesh, iterations);
 	std::cerr << mesh.n_vertices() << " " << mesh.n_edges() << " " << mesh.n_faces() << std::endl;
-	OpenMesh::IO::write_mesh(mesh, "icosphere.obj");
+	MishMesh::writeOBJ(mesh, "icosphere.obj");
 	auto dualmesh = dualsphere(mesh);
-	OpenMesh::IO::write_mesh(dualmesh, "dualsphere.obj");
+	MishMesh::writeOBJ(dualmesh, "dualsphere.obj");
 }

@@ -37,58 +37,6 @@ namespace MishMesh {
 		return result;
 	}
 
-	/**
-	 * Trace the path from a target vertex backward to the a source vertex.
-	 * @param mesh The mesh.
-	 * @param target_vh The target vertex handle.
-	 * @param prop_vertex_shortest_path_length A mesh property, that stores the distance to the closest source vertex.
-	 * @param prop_edge_shortest_path_length An edge property, that stores the distance to the closest source vertex.
-	 */
-	template<typename MeshT>
-	DijkstraResult<MeshT> trace_path(MeshT &mesh, typename MeshT::VertexHandle target_vh, OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length){
-		DijkstraResult<MeshT> dijkstra_result;
-		dijkstra_result.length = mesh.property(prop_vertex_shortest_path_length, target_vh);
-		if(dijkstra_result.length == numeric_limits<double>::infinity()) {
-			// No path found
-			return {};
-		}
-		dijkstra_result.vertices.push_back(target_vh);
-		size_t edge_count = 0;
-		size_t max_edge_count = mesh.n_edges();
-		auto vh = target_vh;
-		do {
-			double smallest_distance = numeric_limits<double>::infinity();
-			typename MeshT::HalfedgeHandle shortest_path_heh;
-			for(auto h_it = mesh.cvih_ccwbegin(vh); h_it != mesh.cvih_ccwend(vh); h_it++) {
-				if(mesh.from_vertex_handle(*h_it) == target_vh) continue; // Do not return to the target vertex itself.
-				double distance = mesh.property(prop_edge_shortest_path_length, *h_it);
-				if(distance < smallest_distance) {
-					smallest_distance = distance;
-					shortest_path_heh = *h_it;
-				}
-			}
-			if(!shortest_path_heh.is_valid()){
-				// no edge found that does not point to target_vh
-				return{};
-			}
-
-			// Add to result
-			dijkstra_result.edges.push_back(mesh.edge_handle(shortest_path_heh));
-			dijkstra_result.vertices.push_back(mesh.from_vertex_handle(shortest_path_heh));
-
-			if(++edge_count > max_edge_count) {
-				// no path found yet, but there are more iterations than edges in the mesh.
-				return {};
-			}
-			vh = mesh.from_vertex_handle(shortest_path_heh);
-		} while(mesh.property(prop_vertex_shortest_path_length, vh) != 0);
-
-		// Reverse the path, so it goes from the source to the target vertex.
-		std::reverse(dijkstra_result.edges.begin(), dijkstra_result.edges.end());
-		std::reverse(dijkstra_result.vertices.begin(), dijkstra_result.vertices.end());
-		return dijkstra_result;
-	}
-
 	template<typename MeshT>
 	priority_queue<PathEdge<MeshT>, vector<PathEdge<MeshT>>, GreaterPathlength<MeshT>> initialize_search(MeshT &mesh, const OpenMesh::ArrayKernel::VertexHandle &start_vh, double(*edge_cost_function)(MeshT &mesh, OpenMesh::ArrayKernel::HalfedgeHandle edge, const void *param), void *edge_cost_param, OpenMesh::HPropHandleT<double> &prop_edge_shortest_path_length, const OpenMesh::VPropHandleT<double> &prop_vertex_shortest_path_length) {
 		// Initialize distance properties
