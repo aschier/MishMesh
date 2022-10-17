@@ -18,7 +18,7 @@ option(MISHMESH_INSTALL_TARGETS "Create install targets for MishMesh." ON)
 # Version 8.1 is required, but OpenMesh does not provide a package version file
 find_package(OpenMesh REQUIRED)
 
-find_package(Eigen3 3.3.7 QUIET)
+find_package(Eigen3 3.4.0 QUIET)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -93,9 +93,7 @@ if(${EIGEN3_FOUND})
 		include/MishMesh/cone_singularities.h
 	)
 	target_compile_definitions(MishMesh PUBLIC HAS_EIGEN)
-	target_include_directories(MishMesh PUBLIC
-		${EIGEN3_INCLUDE_DIR}
-	)
+	target_link_libraries(MishMesh PUBLIC Eigen3::Eigen)
 else()
 	message("Eigen3 was not found. Functions that need Eigen will not be available.")
 endif()
