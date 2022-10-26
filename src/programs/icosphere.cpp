@@ -135,7 +135,9 @@ int main(int argc, char **argv) {
 	MishMesh::TriMesh mesh = create_isosahedron();
 	refine_1_to_4(mesh, iterations);
 	std::cerr << mesh.n_vertices() << " " << mesh.n_edges() << " " << mesh.n_faces() << std::endl;
+	mesh.release_face_normals();
 	MishMesh::writeOBJ(mesh, "icosphere.obj");
 	auto dualmesh = dualsphere(mesh);
+	dualmesh.release_face_normals();
 	MishMesh::writeOBJ(dualmesh, "dualsphere.obj");
 }
