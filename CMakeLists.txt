@@ -160,6 +160,13 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		MishMesh)
 	set_target_properties(icosphere PROPERTIES FOLDER programs)
 
+	add_executable(uvsphere
+		src/programs/uvsphere.cpp
+	)
+	target_link_libraries(uvsphere
+		MishMesh)
+	set_target_properties(uvsphere PROPERTIES FOLDER programs)
+
 	if(${EIGEN3_FOUND})
 		# Diffusion (laplace operator) example program
 		add_executable(diffusion

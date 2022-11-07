@@ -8,6 +8,8 @@
 #include <array>
 #include <iostream>
 
+#include "dualsphere.hpp"
+
 /**
  * Create a simple icosahedron mesh
  * @returns A icosahedron mesh
@@ -102,29 +104,6 @@ void refine_1_to_4(MishMesh::TriMesh &mesh, int iterations = 1) {
 	mesh.release_face_status();
 	mesh.release_edge_status();
 	mesh.release_vertex_status();
-}
-
-MishMesh::PolyMesh dualsphere(MishMesh::TriMesh &icosphere) {
-	MishMesh::PolyMesh mesh;
-	OpenMesh::FPropHandleT<OpenMesh::VertexHandle> prop_dual_vh;
-	icosphere.add_property(prop_dual_vh);
-
-	for(auto fh : icosphere.faces()) {
-		const std::array<MishMesh::TriMesh::VertexHandle, 3> vhs = MishMesh::face_vertices(icosphere, fh);
-		auto p = (icosphere.point(vhs[0]) + icosphere.point(vhs[1]) + icosphere.point(vhs[2])) / 3.0;
-		p /= p.norm(); // normalize the sphere to radius 1
-		icosphere.property(prop_dual_vh, fh) = mesh.add_vertex(p);
-	}
-	for(auto vh : icosphere.vertices()) {
-		std::vector<MishMesh::PolyMesh::VertexHandle> vhs;
-		for(auto f_it = icosphere.cvf_ccwbegin(vh); f_it != icosphere.cvf_ccwend(vh); f_it++) {
-			vhs.push_back(icosphere.property(prop_dual_vh, *f_it));
-		}
-		mesh.add_face(vhs.data(), vhs.size());
-	}
-
-	icosphere.remove_property(prop_dual_vh);
-	return mesh;
 }
 
 int main(int argc, char **argv) {
