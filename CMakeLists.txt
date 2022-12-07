@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.10.0)
 project(MishMesh)
 set(PROJECT_VERSION 0.1.3)
 
@@ -80,6 +80,7 @@ target_include_directories(MishMesh PUBLIC
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
+set_target_properties(MishMesh PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(${EIGEN3_FOUND})
 	target_sources(MishMesh PRIVATE
@@ -220,7 +221,7 @@ endif(DOXYGEN_FOUND)
 
 if(MISHMESH_INSTALL_TARGETS)
 	configure_package_config_file(MishMeshConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
-	write_basic_package_version_file( ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake COMPATIBILITY SameMajorVersion)
+	write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake COMPATIBILITY SameMajorVersion)
 	install(TARGETS MishMesh EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 	if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
