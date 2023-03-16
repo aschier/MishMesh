@@ -97,6 +97,7 @@ TriMesh MishMesh::vertex_mesh(const TriMesh &mesh, std::vector<TriMesh::VertexHa
 
 /**
  * Colorize the mesh from black to red using a given vertex property. The colors are be scaled from minimum to maximum value.
+ * Infinite values are colored blue.
  *
  * @param[inout] mesh The mesh.
  * @param[in] vertexProperty The vertex property.
@@ -119,6 +120,35 @@ void MishMesh::colorize_mesh(MeshT &mesh, const OpenMesh::VPropHandleT<double> &
 			mesh.set_color(vh, {255 * (value - min_value) / (max_value - min_value), 0, 0});
 		} else {
 			mesh.set_color(vh, {0, 0, 255});
+		}
+	}
+}
+
+/**
+ * Colorize the mesh from black to red using a given face property. The colors are be scaled from minimum to maximum value.
+ * Infinite values are colored blue.
+ *
+ * @param[inout] mesh The mesh.
+ * @param[in] faceProperty The face property.
+ * @note You need to use request_face_color before using this method.
+ */
+template<typename MeshT>
+void MishMesh::colorize_mesh(MeshT &mesh, const OpenMesh::FPropHandleT<double> &faceProperty) {
+	assert(mesh.has_face_colors());
+	double max_value = -numeric_limits<double>::infinity();
+	double min_value = numeric_limits<double>::infinity();
+	for(auto fh : mesh.faces()) {
+		double value = mesh.property(faceProperty, fh);
+		if(!isfinite(value)) continue;
+		max_value = std::max(max_value, value);
+		min_value = std::min(min_value, value);
+	}
+	for(auto fh : mesh.faces()) {
+		double value = mesh.property(faceProperty, fh);
+		if(isfinite(value)) {
+			mesh.set_color(fh, {255 * (value - min_value) / (max_value - min_value), 0, 0});
+		} else {
+			mesh.set_color(fh, {0, 0, 255});
 		}
 	}
 }
@@ -239,3 +269,6 @@ template void MishMesh::add_box(MishMesh::PolyMesh &mesh, const BBox<OpenMesh::V
 
 template void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty);
 template void MishMesh::colorize_mesh(MishMesh::PolyMesh &mesh, const OpenMesh::VPropHandleT<double> &vertexProperty);
+
+template void MishMesh::colorize_mesh(MishMesh::TriMesh &mesh, const OpenMesh::FPropHandleT<double> &vertexProperty);
+template void MishMesh::colorize_mesh(MishMesh::PolyMesh &mesh, const OpenMesh::FPropHandleT<double> &vertexProperty);
