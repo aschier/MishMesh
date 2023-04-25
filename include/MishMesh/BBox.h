@@ -135,8 +135,8 @@ namespace MishMesh {
 		double max_side_length() const {
 			double result = 0.0;
 			for(short j = 0; j < DIM; j++) {
-				double width = (rbn[j] - ltf[j])*(rbn[j] - ltf[j]);
-				result = std::max(width, result);
+				double length = (rbn[j] - ltf[j]);
+				result = std::max(length, result);
 			}
 			return result;
 		}
@@ -144,8 +144,8 @@ namespace MishMesh {
 		double min_side_length() const {
 			double result = std::numeric_limits<double>::infinity();
 			for(short j = 0; j < DIM; j++) {
-				double width = (rbn[j] - ltf[j])*(rbn[j] - ltf[j]);
-				result = std::min(width, result);
+				double length = (rbn[j] - ltf[j]);
+				result = std::min(length, result);
 			}
 			return result;
 		}
