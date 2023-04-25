@@ -12,10 +12,15 @@ using namespace std;
  * @param mesh The input mesh.
  * @param edge_handles The edges to visualize.
  * @param thickness The relative thickness of the edges.
+ * @param prop_edge_value An optional edge property with color intensity values which will be used to colorize the edge mesh.
  * @returns The edge mesh.
  */
-TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge_handles, double thickness) {
+TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge_handles, double thickness, OpenMesh::EPropHandleT<double> *prop_edge_value) {
 	TriMesh edgeMesh;
+	OpenMesh::VPropHandleT<double> prop_vertex_value;
+	if(prop_edge_value != nullptr) {
+		edgeMesh.add_property(prop_vertex_value);
+	}
 	for(auto eh : edge_handles) {
 		std::array<TriMesh::VertexHandle, 4> vhs;
 		auto heh = mesh.halfedge_handle(eh, 0);
@@ -32,8 +37,18 @@ TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle
 		vhs[2] = edgeMesh.add_vertex(mesh.point(vh1) + d);
 		vhs[3] = edgeMesh.add_vertex(mesh.point(vh2) + d);
 
+		if(prop_edge_value != nullptr) {
+			for(short j=0; j < 4; j++) {
+				edgeMesh.property(prop_vertex_value, vhs[j]) = mesh.property(*prop_edge_value, eh);
+			}
+		}
+
 		auto fh1 = edgeMesh.add_face(vhs[0], vhs[1], vhs[2]);
 		auto fh2 = edgeMesh.add_face(vhs[2], vhs[1], vhs[3]);
+	}
+	if(prop_edge_value != nullptr) {
+		edgeMesh.request_vertex_colors();
+		colorize_mesh(edgeMesh, prop_vertex_value);
 	}
 	return edgeMesh;
 }
