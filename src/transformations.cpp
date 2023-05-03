@@ -5,25 +5,40 @@
 using namespace std;
 
 /**
- * Embed the triangle in the XY plane, with p_1=(0,0), p_2=(0, |p3D_2 - p3D_1|) and p_3 projected into the positive half plane.
+ * Embed the triangle in the XY plane, with p_1=(0,0), p_2=(0, |p3D_2 - p3D_1|)
  *
  * @param p1 The first point.
  * @param p2 The second point.
  * @param p3 The third point.
  * @returns an array of 2D points.
  */
-template<int DIM>
-array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, DIM> p1, OpenMesh::VectorT<double, DIM> p2, OpenMesh::VectorT<double, DIM> p3) {
-	double v2x = (p2 - p1).norm();
-	assert(v2x != 0);
-	double v3x = (p2 - p1) | (p3 - p1) / (p2 - p1).norm();
-	double C = (p3 - p1).sqrnorm();
-	double A = pow(v3x, 2);
-	double v3y = C > A ? sqrt(C-A) : sqrt(A-C);
-	OpenMesh::Vec2d v1 = {0, 0};
-	OpenMesh::Vec2d v2 = {v2x, 0};
-	OpenMesh::Vec2d v3 = {v3x, v3y};
-	return {v1, v2, v3};
+array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::Vec3d p1, OpenMesh::Vec3d p2, OpenMesh::Vec3d p3) {
+    OpenMesh::Vec3d x = (p2 - p1).normalized();
+    OpenMesh::Vec3d n = (x % (p3 - p1)).normalized();
+    OpenMesh::Vec3d y = n % x;
+    return std::array<OpenMesh::Vec2d, 3> {
+        OpenMesh::Vec2d {0.0, 0.0},
+        OpenMesh::Vec2d {(p2 - p1).norm(), 0.0},
+        OpenMesh::Vec2d {x.dot(p3 - p1), y.dot(p3 - p1)}
+    };
+}
+
+/**
+ * Embed the triangle in the XY plane, with p_1=(0,0), p_2=(0, |p3D_2 - p3D_1|)
+ *
+ * @param p1 The first point.
+ * @param p2 The second point.
+ * @param p3 The third point.
+ * @returns an array of 2D points.
+ */
+array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::Vec2d p1, OpenMesh::Vec2d p2, OpenMesh::Vec2d p3) {
+    OpenMesh::Vec2d x = (p2 - p1).normalized();
+    OpenMesh::Vec2d y = {-x[1], x[0]};
+    return std::array<OpenMesh::Vec2d, 3> {
+        OpenMesh::Vec2d {0.0, 0.0},
+        OpenMesh::Vec2d {(p2 - p1).norm(), 0.0},
+        OpenMesh::Vec2d {x.dot(p3 - p1), y.dot(p3 - p1)}
+    };
 }
 
 template<int DIM>
@@ -44,8 +59,6 @@ std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(TriMesh &mesh, const Tri
 }
 
 
-template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 2> p1, OpenMesh::VectorT<double, 2> p2, OpenMesh::VectorT<double, 2> p3);
-template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(OpenMesh::VectorT<double, 3> p1, OpenMesh::VectorT<double, 3> p2, OpenMesh::VectorT<double, 3> p3);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(std::array<OpenMesh::VectorT<double, 2>, 3> points);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(std::array<OpenMesh::VectorT<double, 3>, 3> points);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::HalfedgeHandle heh, const OpenMesh::Vec3d p);
