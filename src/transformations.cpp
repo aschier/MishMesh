@@ -58,6 +58,22 @@ std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(TriMesh &mesh, const Tri
 	return embed_triangle(mesh, heh, p);
 }
 
+#ifdef HAS_EIGEN
+std::array<Eigen::Vector2d, 3> MishMesh::embed_triangle(const Eigen::Vector3d &p1, const Eigen::Vector3d &p2, const Eigen::Vector3d &p3) {
+    std::array<Eigen::Vector2d, 3> P;
+    Eigen::Vector3d x = (p2 - p1).normalized();
+    Eigen::Vector3d n = x.cross(p3 - p1).normalized();
+    Eigen::Vector3d y = n.cross(x);
+    P[0] = {0, 0};
+    P[1] = {(p2 - p1).norm(), 0};
+    P[2] = {x.dot(p3 - p1), y.dot(p3 - p1)};
+    return P;
+}
+std::array<Eigen::Vector2d, 3> MishMesh::embed_triangle(const std::array<Eigen::Vector3d, 3> &points) {
+    return embed_triangle(points[0], points[1], points[2]);
+}
+#endif
+
 
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(std::array<OpenMesh::VectorT<double, 2>, 3> points);
 template std::array<OpenMesh::Vec2d, 3> MishMesh::embed_triangle(std::array<OpenMesh::VectorT<double, 3>, 3> points);
