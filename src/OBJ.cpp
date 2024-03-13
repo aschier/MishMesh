@@ -76,12 +76,14 @@ bool MishMesh::writeOBJ(const MeshT &mesh, const string filename, int precision)
  * Read a mesh to OBJ using the precision given in the mesh traits.
  * @param filename The filename.
  * @param mesh The mesh
+ * @param Use the UV coordinates and per-face UV ids instead of the vertices of the mesh.
+ *        This can be used to extract the UVs of the mesh.
  * @tparam MeshT An OpenMesh mesh type.
  * @return True when the mesh could be read.
  * @note Vertex normals and halfedge texcoord2D are currently not supported.
  */
 template<typename MeshT>
-bool MishMesh::readOBJ(MeshT &mesh, const string filename) {
+bool MishMesh::readOBJ(MeshT &mesh, const string filename, bool build_uv_mesh) {
 	ifstream ifs(filename);
 	if(!ifs.is_open()) {
 		return false;
@@ -96,6 +98,7 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename) {
 	while(!ifs.eof()) {
 		getline(ifs, line);
 		if(line.substr(0, 2) == "v ") {
+			if(build_uv_mesh) continue; // We are building a mesh with the UVs as vertex coordinates
 			vector<string> parts = split(line);
 			array<double, 3> xyz;
 			if(parts.size() == 4 || parts.size() == 7) {
@@ -114,6 +117,9 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename) {
 				uv.second = std::stod(parts[2]);
 			}
 			UVs.push_back(uv);
+			if(build_uv_mesh) {
+				mesh.add_vertex({uv.first, uv.second, 0.0});
+			}
 		} else if(line[0] == 'f') {
 			size_t t_idx = mesh.n_faces();
 			std::vector<int> t;
@@ -126,7 +132,13 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename) {
 			idxs.erase(idxs.begin()); // remove "f"
 			for(auto idx : idxs) {
 				auto parts = split(idx, '/');
-				t.push_back(std::stoi(parts[0]) - 1);
+				if(!build_uv_mesh) {
+					t.push_back(std::stoi(parts[0]) - 1);
+				} else {
+					assert(parts.size() > 1);
+					assert(parts[1] != "");
+					t.push_back(std::stoi(parts[1]) - 1);
+				}
 			}
 			std::vector<typename MeshT::VertexHandle> vhs(t.size());
 			std::transform(t.begin(), t.end(), vhs.begin(), [&](int i){ return mesh.vertex_handle(i);});
@@ -138,5 +150,5 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename) {
 
 template bool MishMesh::writeOBJ(const MishMesh::TriMesh &mesh, const string filename, int precision);
 template bool MishMesh::writeOBJ(const MishMesh::PolyMesh &mesh, const string filename, int precision);
-template bool MishMesh::readOBJ(MishMesh::TriMesh &mesh, const string filename);
-template bool MishMesh::readOBJ(MishMesh::PolyMesh &mesh, const string filename);
+template bool MishMesh::readOBJ(MishMesh::TriMesh &mesh, const string filename, bool build_uv_mesh);
+template bool MishMesh::readOBJ(MishMesh::PolyMesh &mesh, const string filename, bool build_uv_mesh);

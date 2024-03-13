@@ -9,5 +9,5 @@ namespace MishMesh {
 	template<typename MeshT>
 	bool writeOBJ(const MeshT &mesh, const std::string filename, int precision = 16);
 	template<typename MeshT>
-	bool readOBJ(MeshT &mesh, const std::string filename);
+	bool readOBJ(MeshT &mesh, const std::string filename, bool build_uv_mesh = false);
 }
