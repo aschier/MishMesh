@@ -148,6 +148,26 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename, bool build_uv_mesh) {
 					t.push_back(std::stoi(parts[1]) - 1);
 				}
 			}
+
+			// Skip faces with duplicate vertices
+			bool duplicated_vertex = false;
+			for(int i = 0; i < t.size(); i++) {
+				for(int j = i + 1; j < t.size(); j++) {
+					if(t[i] == t[j]) {
+						duplicated_vertex = true;
+						std::cerr << "Warning: Skipping face with duplicate vertex " << (t[i] + 1) << ":"; // OBJ 1-based indices
+						for(auto vidx : t) {
+							std::cerr << " " << (vidx + 1);
+						}
+						std::cerr << std::endl;
+						break;
+					}
+				}
+			}
+			if(duplicated_vertex) {
+				continue;
+			}
+
 			std::vector<typename MeshT::VertexHandle> vhs(t.size());
 			std::transform(t.begin(), t.end(), vhs.begin(), [&](int i) { return mesh.vertex_handle(i); });
 			auto new_fh = mesh.add_face(vhs.data(), vhs.size());
