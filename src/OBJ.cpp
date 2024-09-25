@@ -89,16 +89,22 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename, bool build_uv_mesh) {
 		return false;
 	}
 
-	vector<pair<double, double>> UVs;
-	map<pair<size_t, short>, size_t> facevertex_uvs;
-
 	mesh.clear();
+
+	OpenMesh::VPropHandleT<int> prop_orig_vertex_idx;
+	OpenMesh::FPropHandleT<int> prop_orig_face_idx;
+	if(build_uv_mesh) {
+		mesh.add_property(prop_orig_vertex_idx, "orig_index");
+		mesh.add_property(prop_orig_face_idx, "orig_index");
+	}
 
 	string line;
 	while(!ifs.eof()) {
 		getline(ifs, line);
 		if(line.substr(0, 2) == "v ") {
-			if(build_uv_mesh) continue; // We are building a mesh with the UVs as vertex coordinates
+			if(build_uv_mesh) {
+				continue; // We are building a mesh with the UVs as vertex coordinates
+			}
 			vector<string> parts = split(line);
 			array<double, 3> xyz;
 			if(parts.size() == 4 || parts.size() == 7) {
@@ -116,13 +122,14 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename, bool build_uv_mesh) {
 				uv.first = std::stod(parts[1]);
 				uv.second = std::stod(parts[2]);
 			}
-			UVs.push_back(uv);
 			if(build_uv_mesh) {
 				mesh.add_vertex({uv.first, uv.second, 0.0});
 			}
 		} else if(line[0] == 'f') {
 			size_t t_idx = mesh.n_faces();
 			std::vector<int> t;
+			std::vector<int> orig_t; // used for the original vertex indices when building UV meshes
+
 			vector<string> idxs = split(line);
 			// possible formats for a part:
 			// vertex_id/uv_id
@@ -137,12 +144,20 @@ bool MishMesh::readOBJ(MeshT &mesh, const string filename, bool build_uv_mesh) {
 				} else {
 					assert(parts.size() > 1);
 					assert(parts[1] != "");
+					orig_t.push_back(std::stoi(parts[0]) - 1);
 					t.push_back(std::stoi(parts[1]) - 1);
 				}
 			}
 			std::vector<typename MeshT::VertexHandle> vhs(t.size());
-			std::transform(t.begin(), t.end(), vhs.begin(), [&](int i){ return mesh.vertex_handle(i);});
-			mesh.add_face(vhs.data(), vhs.size());
+			std::transform(t.begin(), t.end(), vhs.begin(), [&](int i) { return mesh.vertex_handle(i); });
+			auto new_fh = mesh.add_face(vhs.data(), vhs.size());
+			if(build_uv_mesh && new_fh.is_valid()) {
+				for(int i = 0; i < vhs.size(); i++) {
+					auto vh = vhs[i];
+					mesh.property(prop_orig_vertex_idx, vh) = orig_t[i];
+				}
+				mesh.property(prop_orig_face_idx, new_fh) = t_idx;
+			}
 		}
 	}
 	return true;
