@@ -32,7 +32,8 @@ namespace MishMesh {
 	 * @param heh The halfedge.
 	 * @returns The vertex handles of the vertices of the given halfedge.
 	 */
-	std::array<TriMesh::VertexHandle, 2> edge_vertices(const TriMesh &mesh, const TriMesh::HalfedgeHandle heh) {
+	template<typename MeshT>
+	std::array<typename MeshT::VertexHandle, 2> edge_vertices(const MeshT &mesh, const typename MeshT::HalfedgeHandle heh) {
 		return {mesh.from_vertex_handle(heh), mesh.to_vertex_handle(heh)};
 	}
 
@@ -42,7 +43,8 @@ namespace MishMesh {
 	 * @param eh The edge.
 	 * @returns The vertex handles of the vertices of the given edge.
 	 */
-	std::array<TriMesh::VertexHandle, 2> edge_vertices(const TriMesh &mesh, const TriMesh::EdgeHandle eh) {
+	template<typename MeshT>
+	std::array<typename MeshT::VertexHandle, 2> edge_vertices(const MeshT &mesh, const typename MeshT::EdgeHandle eh) {
 		return edge_vertices(mesh, mesh.halfedge_handle(eh, 0));
 	}
 
@@ -52,7 +54,8 @@ namespace MishMesh {
 	 * @param heh The halfedge.
 	 * @returns The points of the vertices of the given halfedge.
 	 */
-	std::array<OpenMesh::Vec3d, 2> edge_points(const TriMesh &mesh, const TriMesh::HalfedgeHandle heh) {
+	template<typename MeshT>
+	std::array<typename MeshT::Point, 2> edge_points(const MeshT &mesh, const typename MeshT::HalfedgeHandle heh) {
 		return {mesh.point(mesh.from_vertex_handle(heh)), mesh.point(mesh.to_vertex_handle(heh))};
 	}
 
@@ -62,7 +65,8 @@ namespace MishMesh {
 	 * @param eh The edge.
 	 * @returns The points of the vertices of the given halfedge.
 	 */
-	std::array<OpenMesh::Vec3d, 2> edge_points(const TriMesh &mesh, const TriMesh::EdgeHandle eh) {
+	template<typename MeshT>
+	std::array<typename MeshT::Point, 2> edge_points(const MeshT &mesh, const typename MeshT::EdgeHandle eh) {
 		return edge_points(mesh, mesh.halfedge_handle(eh, 0));
 	}
 
@@ -284,4 +288,15 @@ namespace MishMesh {
 
 	template Flatness is_flat(const TriMesh &mesh, double eps);
 	template Flatness is_flat(const PolyMesh &mesh, double eps);
+
+	// clang-format off
+	template std::array<typename MishMesh::TriMesh::VertexHandle, 2> edge_vertices(const MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::HalfedgeHandle heh);
+	template std::array<typename MishMesh::TriMesh::VertexHandle, 2> edge_vertices(const MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::EdgeHandle eh);
+	template std::array<typename MishMesh::TriMesh::Point, 2> edge_points(const MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::HalfedgeHandle heh);
+	template std::array<typename MishMesh::TriMesh::Point, 2> edge_points(const MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::EdgeHandle eh);
+
+	template std::array<typename MishMesh::PolyMesh::VertexHandle, 2> edge_vertices(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::HalfedgeHandle heh);
+	template std::array<typename MishMesh::PolyMesh::VertexHandle, 2> edge_vertices(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::EdgeHandle eh);
+	template std::array<typename MishMesh::PolyMesh::Point, 2> edge_points(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::HalfedgeHandle heh);
+	template std::array<typename MishMesh::PolyMesh::Point, 2> edge_points(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::EdgeHandle eh);
 }

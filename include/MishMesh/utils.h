@@ -11,11 +11,15 @@
 namespace MishMesh {
 	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, const TriMesh::VertexHandle &vh);
 
-	std::array<TriMesh::VertexHandle, 2> edge_vertices(const TriMesh &mesh, const TriMesh::HalfedgeHandle heh);
-	std::array<TriMesh::VertexHandle, 2> edge_vertices(const TriMesh &mesh, const TriMesh::EdgeHandle eh);
+	template<typename MeshT>
+	std::array<typename MeshT::VertexHandle, 2> edge_vertices(const MeshT &mesh, const typename MeshT::HalfedgeHandle heh);
+	template<typename MeshT>
+	std::array<typename MeshT::VertexHandle, 2> edge_vertices(const MeshT &mesh, const typename MeshT::EdgeHandle eh);
 
-	std::array<OpenMesh::Vec3d, 2> edge_points(const TriMesh &mesh, const TriMesh::HalfedgeHandle heh);
-	std::array<OpenMesh::Vec3d, 2>  edge_points(const TriMesh &mesh, const TriMesh::EdgeHandle eh);
+	template<typename MeshT>
+	std::array<typename MeshT::Point, 2> edge_points(const MeshT &mesh, const typename MeshT::HalfedgeHandle heh);
+	template<typename MeshT>
+	std::array<typename MeshT::Point, 2> edge_points(const MeshT &mesh, const typename MeshT::EdgeHandle eh);
 
 	std::array<TriMesh::VertexHandle, 3> face_vertices(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 	std::vector<PolyMesh::VertexHandle> face_vertices(const PolyMesh &mesh, const PolyMesh::FaceHandle fh);
