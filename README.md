@@ -47,6 +47,9 @@ Functions
 * Build a submesh from a set of faces of a mesh
 * Split mesh into its connected components
 
+#### Refinement
+* Create a global refinement using 1-to-4 splits
+
 ##### Sampling
 * Uniform sampling inside triangles
 * Uniform sampling inside circles

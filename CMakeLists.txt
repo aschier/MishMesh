@@ -65,6 +65,8 @@ add_library(MishMesh
 	src/meshing/dual_contouring.cpp
 	src/meshing/vertexfit.hpp
 	src/meshing/grid.hpp
+	include/MishMesh/refine.h
+	src/refine.cpp
 )
 
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)
