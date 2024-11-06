@@ -13,9 +13,46 @@ using namespace std;
  * @param edge_handles The edges to visualize.
  * @param thickness The relative thickness of the edges.
  * @param prop_edge_value An optional edge property with color intensity values which will be used to colorize the edge mesh.
+ * @param offset Move the edges by the given offset into normal direction
+ * @returns The edge mesh.
+ * @note If the mesh contains vertex normals they are used, otherwise the function calculates normals using TriMesh::update_normals
+ */
+TriMesh MishMesh::edge_mesh(TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge_handles, double thickness,
+                            OpenMesh::EPropHandleT<double> *prop_edge_value, double offset) {
+	bool has_vertex_normals = mesh.has_vertex_normals();
+	if(offset > 0) {
+		if(!has_vertex_normals) {
+			mesh.request_vertex_normals();
+			if(!mesh.has_face_normals()) {
+				mesh.request_face_normals();
+				mesh.update_face_normals();
+				mesh.update_vertex_normals();
+				mesh.release_face_normals();
+			} else {
+				mesh.update_vertex_normals();
+			}
+		}
+		for(const auto &vh : mesh.vertices()) {
+			mesh.point(vh) += offset * mesh.normal(vh);
+		}
+	}
+	if(!has_vertex_normals) {
+		mesh.release_vertex_normals();
+	}
+	return MishMesh::edge_mesh(mesh, edge_handles, thickness, prop_edge_value);
+}
+
+/**
+ * Create a mesh, that visualizes selected edges from an input mesh as rectangles.
+ * @param mesh The input mesh.
+ * @param edge_handles The edges to visualize.
+ * @param thickness The relative thickness of the edges.
+ * @param prop_edge_value An optional edge property with color intensity values which will be used to colorize the edge mesh.
+ * @param offset Move the edges by the given offset into normal direction
  * @returns The edge mesh.
  */
-TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge_handles, double thickness, OpenMesh::EPropHandleT<double> *prop_edge_value) {
+TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge_handles, double thickness,
+                            OpenMesh::EPropHandleT<double> *prop_edge_value) {
 	TriMesh edgeMesh;
 	OpenMesh::VPropHandleT<double> prop_vertex_value;
 	if(prop_edge_value != nullptr) {
