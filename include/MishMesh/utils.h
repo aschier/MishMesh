@@ -9,6 +9,9 @@
 #endif
 
 namespace MishMesh {
+	template<typename MeshT>
+	using HalfedgePair = std::pair<typename MeshT::HalfedgeHandle, typename MeshT::HalfedgeHandle>;
+
 	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, const TriMesh::VertexHandle &vh);
 
 	template<typename MeshT>
@@ -29,6 +32,11 @@ namespace MishMesh {
 
 	template<typename VectorT>
 	TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const VectorT barycentric_coordinates);
+
+	HalfedgePair<MishMesh::TriMesh> split_edge(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::HalfedgeHandle heh,
+	                                       const MishMesh::TriMesh::VertexHandle &vh);
+	HalfedgePair<MishMesh::PolyMesh> split_edge(MishMesh::PolyMesh &mesh, const MishMesh::PolyMesh::HalfedgeHandle heh,
+	                                        const MishMesh::PolyMesh::VertexHandle &vh);
 
 	template<int DIM>
 	double compute_area(const std::array<OpenMesh::VectorT<double, DIM>, 3> points);
