@@ -62,15 +62,13 @@ set<typename MeshT::VertexHandle> MishMesh::get_connected_vertices(const MeshT &
  * when you need an ordered list of submeshes.
  */
 template<typename MeshT>
-std::vector<std::set<typename MeshT::VertexHandle>> MishMesh::get_connected_components_vertices(const MeshT &mesh) {
+std::vector<std::set<typename MeshT::VertexHandle>> MishMesh::get_connected_components_vertices(const MeshT &input_mesh) {
 	std::vector<std::set<typename MeshT::VertexHandle>> result;
-	set<typename MeshT::VertexHandle> vertices;
-	for(auto v : mesh.vertices()) {
-		vertices.insert(v);
-	}
+	std::set<typename MeshT::VertexHandle> vertices;
+	vertices.insert(input_mesh.vertices_begin(), input_mesh.vertices_end());
 	while(!vertices.empty()) {
 		const auto start_vertex = *vertices.begin();
-		const auto component_vertices = get_connected_vertices(mesh, start_vertex);
+		const auto component_vertices = get_connected_vertices(input_mesh, start_vertex);
 		result.push_back(component_vertices);
 		for(auto &vh : component_vertices) {
 			vertices.erase(vh);
@@ -83,5 +81,5 @@ template set<typename TriMesh::FaceHandle> MishMesh::get_connected_faces(const T
 template set<PolyMesh::FaceHandle> MishMesh::get_connected_faces(const PolyMesh &mesh, const PolyMesh::FaceHandle start_face);
 template set<TriMesh::VertexHandle> MishMesh::get_connected_vertices(const TriMesh &mesh, const TriMesh::VertexHandle start_vertex);
 template set<PolyMesh::VertexHandle> MishMesh::get_connected_vertices(const PolyMesh &mesh, const PolyMesh::VertexHandle start_vertex);
-template std::vector<std::set<TriMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const TriMesh &mesh);
-template std::vector<std::set<PolyMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const PolyMesh &mesh);
+template std::vector<std::set<TriMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const TriMesh &input_mesh);
+template std::vector<std::set<PolyMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const PolyMesh &input_mesh);
