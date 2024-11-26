@@ -11,4 +11,6 @@ namespace MishMesh {
 	std::set<typename MeshT::VertexHandle> get_connected_vertices(const MeshT &input_mesh, const typename MeshT::VertexHandle start_vertex);
 	template<typename MeshT>
 	std::vector<std::set<typename MeshT::VertexHandle>> get_connected_components_vertices(const MeshT &input_mesh);
+	template<typename MeshT>
+	std::vector<std::set<typename MeshT::FaceHandle>> get_connected_components_faces(const MeshT &input_mesh);
 }

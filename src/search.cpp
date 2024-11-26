@@ -77,9 +77,36 @@ std::vector<std::set<typename MeshT::VertexHandle>> MishMesh::get_connected_comp
 	return result;
 }
 
+/**
+ * Get the faces of each connected component in the mesh.
+ * @param mesh The mesh.
+ * @returns A vector of sets of FaceHandles for the faces of the connected components in the mesh.
+ * @note The function does not guarantee a consistent order of the different connected groups with regard to
+ * other functions dealing with connected components. Split the mesh and use get_connected_vertices on each submesh
+ * when you need an ordered list of submeshes.
+ */
+template<typename MeshT>
+std::vector<std::set<typename MeshT::FaceHandle>> MishMesh::get_connected_components_faces(const MeshT &input_mesh) {
+	std::vector<std::set<typename MeshT::FaceHandle>> result;
+	std::set<typename MeshT::FaceHandle> faces;
+	MishMesh::TriMesh test;
+	faces.insert(input_mesh.faces_begin(), input_mesh.faces_end());
+	while(!faces.empty()) {
+		const auto start_face = *faces.begin();
+		const auto component_faces = get_connected_faces(input_mesh, start_face);
+		result.push_back(component_faces);
+		for(auto &fh : component_faces) {
+			faces.erase(fh);
+		}
+	}
+	return result;
+}
+
 template set<typename TriMesh::FaceHandle> MishMesh::get_connected_faces(const TriMesh &mesh, const TriMesh::FaceHandle start_face);
 template set<PolyMesh::FaceHandle> MishMesh::get_connected_faces(const PolyMesh &mesh, const PolyMesh::FaceHandle start_face);
 template set<TriMesh::VertexHandle> MishMesh::get_connected_vertices(const TriMesh &mesh, const TriMesh::VertexHandle start_vertex);
 template set<PolyMesh::VertexHandle> MishMesh::get_connected_vertices(const PolyMesh &mesh, const PolyMesh::VertexHandle start_vertex);
 template std::vector<std::set<TriMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const TriMesh &input_mesh);
 template std::vector<std::set<PolyMesh::VertexHandle>> MishMesh::get_connected_components_vertices(const PolyMesh &input_mesh);
+template std::vector<std::set<TriMesh::FaceHandle>> MishMesh::get_connected_components_faces(const TriMesh &input_mesh);
+template std::vector<std::set<PolyMesh::FaceHandle>> MishMesh::get_connected_components_faces(const PolyMesh &input_mesh);
