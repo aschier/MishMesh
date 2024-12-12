@@ -78,10 +78,7 @@ namespace MishMesh {
 	 */
 	std::array<TriMesh::VertexHandle, 3> face_vertices(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
 		array<TriMesh::VertexHandle, 3> vhs;
-		short j = 0;
-		FOR_CFV(v_it, fh) {
-			vhs[j++] = *v_it;
-		}
+		std::copy(mesh.cfv_ccwbegin(fh), mesh.cfv_ccwend(fh), vhs.begin());
 		return vhs;
 	}
 
@@ -93,10 +90,7 @@ namespace MishMesh {
 	 */
 	std::vector<PolyMesh::VertexHandle> face_vertices(const PolyMesh &mesh, const PolyMesh::FaceHandle fh) {
 		vector<PolyMesh::VertexHandle> vhs;
-		short j = 0;
-		FOR_CFV(v_it, fh) {
-			vhs.push_back(*v_it);
-		}
+		std::copy(mesh.cfv_ccwbegin(fh), mesh.cfv_ccwend(fh), vhs.begin());
 		return vhs;
 	}
 
@@ -220,10 +214,7 @@ namespace MishMesh {
 	 */
 	double compute_area(const TriMesh &mesh, const array<TriMesh::VertexHandle, 3> vertices) {
 		array<OpenMesh::Vec3d, 3> points;
-		short j = 0;
-		for(auto v : vertices) {
-			points[j++] = mesh.point(v);
-		}
+		std::transform(vertices.begin(), vertices.end(), points.begin(), [&](const MishMesh::TriMesh::VertexHandle &vh) { return mesh.point(vh); });
 		return compute_area(points);
 	}
 
