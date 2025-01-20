@@ -30,6 +30,11 @@ namespace MishMesh {
 	std::array<OpenMesh::Vec3d, 3> face_points(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 	std::vector<OpenMesh::Vec3d> face_points(const PolyMesh &mesh, const PolyMesh::FaceHandle fh);
 
+	template<typename MeshT>
+	OpenMesh::SmartHalfedgeHandle find_halfedge(const MeshT &mesh, const typename MeshT::VertexHandle vh1, const typename MeshT::VertexHandle &vh2);
+	template<typename MeshT>
+	OpenMesh::SmartEdgeHandle find_edge(const MeshT &mesh, const typename MeshT::VertexHandle vh1, const typename MeshT::VertexHandle &vh2);
+
 	template<typename VectorT>
 	TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const VectorT barycentric_coordinates);
 

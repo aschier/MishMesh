@@ -121,6 +121,48 @@ namespace MishMesh {
 	}
 
 	/**
+	 * Find the halfedge from vh1 to vh2.
+	 *
+	 * @param mesh The mesh in which to search for the halfedge.
+	 * @param vh1 The first vertex handle.
+	 * @param vh2 The second vertex handle.
+	 * @returns The halfedge from vh1 to vh2 if found, otherwise an invalid handle.
+	 */
+	template<typename MeshT>
+	OpenMesh::SmartHalfedgeHandle find_halfedge(const MeshT &mesh, const typename MeshT::VertexHandle vh1,
+	                                            const typename MeshT::VertexHandle &vh2) {
+		if(!vh1.is_valid()) {
+			return OpenMesh::SmartHalfedgeHandle();
+		}
+		FOR_CVOH(h_it, vh1) {
+			if(h_it->to() == vh2) {
+				return *h_it;
+			}
+		}
+		// If not found, return an invalid halfedge
+		return OpenMesh::SmartHalfedgeHandle();
+	}
+
+	/**
+	 * Find the edge connecting vh1 and vh2.
+	 *
+	 * @param mesh The mesh in which to search for the halfedge.
+	 * @param vh1 The first vertex handle.
+	 * @param vh2 The second vertex handle.
+	 * @returns The edge between vh1 and vh2 if found, otherwise an invalid handle.
+	 */
+	template<typename MeshT>
+	OpenMesh::SmartEdgeHandle find_edge(const MeshT &mesh, const typename MeshT::VertexHandle vh1,
+	                                    const typename MeshT::VertexHandle &vh2) {
+		const auto heh = find_halfedge(mesh, vh1, vh2);
+		if(heh.is_valid()) {
+			return heh.edge();
+		}
+		// If not found, return an invalid edge
+		return OpenMesh::SmartEdgeHandle();
+	}
+
+	/**
 	 * Split the edge belonging to a given halfedge handle and return the two halfedges
 	 * ordered such that the to-vertex of the first edge is the from-vertex of the second.
 	 *
@@ -340,4 +382,9 @@ namespace MishMesh {
 	template std::array<typename MishMesh::PolyMesh::VertexHandle, 2> edge_vertices(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::EdgeHandle eh);
 	template std::array<typename MishMesh::PolyMesh::Point, 2> edge_points(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::HalfedgeHandle heh);
 	template std::array<typename MishMesh::PolyMesh::Point, 2> edge_points(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::EdgeHandle eh);
+
+	template OpenMesh::SmartHalfedgeHandle find_halfedge(const MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::VertexHandle vh1, const typename MishMesh::TriMesh::VertexHandle &vh2);
+	template OpenMesh::SmartHalfedgeHandle find_halfedge(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::VertexHandle vh1, const typename MishMesh::PolyMesh::VertexHandle &vh2);
+	template OpenMesh::SmartEdgeHandle find_edge(const MishMesh::TriMesh &mesh, const typename MishMesh::TriMesh::VertexHandle vh1, const typename MishMesh::TriMesh::VertexHandle &vh2);
+	template OpenMesh::SmartEdgeHandle find_edge(const MishMesh::PolyMesh &mesh, const typename MishMesh::PolyMesh::VertexHandle vh1, const typename MishMesh::PolyMesh::VertexHandle &vh2);
 }
