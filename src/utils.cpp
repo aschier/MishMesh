@@ -172,19 +172,18 @@ namespace MishMesh {
 	 * @return A pair of halfedge handles representing the two segments of the split edge.
 	 * @note The input halfedge handle stays valid and is one of the two returned halfedge handles.
 	 */
-	MishMesh::HalfedgePair<MishMesh::TriMesh> split_edge(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::HalfedgeHandle heh,
+	SmartHalfedgePair split_edge(MishMesh::TriMesh &mesh, const OpenMesh::SmartHalfedgeHandle heh,
 	                                                     const MishMesh::TriMesh::VertexHandle &vh) {
-		auto eh = mesh.edge_handle(heh);
-		auto heh0 = mesh.halfedge_handle(eh, 0);
-		mesh.split_edge(eh, vh);
+		auto heh0 = heh.edge().h0();
+		mesh.split_edge(heh.edge(), vh);
 		// The edge heh0 is split into: new_edge.h1 -> vh -> heh0
 		// TriMesh::split_edge also adds two edges that re-triangulate the adjacent faces.
 		// We find the new edge by circulating around the vertex and skipping the re-triangulation edge.
-		auto new_heh = mesh.prev_halfedge_handle(mesh.opposite_halfedge_handle(mesh.prev_halfedge_handle(heh0)));
+		auto new_heh = heh0.prev().opp().prev();
 		if(heh == heh0) {
 			return {new_heh, heh};
 		} else {
-			return {heh, mesh.opposite_halfedge_handle(new_heh)};
+			return {heh, new_heh.opp()};
 		}
 	}
 
@@ -198,17 +197,17 @@ namespace MishMesh {
 	 * @return A pair of halfedge handles representing the two segments of the split edge.
 	 * @note The input halfedge handle stays valid and is one of the two returned halfedge handles.
 	 */
-	MishMesh::HalfedgePair<MishMesh::PolyMesh> split_edge(MishMesh::PolyMesh &mesh, const MishMesh::PolyMesh::HalfedgeHandle heh,
+	MishMesh::SmartHalfedgePair split_edge(MishMesh::PolyMesh &mesh, const OpenMesh::SmartHalfedgeHandle heh,
 	                                                      const MishMesh::PolyMesh::VertexHandle &vh) {
 		auto eh = mesh.edge_handle(heh);
-		auto heh0 = mesh.halfedge_handle(eh, 0);
-		mesh.split_edge(eh, vh);
+		auto heh0 = heh.edge().h0();
+		mesh.split_edge(heh.edge(), vh);
 		// heh0 is split into: new_edge.h0 -> vh -> heh0
-		auto new_heh = mesh.prev_halfedge_handle(heh0);
+		auto new_heh = heh0.prev();
 		if(heh == heh0) {
 			return {new_heh, heh};
 		} else {
-			return {heh, mesh.opposite_halfedge_handle(new_heh)};
+			return {heh, new_heh.opp()};
 		}
 	}
 

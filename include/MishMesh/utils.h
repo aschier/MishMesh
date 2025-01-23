@@ -9,8 +9,7 @@
 #endif
 
 namespace MishMesh {
-	template<typename MeshT>
-	using HalfedgePair = std::pair<typename MeshT::HalfedgeHandle, typename MeshT::HalfedgeHandle>;
+	using SmartHalfedgePair = std::pair<OpenMesh::SmartHalfedgeHandle, OpenMesh::SmartHalfedgeHandle>;
 
 	TriMesh::HalfedgeHandle opposite_halfedge(const TriMesh &mesh, const TriMesh::FaceHandle &fh, const TriMesh::VertexHandle &vh);
 
@@ -38,10 +37,19 @@ namespace MishMesh {
 	template<typename VectorT>
 	TriMesh::VertexHandle nearest_vh(const TriMesh &mesh, const MishMesh::TriMesh::FaceHandle fh, const VectorT barycentric_coordinates);
 
-	HalfedgePair<MishMesh::TriMesh> split_edge(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::HalfedgeHandle heh,
-	                                       const MishMesh::TriMesh::VertexHandle &vh);
-	HalfedgePair<MishMesh::PolyMesh> split_edge(MishMesh::PolyMesh &mesh, const MishMesh::PolyMesh::HalfedgeHandle heh,
-	                                        const MishMesh::PolyMesh::VertexHandle &vh);
+	SmartHalfedgePair split_edge(MishMesh::TriMesh &mesh, const OpenMesh::SmartHalfedgeHandle heh,
+	                             const MishMesh::TriMesh::VertexHandle &vh);
+	SmartHalfedgePair split_edge(MishMesh::PolyMesh &mesh, const OpenMesh::SmartHalfedgeHandle heh,
+	                                       const MishMesh::PolyMesh::VertexHandle &vh);
+
+	inline SmartHalfedgePair split_edge(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::HalfedgeHandle heh,
+	                                    const MishMesh::TriMesh::VertexHandle &vh) {
+		return split_edge(mesh, OpenMesh::make_smart(heh, mesh), vh);
+	}
+	inline SmartHalfedgePair split_edge(MishMesh::PolyMesh &mesh, const MishMesh::PolyMesh::HalfedgeHandle heh,
+	                             const MishMesh::PolyMesh::VertexHandle &vh) {
+		return split_edge(mesh, OpenMesh::make_smart(heh, mesh), vh);
+	}
 
 	template<int DIM>
 	double compute_area(const std::array<OpenMesh::VectorT<double, DIM>, 3> points);
