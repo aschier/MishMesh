@@ -25,16 +25,6 @@ namespace MishMesh {
 	};
 
 	/**
-	 * The edges between two vertices.
-	 */
-	template<typename MeshT>
-	struct EdgePath {
-		int v1, v2;
-		double length;
-		std::vector<typename MeshT::EdgeHandle> edges;
-	};
-
-	/**
 	 * An edge on a path. PathEdges can be ordered by the length of the path up to this edge.
 	 * @param mesh The mesh the edge belongs to. Used for length calculations.
 	 * @param The property handle for the "shortest path" property on the mesh.
