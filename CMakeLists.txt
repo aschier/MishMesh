@@ -67,6 +67,8 @@ add_library(MishMesh
 	src/meshing/grid.hpp
 	include/MishMesh/refine.h
 	src/refine.cpp
+	include/MishMesh/uvs.h
+	src/uvs.cpp
 )
 
 target_compile_definitions(MishMesh PUBLIC -D_USE_MATH_DEFINES)

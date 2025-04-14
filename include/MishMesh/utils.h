@@ -42,8 +42,6 @@ namespace MishMesh {
 	SmartHalfedgePair split_edge(MishMesh::PolyMesh &mesh, const OpenMesh::SmartHalfedgeHandle heh,
 	                                       const MishMesh::PolyMesh::VertexHandle &vh);
 
-	void flip_with_uvs(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::EdgeHandle &eh);
-
 	inline SmartHalfedgePair split_edge(MishMesh::TriMesh &mesh, const MishMesh::TriMesh::HalfedgeHandle heh,
 	                                    const MishMesh::TriMesh::VertexHandle &vh) {
 		return split_edge(mesh, OpenMesh::make_smart(heh, mesh), vh);
