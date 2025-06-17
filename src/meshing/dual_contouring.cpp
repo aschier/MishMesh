@@ -86,10 +86,8 @@ namespace MishMesh {
 
 			/**
 			 * Sample the distance function at the grid points.
-<<<<<<< HEAD
 			 * @param grid The grid.
 			 * @param distance_function A function for calculating distances and normals.
->>>>>>> af85d32... Added a dual contouring implementation
 			 */
 			template<typename GridT>
 			std::pair<std::vector<double>, std::vector<OpenMesh::Vec3d>> compute_point_values_and_normals(const GridT &grid, ::MishMesh::Meshing::DistanceFunction distance_function, void *distance_function_data) {
