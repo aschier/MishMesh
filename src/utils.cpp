@@ -90,7 +90,7 @@ namespace MishMesh {
 	 */
 	std::vector<PolyMesh::VertexHandle> face_vertices(const PolyMesh &mesh, const PolyMesh::FaceHandle fh) {
 		vector<PolyMesh::VertexHandle> vhs;
-		std::copy(mesh.cfv_ccwbegin(fh), mesh.cfv_ccwend(fh), vhs.begin());
+		std::copy(mesh.cfv_ccwbegin(fh), mesh.cfv_ccwend(fh), std::back_inserter(vhs));
 		return vhs;
 	}
 
