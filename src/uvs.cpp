@@ -31,10 +31,10 @@ namespace MishMesh {
 		// New halfedges
 		for(int i = n_heh; i < mesh.n_halfedges(); i++) {
 			MishMesh::PolyMesh::HalfedgeHandle heh = mesh.halfedge_handle(i);
-			// Iterate around the to-vertex to find a mesh from the original polygon.
+			// Iterate around the to-vertex to find an edge from the original polygon.
 			auto heh2 = heh;
 			do {
-				heh2 = mesh.opposite_halfedge_handle(mesh.next_halfedge_handle(heh2));
+				heh2 = mesh.prev_halfedge_handle(mesh.opposite_halfedge_handle(heh2));
 				if(heh2.idx() < n_heh) {
 					mesh.set_texcoord2D(heh, mesh.texcoord2D(heh2));
 					break;
