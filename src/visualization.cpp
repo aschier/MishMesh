@@ -17,8 +17,8 @@ using namespace std;
  * @returns The edge mesh.
  * @note If the mesh contains vertex normals they are used, otherwise the function calculates normals using TriMesh::update_normals
  */
-TriMesh MishMesh::edge_mesh(TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge_handles, double thickness,
-                            OpenMesh::EPropHandleT<double> *prop_edge_value, double offset) {
+TriMesh MishMesh::edge_mesh(TriMesh &mesh, const std::vector<TriMesh::EdgeHandle> &edge_handles, const double thickness,
+                            const OpenMesh::EPropHandleT<double> *prop_edge_value, const double offset) {
 	bool has_vertex_normals = mesh.has_vertex_normals();
 	if(offset > 0) {
 		if(!has_vertex_normals) {
@@ -43,16 +43,34 @@ TriMesh MishMesh::edge_mesh(TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge
 }
 
 /**
+ * Create a mesh that visualizes edges from an input mesh as rectangles, based on an edge property.
+ * @param mesh The input mesh.
+ * @param prop_add_edge Edge property that indicates which edges to visualize.
+ * @param thickness The relative thickness of the edges.
+ * @param prop_edge_value An optional edge property with color intensity values which will be used to colorize the edge mesh.
+ * @returns The edge mesh.
+ */
+TriMesh MishMesh::edge_mesh(const TriMesh &mesh, const OpenMesh::EPropHandleT<bool> prop_add_edge, const double thickness,
+                            const OpenMesh::EPropHandleT<double> *prop_edge_value) {
+	std::vector<TriMesh::EdgeHandle> edge_handles;
+	for(auto eh : mesh.edges()) {
+		if(mesh.property(prop_add_edge, eh)) {
+			edge_handles.push_back(eh);
+		}
+	}
+	return edge_mesh(mesh, edge_handles, thickness, prop_edge_value);
+}
+
+/**
  * Create a mesh, that visualizes selected edges from an input mesh as rectangles.
  * @param mesh The input mesh.
  * @param edge_handles The edges to visualize.
  * @param thickness The relative thickness of the edges.
  * @param prop_edge_value An optional edge property with color intensity values which will be used to colorize the edge mesh.
- * @param offset Move the edges by the given offset into normal direction
  * @returns The edge mesh.
  */
-TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle> edge_handles, double thickness,
-                            OpenMesh::EPropHandleT<double> *prop_edge_value) {
+TriMesh MishMesh::edge_mesh(const TriMesh &mesh, const std::vector<TriMesh::EdgeHandle> &edge_handles, const double thickness,
+                            const OpenMesh::EPropHandleT<double> *prop_edge_value) {
 	TriMesh edgeMesh;
 	OpenMesh::VPropHandleT<double> prop_vertex_value;
 	if(prop_edge_value != nullptr) {
@@ -72,7 +90,9 @@ TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle
 		vhs[0] = edgeMesh.add_vertex(mesh.point(vh1));
 		vhs[1] = edgeMesh.add_vertex(mesh.point(vh2));
 		vhs[2] = edgeMesh.add_vertex(mesh.point(vh1) + d);
-		vhs[3] = edgeMesh.add_vertex(mesh.point(vh2) + d);
+		if(thickness > 0) {
+			vhs[3] = edgeMesh.add_vertex(mesh.point(vh2) + d);
+		}
 
 		if(prop_edge_value != nullptr) {
 			for(short j=0; j < 4; j++) {
@@ -80,8 +100,10 @@ TriMesh MishMesh::edge_mesh(const TriMesh &mesh, std::vector<TriMesh::EdgeHandle
 			}
 		}
 
-		auto fh1 = edgeMesh.add_face(vhs[0], vhs[1], vhs[2]);
-		auto fh2 = edgeMesh.add_face(vhs[2], vhs[1], vhs[3]);
+		edgeMesh.add_face(vhs[0], vhs[1], vhs[2]);
+		if(thickness > 0) {
+			edgeMesh.add_face(vhs[2], vhs[1], vhs[3]);
+		}
 	}
 	if(prop_edge_value != nullptr) {
 		edgeMesh.request_vertex_colors();
