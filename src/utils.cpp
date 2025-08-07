@@ -121,6 +121,30 @@ namespace MishMesh {
 	}
 
 	/**
+	 * Get the halfedges of a face.
+	 * @param mesh The mesh.
+	 * @param fh The face.
+	 * @returns The halfedges of the vertices of the given face.
+	 */
+	std::array<TriMesh::HalfedgeHandle, 3> face_halfedges(const TriMesh &mesh, const TriMesh::FaceHandle fh) {
+		std::array<TriMesh::HalfedgeHandle, 3> halfedges;
+		std::copy(mesh.cfh_ccwbegin(fh), mesh.cfh_ccwend(fh), halfedges.begin());
+		return halfedges;
+	}
+
+	/**
+	 * Get the halfedges of a face.
+	 * @param mesh The mesh.
+	 * @param fh The face.
+	 * @returns The halfedges of the vertices of the given face.
+	 */
+	std::vector<PolyMesh::HalfedgeHandle> face_halfedges(const PolyMesh &mesh, const PolyMesh::FaceHandle fh) {
+		std::vector<TriMesh::HalfedgeHandle> halfedges;
+		std::copy(mesh.cfh_ccwbegin(fh), mesh.cfh_ccwend(fh), halfedges.begin());
+		return halfedges;
+	}
+
+	/**
 	 * Find the halfedge from vh1 to vh2.
 	 *
 	 * @param mesh The mesh in which to search for the halfedge.

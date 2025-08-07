@@ -29,6 +29,9 @@ namespace MishMesh {
 	std::array<OpenMesh::Vec3d, 3> face_points(const TriMesh &mesh, const TriMesh::FaceHandle fh);
 	std::vector<OpenMesh::Vec3d> face_points(const PolyMesh &mesh, const PolyMesh::FaceHandle fh);
 
+	std::array<TriMesh::HalfedgeHandle, 3> face_halfedges(const TriMesh &mesh, const TriMesh::FaceHandle fh);
+	std::vector<PolyMesh::HalfedgeHandle> face_halfedges(const PolyMesh &mesh, const PolyMesh::FaceHandle fh);
+
 	template<typename MeshT>
 	OpenMesh::SmartHalfedgeHandle find_halfedge(const MeshT &mesh, const typename MeshT::VertexHandle vh1, const typename MeshT::VertexHandle &vh2);
 	template<typename MeshT>
