@@ -176,6 +176,15 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		MishMesh)
 	set_target_properties(uvsphere PROPERTIES FOLDER programs)
 
+	add_executable(offset_mesh
+		src/programs/offset_mesh.cpp
+		thirdparty/ProgramOptions.hxx
+	)
+	target_link_libraries(offset_mesh
+		MishMesh)
+	set_target_properties(offset_mesh PROPERTIES FOLDER programs)
+
+	# Only built if Eigen3 was found
 	if(${EIGEN3_FOUND})
 		# Diffusion (laplace operator) example program
 		add_executable(diffusion
@@ -186,7 +195,6 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		set_target_properties(diffusion PROPERTIES FOLDER programs)
 		target_compile_definitions(diffusion PRIVATE HAS_EIGEN)
 
-		# Compile definitions for geodesic_distances with heat geodesics
 		target_compile_definitions(geodesic_distances PRIVATE HAS_EIGEN)
 
 		# Cone Singularities example programs
@@ -233,7 +241,7 @@ if(MISHMESH_INSTALL_TARGETS)
 	install(TARGETS MishMesh libacc EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 	if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
-		install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+		install(TARGETS split_connected_components mesh_smoother grid geodesic_distances offset_mesh RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 	endif(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 
 	install(EXPORT MishMesh-targets FILE MishMeshTargets.cmake DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
