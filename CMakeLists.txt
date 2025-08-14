@@ -1,14 +1,16 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.30.0)
 project(MishMesh)
 set(PROJECT_VERSION 0.1.3)
 
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(CMAKE_DEBUG_POSTFIX "-debug")
 set(CMAKE_RELEASE_POSTFIX "-release")
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
+set(CMAKE_CXX_STANDARD 17)
 
 option(MISHMESH_BUILD_EXAMPLE_PROGRAMS "Build MishMesh example programs" ON)
 # When you include MishMesh as subdirectory you can prevent it from being
@@ -17,7 +19,6 @@ option(MISHMESH_INSTALL_TARGETS "Create install targets for MishMesh." ON)
 
 # Version 8.1 is required, but OpenMesh does not provide a package version file
 find_package(OpenMesh REQUIRED)
-
 find_package(Eigen3 3.4.0 QUIET)
 
 find_package(OpenMP)
@@ -26,6 +27,8 @@ if (OPENMP_FOUND)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 	set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
+
+add_subdirectory(libs/libacc)
 
 add_library(MishMesh
 	include/MishMesh/OpenMesh/DoublePrecisionTraits.h
@@ -79,6 +82,7 @@ endif()
 
 target_link_libraries(MishMesh PUBLIC
 	OpenMeshCore
+	libacc
 )
 target_include_directories(MishMesh PUBLIC
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -226,7 +230,7 @@ endif(DOXYGEN_FOUND)
 if(MISHMESH_INSTALL_TARGETS)
 	configure_package_config_file(MishMeshConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfig.cmake INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/MishMesh/cmake)
 	write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/MishMeshConfigVersion.cmake COMPATIBILITY SameMajorVersion)
-	install(TARGETS MishMesh EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	install(TARGETS MishMesh libacc EXPORT MishMesh-targets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 	if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		install(TARGETS split_connected_components mesh_smoother grid geodesic_distances RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
