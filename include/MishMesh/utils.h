@@ -114,6 +114,17 @@ namespace MishMesh {
 		return mesh.n_vertices() - mesh.n_edges() + mesh.n_faces();
 	}
 
+	/**
+	* Check if a mesh is watertight by checking if it has boundary edges.
+	*
+	* @param mesh The input mesh to check.
+	* @returns true if the mesh is watertight, false otherwise.
+	*/
+	template<typename MeshT>
+	bool is_watertight(const MeshT &mesh) {
+		return mesh.halfedges().all_of([&mesh](const auto &heh) { return !mesh.is_boundary(heh); });
+	}
+
 #ifdef HAS_EIGEN
 	template<typename VertexMatrixT = Eigen::MatrixX3d, typename FaceMatrixT = Eigen::MatrixX3i>
 	std::pair<VertexMatrixT, FaceMatrixT> convert_to_face_vertex_mesh(const MishMesh::TriMesh &mesh);
