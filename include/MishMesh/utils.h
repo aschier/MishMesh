@@ -2,7 +2,6 @@
 #include <MishMesh/TriMesh.h>
 #include <MishMesh/PolyMesh.h>
 #include <array>
-#include <limits>
 
 #ifdef HAS_EIGEN
 #include <Eigen/Eigen>
