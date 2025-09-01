@@ -19,7 +19,14 @@ option(MISHMESH_INSTALL_TARGETS "Create install targets for MishMesh." ON)
 
 # Version 8.1 is required, but OpenMesh does not provide a package version file
 find_package(OpenMesh REQUIRED)
+
 find_package(Eigen3 3.4.0 QUIET)
+if(${EIGEN3_FOUND})
+	set(WITH_EIGEN ON CACHE BOOL "Enable functions that require Eigen3")
+else()
+	set(WITH_EIGEN OFF CACHE BOOL "Enable functions that require Eigen3" FORCE)
+	message("Eigen3 was not found. Disabling WITH_EIGEN.")
+endif()
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -90,7 +97,7 @@ target_include_directories(MishMesh PUBLIC
 )
 set_target_properties(MishMesh PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-if(${EIGEN3_FOUND})
+if(${WITH_EIGEN})
 	target_sources(MishMesh PRIVATE
 		src/laplace.cpp
 		src/heatGeodesics.cpp
@@ -104,7 +111,7 @@ if(${EIGEN3_FOUND})
 	target_compile_definitions(MishMesh PUBLIC HAS_EIGEN)
 	target_link_libraries(MishMesh PUBLIC Eigen3::Eigen)
 else()
-	message("Eigen3 was not found. Functions that need Eigen will not be available.")
+	message("Eigen3 was not found or disabled. Functions that need Eigen will not be available.")
 endif()
 
 if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
@@ -185,7 +192,7 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 	set_target_properties(offset_mesh PROPERTIES FOLDER programs)
 
 	# Only built if Eigen3 was found
-	if(${EIGEN3_FOUND})
+	if(${WITH_EIGEN})
 		# Diffusion (laplace operator) example program
 		add_executable(diffusion
 			src/programs/diffusion.cpp
@@ -215,7 +222,7 @@ if(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 		if(MISHMESH_INSTALL_TARGETS)
 			install(TARGETS diffusion cone_singularities cone_cuts RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 		endif(MISHMESH_INSTALL_TARGETS)
-	endif(${EIGEN3_FOUND})
+	endif(${WITH_EIGEN})
 endif(MISHMESH_BUILD_EXAMPLE_PROGRAMS)
 
 # doxygen
