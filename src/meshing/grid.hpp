@@ -89,7 +89,7 @@ namespace MishMesh {
 				 * @returns The index of the grid point.
 				 */
 			inline int point_idx(int i, int j, int k) const override {
-				return i + resolution(0) * j + resolution(1) * resolution(2) * k;
+				return i + resolution(0) * j + resolution(0) * resolution(1) * k;
 			}
 			inline OpenMesh::Vec3d point(OpenMesh::Vec3i idxs) const override {
 				return point(idxs[0], idxs[1], idxs[2]);

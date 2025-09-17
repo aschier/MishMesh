@@ -277,12 +277,10 @@ namespace MishMesh {
 			/**
 			 * For each vertex, collect the intersection points of adjacent edges and the normals at these points in vertex properties,
 			 * so they can be used later on for calculating vertex positions.
-<<<<<<< HEAD
 			 * @param mesh The mesh.
 			 * @param meshProperties A struct with the handles of the needed mesh properties.
 			 * @param grid The grid.
 			 * @param halfedges a list storing the halfedges.
->>>>>>> af85d32... Added a dual contouring implementation
 			 */
 			template<typename GridT>
 			void collect_intersection_points_and_normals(MishMesh::PolyMesh &mesh, const MeshProperties &meshProperties, const GridT &grid, const std::list<HalfEdge> &halfedges) {
