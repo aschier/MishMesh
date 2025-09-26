@@ -67,10 +67,14 @@ namespace MishMesh {
 		mesh.set_texcoord2D(edge_heh1.opp(), edge_from_uv);
 		mesh.set_texcoord2D(edge_heh2, edge_to_uv);
 		mesh.set_texcoord2D(edge_heh2.opp(), interpolated_uv_opp);
-		mesh.set_texcoord2D(triangulation_heh1, interpolated_uv);
-		mesh.set_texcoord2D(triangulation_heh1.opp(), path_from_uv);
-		mesh.set_texcoord2D(triangulation_heh2, path_to_uv);
-		mesh.set_texcoord2D(triangulation_heh2.opp(), interpolated_uv_opp);
+		if(!edge_heh2.is_boundary()) {
+			mesh.set_texcoord2D(triangulation_heh1, interpolated_uv);
+			mesh.set_texcoord2D(triangulation_heh1.opp(), path_from_uv);
+		}
+		if(!edge_heh2.opp().is_boundary()) {
+			mesh.set_texcoord2D(triangulation_heh2, path_to_uv);
+			mesh.set_texcoord2D(triangulation_heh2.opp(), interpolated_uv_opp);
+		}
 		return {edge_heh1, edge_heh2};
 	}
 

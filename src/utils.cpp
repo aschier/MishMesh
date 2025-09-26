@@ -203,7 +203,7 @@ namespace MishMesh {
 		// The edge heh0 is split into: new_edge.h1 -> vh -> heh0
 		// TriMesh::split_edge also adds two edges that re-triangulate the adjacent faces.
 		// We find the new edge by circulating around the vertex and skipping the re-triangulation edge.
-		auto new_heh = heh0.prev().opp().prev();
+		auto new_heh = heh0.is_boundary() ? heh0.prev() : heh0.prev().opp().prev();
 		if(heh == heh0) {
 			return {new_heh, heh};
 		} else {
